@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinic Chek · Teleconsulta</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/public/css/teleconsultation.css" />
+</head>
+<body class="tc-body">
+
+  <div class="tc-topbar">
+    <a href="/medico/agenda" class="tc-brand" style="text-decoration:none;color:inherit;">
+      <div class="tc-brand-dot">
+        <svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Zm0 7L2 14l10 5 10-5-10-5Z"/></svg>
+      </div>
+      <div class="tc-brand-text">
+        <h2>Clinic Chek</h2>
+        <p>Teleconsulta</p>
+      </div>
+    </a>
+    <span id="tcStatus" class="tc-badge">Carregando…</span>
+  </div>
+
+  <div class="tc-wrap tc-wrap-wide">
+    <div id="tcAlert" class="tc-alert" style="display:none;"></div>
+
+    <!-- Barra fixa: fica visível mesmo depois que o vídeo do médico já montou,
+         para nunca tampar o botão de aceitar o paciente. -->
+    <div id="tcWaitingBanner" class="tc-panel" style="display:none;">
+      <div class="tc-panel-body" style="display:flex;align-items:center;gap:12px;background:#fff8e1;flex-wrap:wrap;">
+        <span style="font-size:13px;color:#8a6100;">🟡 O paciente está na sala de espera.</span>
+        <button id="tcStartBtn" class="tc-btn tc-btn-primary" style="margin-left:auto;">Iniciar atendimento</button>
+      </div>
+    </div>
+
+    <div id="tcStartPanel" class="tc-panel">
+      <div class="tc-panel-header"><h3>Teleconsulta</h3></div>
+      <div class="tc-panel-body">
+        <button id="tcEnableBtn" class="tc-btn tc-btn-primary" style="display:none;">Habilitar teleconsulta e gerar link do paciente</button>
+
+        <div id="tcPatientLinkBox" style="display:none;margin-top:16px;">
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Link do paciente (pessoal e intransferível)</label>
+          <input id="tcPatientLinkInput" type="text" readonly style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;" onclick="this.select()" />
+          <button id="tcResendBtn" class="tc-btn tc-btn-ghost" style="margin-top:10px;">Reenviar link por e-mail</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tcVideoShell" class="tc-panel" style="display:none;">
+      <div class="tc-video-shell">
+        <div id="tcVideoHost" class="tc-video-frame-host"></div>
+      </div>
+      <div class="tc-controls-bar">
+        <button id="tcEndBtn" class="tc-btn tc-btn-danger">Encerrar teleconsulta</button>
+      </div>
+    </div>
+
+    <p class="tc-footnote">Esta chamada não é gravada. O paciente já confirmou o Termo de Consentimento para Teleconsulta antes de entrar.</p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    window.__TC_CONSULTATION_ID__ = <%- JSON.stringify(consultationId) %>;
+  </script>
+  <script src="/public/js/teleconsultation-doctor.js"></script>
+</body>
+</html>

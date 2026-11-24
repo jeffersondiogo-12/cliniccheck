@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfólio · Clinic Chek</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --pf-primary: #0f4c81;
+      --pf-accent: #10b981;
+      --pf-font: 'Inter', sans-serif;
+      --pf-text: #1f2937;
+      --pf-text-muted: #6b7280;
+      --pf-bg: #ffffff;
+      --pf-bg-alt: #f8fafc;
+      --pf-border: #e5e7eb;
+      --pf-radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--pf-font); color: var(--pf-text); background: var(--pf-bg); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    .container { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── ESTADOS ── */
+    #loadingState, #notFoundState { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 14px; }
+    #loadingState i { font-size: 32px; color: var(--pf-primary); }
+    #notFoundState i { font-size: 44px; color: var(--pf-text-muted); }
+    #notFoundState h1 { font-size: 20px; margin: 0; }
+    #notFoundState p { color: var(--pf-text-muted); margin: 0; max-width: 360px; }
+
+    /* ── NAV ── */
+    #publicNav { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--pf-border); background: rgba(255,255,255,.9); backdrop-filter: blur(8px); z-index: 50; }
+    #publicNav.nav-fixa { position: sticky; top: 0; }
+    #publicNav .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
+    #publicNav .nav-brand img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+    .btn-whatsapp { display: inline-flex; align-items: center; gap: 8px; background: #25D366; color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 13.5px; text-decoration: none; border: none; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 14px rgba(37,211,102,.35); }
+    .btn-whatsapp:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37,211,102,.45); }
+
+    /* ── HERO ── */
+    #heroSection { position: relative; padding: 64px 24px 56px; text-align: center; background: linear-gradient(180deg, var(--pf-bg-alt), var(--pf-bg)); }
+    #heroSection.has-cover { padding-top: 0; }
+    #heroCoverImg { width: 100%; max-height: 320px; object-fit: cover; }
+    .hero-avatar { width: 128px; height: 128px; border-radius: 50%; object-fit: cover; border: 4px solid var(--pf-bg); box-shadow: 0 8px 24px rgba(0,0,0,.12); margin: -64px auto 18px; background: var(--pf-bg-alt); }
+    #heroSection:not(.has-cover) .hero-avatar { margin-top: 0; }
+    .hero-name { font-size: 30px; font-weight: 800; margin: 0 0 4px; letter-spacing: -.02em; }
+    .hero-specialty { color: var(--pf-primary); font-weight: 600; font-size: 14.5px; margin: 0 0 10px; }
+    .hero-headline { color: var(--pf-text-muted); font-size: 16px; max-width: 480px; margin: 0 auto 24px; }
+    .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-secondary-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--pf-bg); color: var(--pf-primary); border: 1.5px solid var(--pf-primary); padding: 9px 18px; border-radius: 999px; font-weight: 600; font-size: 13.5px; text-decoration: none; cursor: pointer; }
+
+    /* ── SEÇÕES DE TEXTO ── */
+    .pf-section { padding: 52px 0; border-bottom: 1px solid var(--pf-border); }
+    .pf-section:last-of-type { border-bottom: none; }
+    .pf-section-inner { display: flex; gap: 40px; align-items: center; }
+    .pf-section-inner.img-left { flex-direction: row-reverse; }
+    .pf-section-inner.img-top { flex-direction: column; align-items: flex-start; }
+    .pf-section-inner.img-none { display: block; }
+    .pf-section-text { flex: 1; min-width: 0; }
+    .pf-section-text h2 { font-size: 24px; font-weight: 800; margin: 0 0 14px; letter-spacing: -.01em; }
+    .pf-section-text p { color: var(--pf-text-muted); white-space: pre-wrap; margin: 0; font-size: 15.5px; }
+    .pf-section-img { flex: 0 0 38%; border-radius: var(--pf-radius); overflow: hidden; }
+    .pf-section-img img { width: 100%; height: 260px; object-fit: cover; }
+    .pf-section-inner.img-top .pf-section-img { flex-basis: auto; width: 100%; margin-bottom: 20px; }
+    .pf-section-inner.img-top .pf-section-img img { height: 300px; }
+    .pf-section-full .pf-section-img { width: 100%; margin-top: 20px; border-radius: var(--pf-radius); overflow: hidden; }
+    .pf-section-full .pf-section-img img { height: 340px; width: 100%; object-fit: cover; }
+
+    /* ── DEPOIMENTOS ── */
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 20px; }
+    .testimonial-card { background: var(--pf-bg-alt); border-radius: var(--pf-radius); padding: 22px; position: relative; }
+    .testimonial-card i.fa-quote-left { color: var(--pf-accent); font-size: 18px; opacity: .5; margin-bottom: 10px; }
+    .testimonial-card p { margin: 0 0 12px; font-size: 14.5px; color: var(--pf-text); font-style: italic; }
+    .testimonial-card .t-name { font-weight: 700; font-size: 13px; color: var(--pf-primary); }
+
+    /* ── GALERIA ── */
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 20px; }
+    .gallery-grid figure { margin: 0; border-radius: 12px; overflow: hidden; background: var(--pf-bg-alt); }
+    .gallery-grid img { width: 100%; height: 180px; object-fit: cover; transition: transform .25s; }
+    .gallery-grid figure:hover img { transform: scale(1.04); }
+    .gallery-grid figcaption { padding: 8px 10px; font-size: 12px; color: var(--pf-text-muted); }
+
+    /* ── AGENDA / DISPONIBILIDADE ── */
+    #agendaSection h2 { text-align: center; }
+    #agendaSection > p.section-sub { text-align: center; color: var(--pf-text-muted); margin: -6px 0 24px; }
+    .agenda-days-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 18px; }
+    .agenda-day-tab { flex: 0 0 auto; padding: 10px 16px; border-radius: 12px; background: var(--pf-bg-alt); border: 1.5px solid transparent; cursor: pointer; font-size: 12.5px; font-weight: 600; text-align: center; text-transform: capitalize; white-space: nowrap; }
+    .agenda-day-tab.active { background: var(--pf-primary); color: #fff; }
+    .agenda-slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+    .agenda-slot-btn { padding: 11px 8px; border-radius: 10px; border: 1.5px solid var(--pf-border); background: var(--pf-bg); cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--pf-primary); transition: all .15s; }
+    .agenda-slot-btn:hover { background: var(--pf-primary); color: #fff; border-color: var(--pf-primary); }
+    .agenda-empty { text-align: center; color: var(--pf-text-muted); font-size: 14px; padding: 20px; }
+
+    /* ── FOOTER / FAB ── */
+    footer { text-align: center; padding: 32px 24px 90px; color: var(--pf-text-muted); font-size: 12px; }
+    #whatsappFab { position: fixed; bottom: 22px; right: 22px; width: 58px; height: 58px; border-radius: 50%; background: #25D366; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 6px 20px rgba(37,211,102,.5); z-index: 60; animation: pf-pulse 2.4s infinite; }
+    @keyframes pf-pulse { 0%,100% { box-shadow: 0 6px 20px rgba(37,211,102,.5); } 50% { box-shadow: 0 6px 26px rgba(37,211,102,.8); } }
+
+    /* ── LAYOUT: MODERNO ── */
+    body.layout-moderno .pf-section { border-bottom: none; }
+    body.layout-moderno .pf-section:nth-of-type(even) { background: var(--pf-bg-alt); }
+    body.layout-moderno .pf-section-img img,
+    body.layout-moderno .pf-section-full .pf-section-img img { border-radius: 24px; }
+    body.layout-moderno .hero-avatar { border-radius: 28px; }
+    body.layout-moderno .testimonial-card { box-shadow: 0 4px 18px rgba(0,0,0,.05); }
+
+    /* ── LAYOUT: MINIMALISTA ── */
+    body.layout-minimalista .pf-section-img { display: none; }
+    body.layout-minimalista .pf-section-inner { display: block; }
+    body.layout-minimalista .pf-section-full .pf-section-img { display: none; }
+    body.layout-minimalista .hero-avatar { box-shadow: none; border-width: 2px; }
+    body.layout-minimalista .testimonial-card { background: transparent; border: 1px solid var(--pf-border); }
+    body.layout-minimalista .gallery-grid figure:hover img { transform: none; }
+
+    @media (max-width: 720px) {
+      .pf-section-inner, .pf-section-inner.img-left { flex-direction: column; }
+      .pf-section-img { flex-basis: auto !important; width: 100%; }
+      .pf-section-img img { height: 220px; }
+      .hero-name { font-size: 24px; }
+      #publicNav .nav-brand span.brand-name { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingState">
+    <i class="fas fa-circle-notch fa-spin"></i>
+    <div>Carregando portfólio...</div>
+  </div>
+
+  <div id="notFoundState" style="display:none;">
+    <i class="fas fa-map-signs"></i>
+    <h1>Portfólio não encontrado</h1>
+    <p>Esse endereço não existe ou o profissional ainda não publicou o portfólio.</p>
+  </div>
+
+  <div id="pageContent" style="display:none;">
+    <nav id="publicNav">
+      <div class="nav-brand">
+        <img id="navLogo" style="display:none;" alt="">
+        <span class="brand-name" id="navName"></span>
+      </div>
+      <a id="navWhatsappBtn" class="btn-whatsapp" target="_blank" rel="noopener">
+        <i class="fab fa-whatsapp"></i> <span>Chamar no WhatsApp</span>
+      </a>
+    </nav>
+
+    <header id="heroSection">
+      <img id="heroCoverImg" style="display:none;" alt="">
+      <img id="heroAvatar" class="hero-avatar" style="display:none;" alt="">
+      <h1 class="hero-name" id="heroName"></h1>
+      <div class="hero-specialty" id="heroSpecialty" style="display:none;"></div>
+      <div class="hero-headline" id="heroHeadline" style="display:none;"></div>
+      <div class="hero-ctas">
+        <a id="heroWhatsappBtn" class="btn-whatsapp" target="_blank" rel="noopener">
+          <i class="fab fa-whatsapp"></i> <span>Chamar no WhatsApp</span>
+        </a>
+        <a href="#agendaSection" id="heroAgendaBtn" class="btn-secondary-cta" style="display:none;">
+          <i class="fas fa-calendar-check"></i> Ver horários
+        </a>
+      </div>
+    </header>
+
+    <main id="sectionsContainer" class="container"></main>
+
+    <section id="gallerySection" class="container pf-section" style="display:none;">
+      <h2 style="text-align:center;">Galeria</h2>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </section>
+
+    <section id="agendaSection" class="container pf-section" style="display:none;">
+      <h2>Horários disponíveis</h2>
+      <p class="section-sub">Escolha um dia e horário — você vai confirmar diretamente pelo WhatsApp.</p>
+      <div id="agendaLoading" style="text-align:center;color:var(--pf-text-muted);font-size:13.5px;"><i class="fas fa-circle-notch fa-spin"></i> Carregando horários...</div>
+      <div id="agendaSelectedSlot" style="margin: 10px 0 16px; padding: 10px 12px; border: 1px solid var(--pf-border); border-radius: 12px; background: var(--pf-bg-alt); color: var(--pf-text-muted); font-size: 13.5px; display: none;">Nenhum horário selecionado.</div>
+      <div id="agendaBookingForm" style="display:none; margin: -6px 0 16px; padding: 14px; border: 1px solid var(--pf-border); border-radius: 12px;">
+        <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Pra reservar esse horário, precisamos do seu nome e WhatsApp</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input type="text" id="bookingPatientName" placeholder="Seu nome" autocomplete="name" required style="flex:1 1 180px; min-width:0; padding:9px 12px; border:1.5px solid var(--pf-border); border-radius:10px; font-size:13.5px; font-family:var(--pf-font);">
+          <input type="tel" id="bookingPatientPhone" placeholder="WhatsApp com DDD" autocomplete="tel" required style="flex:1 1 160px; min-width:0; padding:9px 12px; border:1.5px solid var(--pf-border); border-radius:10px; font-size:13.5px; font-family:var(--pf-font);">
+        </div>
+        <p style="font-size:12px; color:var(--pf-text-muted); margin:8px 0 0;">Nome e WhatsApp são obrigatórios pra reservar. Assim que preencher os dois, é só continuar pro WhatsApp.</p>
+      </div>
+      <div id="bookingStatusMsg" style="display:none; margin: -6px 0 16px; font-size:12.5px; padding:9px 12px; border-radius:10px;"></div>
+      <div id="agendaDaysTabs" class="agenda-days-tabs" style="display:none;"></div>
+      <div id="agendaSlotsGrid" class="agenda-slots-grid"></div>
+    </section>
+
+    <footer>
+      Portfólio profissional feito com Clinic Chek
+    </footer>
+
+    <a id="whatsappFab" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+  </div>
+
+  <script>
+    const SLUG = <%- JSON.stringify(slug) %>;
+
+    const FONT_MAP = {
+      inter: "'Inter', sans-serif",
+      poppins: "'Poppins', sans-serif",
+      playfair: "'Playfair Display', serif",
+      merriweather: "'Merriweather', serif",
+      montserrat: "'Montserrat', sans-serif",
+    };
+
+    function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function buildWhatsappLink(number, message){
+      const digits = String(number || '').replace(/\D/g, '');
+      if (!digits) return null;
+      const text = encodeURIComponent(message || 'Olá! Vim pelo seu portfólio.');
+      return `https://wa.me/${digits}?text=${text}`;
+    }
+
+    function renderSection(s){
+      if (s.type === 'TESTIMONIALS') {
+        let items = [];
+        try { items = JSON.parse(s.content || '[]'); } catch (e) { items = []; }
+        if (items.length === 0) return '';
+        return `
+          <div class="pf-section">
+            ${s.title ? `<h2 style="text-align:center;">${esc(s.title)}</h2>` : ''}
+            <div class="testimonials-grid">
+              ${items.map((it) => `
+                <div class="testimonial-card">
+                  <i class="fas fa-quote-left"></i>
+                  <p>${esc(it.text)}</p>
+                  <div class="t-name">${esc(it.name)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>`;
+      }
+
+      const pos = s.image_position || 'right';
+      const hasImage = s.image_url && pos !== 'none';
+      const imgHtml = hasImage ? `<div class="pf-section-img"><img src="${s.image_url}" alt=""></div>` : '';
+      const textHtml = `<div class="pf-section-text">${s.title ? `<h2>${esc(s.title)}</h2>` : ''}<p>${esc(s.content || '')}</p></div>`;
+
+      if (pos === 'full') {
+        return `<div class="pf-section pf-section-full"><div class="pf-section-inner img-none">${textHtml}</div>${imgHtml}</div>`;
+      }
+      return `<div class="pf-section"><div class="pf-section-inner ${hasImage ? 'img-' + pos : 'img-none'}">${textHtml}${imgHtml}</div></div>`;
+    }
+
+    async function loadPortfolio(){
+      try {
+        const res = await fetch(`/api/public/portfolio/${encodeURIComponent(SLUG)}`);
+        if (!res.ok) { showNotFound(); return; }
+        const data = await res.json();
+        renderPage(data);
+      } catch (e) {
+        showNotFound();
+      }
+    }
+
+    function showNotFound(){
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('notFoundState').style.display = 'flex';
+    }
+
+    let currentWhatsappNumber = null;
+    let currentWhatsappTemplate = '';
+    let selectedSlotState = {
+      date: null,
+      time: null,
+    };
+
+    function getSelectedSlotLabel(){
+      if (!selectedSlotState.date || !selectedSlotState.time) return '';
+      const dateLabel = new Date(selectedSlotState.date + 'T12:00:00-03:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
+      return `${dateLabel} às ${selectedSlotState.time}`;
+    }
+
+    function buildSlotMessage(date, time){
+      const dateLabel = new Date(date + 'T12:00:00-03:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
+      return `Olá! Gostaria de agendar uma consulta para ${dateLabel} às ${time}. Pode confirmar esse horário pra mim?`;
+    }
+
+    function updateWhatsAppLinks(){
+      const selected = getSelectedSlotLabel();
+      const baseMessage = selected ? buildSlotMessage(selectedSlotState.date, selectedSlotState.time) : (currentWhatsappTemplate || 'Olá! Vim pelo seu portfólio e gostaria de agendar uma consulta.');
+      const waLink = buildWhatsappLink(currentWhatsappNumber, baseMessage);
+      const targets = [document.getElementById('navWhatsappBtn'), document.getElementById('heroWhatsappBtn'), document.getElementById('whatsappFab')];
+      targets.forEach((el) => {
+        if (!el) return;
+        if (waLink) {
+          el.href = waLink;
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    function persistSelectedSlot(){
+      if (!selectedSlotState.date || !selectedSlotState.time) {
+        sessionStorage.removeItem('clinicChekSelectedSlot');
+        return;
+      }
+      sessionStorage.setItem('clinicChekSelectedSlot', JSON.stringify(selectedSlotState));
+    }
+
+    function applySelectedSlotState(){
+      const slotStatusEl = document.getElementById('agendaSelectedSlot');
+      const bookingFormEl = document.getElementById('bookingPatientName') ? document.getElementById('agendaBookingForm') : null;
+      const selected = getSelectedSlotLabel();
+      if (slotStatusEl) {
+        slotStatusEl.style.display = 'block';
+        slotStatusEl.textContent = selected ? `Horário selecionado: ${selected}` : 'Nenhum horário selecionado. Escolha um disponível para enviar o WhatsApp.';
+      }
+      if (bookingFormEl) bookingFormEl.style.display = selected ? 'block' : 'none';
+      if (!selected) hideBookingStatus();
+      updateWhatsAppLinks();
+      const slotButton = document.querySelector('.agenda-slot-btn.selected');
+      if (slotButton) slotButton.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      // Trocou de horário com nome/telefone já preenchidos (ex.: escolheu
+      // outro dia depois de já ter digitado os dados)? Reaproveita e já
+      // dispara a checagem pro novo horário.
+      if (selected) scheduleAutoBookingCheck();
+    }
+
+    function renderPage(data){
+      document.title = `${data.doctor.name} · Portfólio`;
+
+      // Tema
+      document.documentElement.style.setProperty('--pf-primary', data.theme.primaryColor || '#0f4c81');
+      document.documentElement.style.setProperty('--pf-accent', data.theme.accentColor || '#10b981');
+      document.documentElement.style.setProperty('--pf-font', FONT_MAP[data.theme.font] || FONT_MAP.inter);
+      document.body.classList.add('layout-' + (data.theme.layout || 'classico'));
+      document.getElementById('publicNav').classList.add(data.theme.navStyle === 'simples' ? 'nav-simples' : 'nav-fixa');
+
+      currentWhatsappNumber = data.whatsappNumber;
+      currentWhatsappTemplate = data.whatsappMessageTemplate || 'Olá! Vim pelo seu portfólio e gostaria de agendar uma consulta.';
+      updateWhatsAppLinks();
+
+      // Nav
+      document.getElementById('navName').textContent = data.doctor.name;
+      if (data.logoUrl) { document.getElementById('navLogo').src = data.logoUrl; document.getElementById('navLogo').style.display = 'block'; }
+
+      // Hero
+      if (data.coverPhotoUrl) {
+        document.getElementById('heroCoverImg').src = data.coverPhotoUrl;
+        document.getElementById('heroCoverImg').style.display = 'block';
+        document.getElementById('heroSection').classList.add('has-cover');
+      }
+      if (data.doctor.photoUrl) { document.getElementById('heroAvatar').src = data.doctor.photoUrl; document.getElementById('heroAvatar').style.display = 'block'; }
+      document.getElementById('heroName').textContent = data.doctor.name;
+      if (data.doctor.specialty) { document.getElementById('heroSpecialty').textContent = data.doctor.specialty; document.getElementById('heroSpecialty').style.display = 'block'; }
+      if (data.headline) { document.getElementById('heroHeadline').textContent = data.headline; document.getElementById('heroHeadline').style.display = 'block'; }
+      if (data.showAgenda) document.getElementById('heroAgendaBtn').style.display = 'inline-flex';
+
+      // Seções
+      document.getElementById('sectionsContainer').innerHTML = (data.sections || []).map(renderSection).join('');
+
+      // Galeria
+      if (data.photos && data.photos.length > 0) {
+        document.getElementById('gallerySection').style.display = 'block';
+        document.getElementById('galleryGrid').innerHTML = data.photos.map((p) => `
+          <figure>
+            <img src="${p.url}" alt="${esc(p.caption || '')}">
+            ${p.caption ? `<figcaption>${esc(p.caption)}</figcaption>` : ''}
+          </figure>
+        `).join('');
+      }
+
+      // Agenda
+      if (data.showAgenda) {
+        const cachedSelection = sessionStorage.getItem('clinicChekSelectedSlot');
+        if (cachedSelection) {
+          try {
+            const parsed = JSON.parse(cachedSelection);
+            if (parsed && parsed.date && parsed.time) selectedSlotState = parsed;
+          } catch (_) {}
+        }
+        document.getElementById('agendaSection').style.display = 'block';
+        loadAvailability();
+      }
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('pageContent').style.display = 'block';
+    }
+
+    async function loadAvailability(){
+      const loadingEl = document.getElementById('agendaLoading');
+      const tabsEl = document.getElementById('agendaDaysTabs');
+      const slotsEl = document.getElementById('agendaSlotsGrid');
+      try {
+        const res = await fetch(`/api/public/portfolio/${encodeURIComponent(SLUG)}/availability`);
+        const data = await res.json();
+        loadingEl.style.display = 'none';
+        const days = data.days || [];
+        if (days.length === 0) {
+          slotsEl.innerHTML = '<div class="agenda-empty">Nenhum horário disponível no momento — chame no WhatsApp pra combinar direto.</div>';
+          return;
+        }
+        tabsEl.style.display = 'flex';
+        tabsEl.innerHTML = days.map((d, i) => `<div class="agenda-day-tab ${i === 0 ? 'active' : ''}" data-idx="${i}">${d.dayLabel}</div>`).join('');
+
+        function renderSlotsFor(idx){
+          const day = days[idx];
+          const persistSelection = (date, time) => {
+            selectedSlotState = { date, time };
+            persistSelectedSlot();
+            applySelectedSlotState();
+          };
+
+          slotsEl.innerHTML = day.slots.map((slot) => {
+            const isSelected = selectedSlotState.date === day.date && selectedSlotState.time === slot;
+            return `<button type="button" class="agenda-slot-btn ${isSelected ? 'selected' : ''}" data-date="${day.date}" data-slot="${slot}">${slot}</button>`;
+          }).join('');
+
+          slotsEl.querySelectorAll('.agenda-slot-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const date = btn.dataset.date;
+              const time = btn.dataset.slot;
+              const isSameSelection = selectedSlotState.date === date && selectedSlotState.time === time;
+              if (isSameSelection) {
+                selectedSlotState = { date: null, time: null };
+                persistSelectedSlot();
+                applySelectedSlotState();
+                renderSlotsFor(parseInt(tabsEl.querySelector('.agenda-day-tab.active')?.dataset.idx || '0', 10));
+                return;
+              }
+
+              persistSelection(date, time);
+              renderSlotsFor(parseInt(tabsEl.querySelector('.agenda-day-tab.active')?.dataset.idx || '0', 10));
+            });
+          });
+
+          const selected = getSelectedSlotLabel();
+          if (selected && (!day || !day.slots.includes(selectedSlotState.time))) {
+            selectedSlotState = { date: null, time: null };
+            persistSelectedSlot();
+          }
+          applySelectedSlotState();
+        }
+        tabsEl.querySelectorAll('.agenda-day-tab').forEach((tab) => {
+          tab.addEventListener('click', () => {
+            tabsEl.querySelectorAll('.agenda-day-tab').forEach((t) => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderSlotsFor(parseInt(tab.dataset.idx, 10));
+          });
+        });
+        renderSlotsFor(0);
+      } catch (e) {
+        loadingEl.innerHTML = 'Não foi possível carregar os horários agora.';
+      }
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // RESERVA DO HORÁRIO — grava no sistema quando o paciente escolhe
+    // um horário e é encaminhado pro WhatsApp automaticamente assim que
+    // termina de preencher nome e WhatsApp — não precisa clicar em nada.
+    // ────────────────────────────────────────────────────────────
+    function hideBookingStatus(){
+      const el = document.getElementById('bookingStatusMsg');
+      if (el) el.style.display = 'none';
+    }
+
+    function showBookingStatus(text, kind){
+      const el = document.getElementById('bookingStatusMsg');
+      if (!el) return;
+      el.textContent = text;
+      el.style.display = 'block';
+      el.style.background = kind === 'ok' ? 'rgba(16,185,129,.14)' : 'rgba(245,158,11,.16)';
+      el.style.color = kind === 'ok' ? '#0a6e4e' : '#8a5a06';
+    }
+
+    function getCurrentWhatsappLink(){
+      const el = document.getElementById('heroWhatsappBtn') || document.getElementById('navWhatsappBtn') || document.getElementById('whatsappFab');
+      if (!el || el.style.display === 'none') return null;
+      const href = el.getAttribute('href') || '';
+      return href.startsWith('https://wa.me/') ? href : null;
+    }
+
+    let lastSubmittedBookingKey = null;
+    let bookingInProgress = false;
+    let bookingAutoTimer = null;
+
+    // Reserva o horário e, assim que a resposta chega, já manda pro
+    // WhatsApp sozinho (sem precisar clicar em "Chamar no WhatsApp").
+    async function reserveAndGoToWhatsapp(patientName, patientPhone){
+      if (bookingInProgress) return;
+      const date = selectedSlotState.date, time = selectedSlotState.time;
+      if (!date || !time) return;
+      const key = `${date}|${time}|${patientName}|${patientPhone}`;
+      if (key === lastSubmittedBookingKey) return; // esse pedido já foi enviado
+
+      bookingInProgress = true;
+      if (bookingAutoTimer) { clearTimeout(bookingAutoTimer); bookingAutoTimer = null; }
+      showBookingStatus('Reservando seu horário...', 'ok');
+
+      let shouldRedirect = true;
+      try {
+        const res = await fetch(`/api/public/portfolio/${encodeURIComponent(SLUG)}/booking-requests`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, time, patientName, patientPhone }),
+        });
+        let data = {};
+        try { data = await res.json(); } catch (_) {}
+
+        if (res.status === 409) {
+          // Horário sumiu enquanto a pessoa digitava — não faz sentido
+          // mandar pro WhatsApp marcar um horário que já foi.
+          shouldRedirect = false;
+          selectedSlotState = { date: null, time: null };
+          persistSelectedSlot();
+          applySelectedSlotState();
+          await loadAvailability();
+          showBookingStatus(data.error || 'Esse horário acabou de ser reservado por outro paciente. Escolha outro horário.', 'warn');
+        } else if (res.status === 400 && data.error) {
+          shouldRedirect = false;
+          showBookingStatus(data.error, 'warn');
+        } else if (res.ok) {
+          lastSubmittedBookingKey = key;
+          showBookingStatus('Horário reservado! Te levando para o WhatsApp...', 'ok');
+        } else {
+          lastSubmittedBookingKey = key;
+          showBookingStatus('Não deu pra reservar no sistema agora, mas vamos te levar pro WhatsApp mesmo assim.', 'warn');
+        }
+      } catch (e) {
+        lastSubmittedBookingKey = key;
+        showBookingStatus('Não deu pra reservar no sistema agora, mas vamos te levar pro WhatsApp mesmo assim.', 'warn');
+      }
+
+      bookingInProgress = false;
+      if (shouldRedirect) {
+        const waLink = getCurrentWhatsappLink();
+        if (waLink) window.location.href = waLink;
+      }
+    }
+
+    function scheduleAutoBookingCheck(){
+      if (bookingAutoTimer) clearTimeout(bookingAutoTimer);
+      bookingAutoTimer = setTimeout(checkAndAutoProceed, 900);
+    }
+
+    // Confere se nome + WhatsApp já estão completos e, se estiverem,
+    // segue sozinho pro WhatsApp — chamado tanto pelo debounce (pausa
+    // ao digitar) quanto ao sair do campo (troca de campo / fecha teclado).
+    function checkAndAutoProceed(){
+      if (bookingAutoTimer) { clearTimeout(bookingAutoTimer); bookingAutoTimer = null; }
+      if (!selectedSlotState.date || !selectedSlotState.time) return;
+      if (bookingInProgress) return;
+      const nameInput = document.getElementById('bookingPatientName');
+      const phoneInput = document.getElementById('bookingPatientPhone');
+      const patientName = (nameInput?.value || '').trim();
+      const patientPhone = (phoneInput?.value || '').trim();
+      const phoneDigits = patientPhone.replace(/\D/g, '');
+      if (patientName.length < 2 || phoneDigits.length < 10) return; // ainda não terminou de preencher
+      reserveAndGoToWhatsapp(patientName, patientPhone);
+    }
+
+    function handleWhatsappClick(event){
+      // Sem horário escolhido: link normal de contato, nada muda.
+      if (!selectedSlotState.date || !selectedSlotState.time) return;
+      event.preventDefault(); // quem manda o redirecionamento agora é o JS
+
+      const nameInput = document.getElementById('bookingPatientName');
+      const phoneInput = document.getElementById('bookingPatientPhone');
+      const patientName = (nameInput?.value || '').trim();
+      const patientPhone = (phoneInput?.value || '').trim();
+      const phoneDigits = patientPhone.replace(/\D/g, '');
+
+      if (patientName.length < 2) {
+        showBookingStatus('Escreve seu nome ali em cima pra gente reservar esse horário 🙂', 'warn');
+        nameInput?.focus();
+        return;
+      }
+      if (phoneDigits.length < 10) {
+        showBookingStatus('Falta o seu WhatsApp com DDD — é obrigatório pra reservar o horário 🙂', 'warn');
+        phoneInput?.focus();
+        return;
+      }
+      reserveAndGoToWhatsapp(patientName, patientPhone);
+    }
+
+    function setupBookingFlow(){
+      ['navWhatsappBtn', 'heroWhatsappBtn', 'whatsappFab'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', handleWhatsappClick);
+      });
+      // Assim que termina de digitar nome e WhatsApp, segue sozinho —
+      // o botão "Chamar no WhatsApp" continua funcionando, mas não é
+      // mais obrigatório clicar nele.
+      ['bookingPatientName', 'bookingPatientPhone'].forEach((id) => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        input.addEventListener('input', scheduleAutoBookingCheck);
+        input.addEventListener('change', checkAndAutoProceed);
+      });
+    }
+
+    setupBookingFlow();
+    loadPortfolio();
+  </script>
+</body>
+</html>

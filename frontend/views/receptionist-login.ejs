@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek - Acesso Atendente</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-top: #f7f3ff;
+      --bg-mid: #eff1ff;
+      --bg-bottom: #f2ecff;
+      --card: #ffffff;
+      --text: #171c3a;
+      --muted: #687593;
+      --field-border: #dce3f7;
+      --field-focus: #5b49d8;
+      --field-icon: #9aa8c4;
+      --primary-a: #4f46e5;
+      --primary-b: #5b21b6;
+      --primary-c: #6d28d9;
+      --doctor: #1f8fc7;
+      --attendant: #5b21b6;
+      --patient: #1fbf74;
+      --danger: #dc2626;
+      --success: #15803d;
+      --shadow-card: 0 24px 70px rgba(27, 20, 68, 0.14);
+      --shadow-logo: 0 14px 24px rgba(91, 73, 216, 0.25);
+      --radius-lg: 30px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Manrope', sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 52%, var(--bg-bottom) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 12px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-shape { position: fixed; pointer-events: none; border-radius: 999px; opacity: 0.38; z-index: 0; animation: floaty 10s ease-in-out infinite; }
+    .bg-shape.a { width: 360px; height: 360px; right: -120px; top: -120px; background: radial-gradient(circle at 35% 35%, #c6beff 0%, #a69bff 45%, #8c7bf0 100%); }
+    .bg-shape.b { width: 340px; height: 340px; left: -120px; bottom: -120px; background: radial-gradient(circle at 45% 45%, #b8d1ff 0%, #a6c4ff 45%, #87aeef 100%); animation-delay: 1.8s; }
+
+    .login-shell {
+      width: min(740px, 100%);
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      animation: rise 0.5s ease-out;
+    }
+
+    .shell-inner { padding: 36px 42px 30px; }
+    .logo-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
+    .logo-badge {
+      width: 88px;
+      height: 88px;
+      border-radius: 24px;
+      background: linear-gradient(142deg, #5b49d8 0%, #5b21b6 58%, #4f46e5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-logo);
+      padding: 14px;
+    }
+    .logo-badge img { width: 100%; height: 100%; object-fit: contain; }
+
+    .title { text-align: center; font-family: 'Sora', sans-serif; font-size: 42px; line-height: 1.08; letter-spacing: -1px; margin-bottom: 8px; color: #161c3a; }
+    .subtitle { text-align: center; color: #687593; font-size: 25px; line-height: 1.28; margin: 0 auto 20px; max-width: 620px; }
+
+    .alert { border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; font-size: 13px; font-weight: 600; display: none; }
+    .alert-err { color: var(--danger); background: #fff1f2; border: 1px solid #fecdd3; }
+    .alert-ok { color: var(--success); background: #f0fdf4; border: 1px solid #bbf7d0; }
+
+    .field { margin-bottom: 12px; }
+    .field label { display: block; margin-bottom: 5px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.7px; color: #1f2d4d; font-weight: 800; }
+    .input-wrap { position: relative; }
+    .input-wrap .icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      color: var(--field-icon);
+      pointer-events: none;
+    }
+    .input-wrap input {
+      width: 100%;
+      height: 52px;
+      border: 1.5px solid var(--field-border);
+      border-radius: var(--radius-md);
+      padding: 0 14px 0 40px;
+      font-size: 20px;
+      color: #202b4a;
+      background: #fff;
+      outline: none;
+      transition: border-color .18s, box-shadow .2s;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+    }
+    .input-wrap input::placeholder { color: #a1afc4; font-weight: 500; }
+    .input-wrap input:focus { border-color: var(--field-focus); box-shadow: 0 0 0 4px rgba(91, 73, 216, 0.14); }
+    .input-wrap select {
+      width: 100%;
+      height: 52px;
+      border: 1.5px solid var(--field-border);
+      border-radius: var(--radius-md);
+      padding: 0 14px 0 40px;
+      font-size: 18px;
+      color: #202b4a;
+      background: #fff;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color .18s, box-shadow .2s;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+    }
+    .input-wrap select:focus { border-color: var(--field-focus); box-shadow: 0 0 0 4px rgba(91, 73, 216, 0.14); }
+    .input-wrap select option { font-size: 16px; }
+    .input-wrap .select-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--field-icon);
+    }
+    .clinic-loading { font-size: 12px; color: var(--muted); margin-top: 4px; min-height: 16px; }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 16px;
+      height: 56px;
+      border: none;
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      cursor: pointer;
+      background: linear-gradient(99deg, var(--primary-a) 0%, var(--primary-b) 55%, var(--primary-c) 100%);
+      box-shadow: 0 14px 28px rgba(75, 49, 178, 0.25);
+      transition: transform .15s, box-shadow .2s, opacity .2s;
+      font-family: 'Sora', sans-serif;
+    }
+    .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 18px 30px rgba(75, 49, 178, 0.32); }
+    .submit-btn:disabled { opacity: .7; cursor: not-allowed; transform: none; }
+    .spin {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: -2px;
+      margin-right: 6px;
+    }
+
+    .divider { margin: 18px 0 12px; position: relative; text-align: center; color: #8092af; font-weight: 700; font-size: 14px; }
+    .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #dbe3f4; }
+    .divider span { position: relative; background: #fff; padding: 0 12px; }
+
+    .access-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1.5px solid #dbe3f4;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      text-decoration: none;
+      color: #223457;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      transition: border-color .18s, background .2s, transform .13s;
+      min-height: 52px;
+    }
+    .access-link:hover { transform: translateY(-1px); background: #f8fbff; }
+    .access-link svg { width: 21px; height: 21px; }
+    .access-link.medico:hover { border-color: rgba(31, 143, 199, .55); }
+    .access-link.medico svg { color: var(--doctor); }
+    .access-link.atendente:hover { border-color: rgba(91, 33, 182, .55); }
+    .access-link.atendente svg { color: var(--attendant); }
+    .access-link.paciente:hover { border-color: rgba(31, 191, 116, .55); }
+    .access-link.paciente svg { color: var(--patient); }
+
+    .footer-note { text-align: center; margin-top: 6px; color: #7b8ca8; font-size: 14px; font-weight: 600; }
+    .footer-note strong { color: #5b49d8; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 760px) {
+      .shell-inner { padding: 24px 18px 22px; }
+      .title { font-size: 28px; }
+      .subtitle { font-size: 16px; }
+      .input-wrap input { height: 48px; font-size: 16px; }
+      .submit-btn { height: 50px; font-size: 22px; }
+      .access-link { font-size: 16px; }
+      .access-link svg { width: 18px; height: 18px; }
+    }
+  </style>
+  <link rel="stylesheet" href="/public/css/global-palette.css">
+</head>
+<body>
+  <div class="bg-shape a"></div>
+  <div class="bg-shape b"></div>
+
+  <div class="login-shell">
+    <div class="shell-inner">
+      <div class="logo-wrap">
+        <div class="logo-badge">
+          <img src="/public/brand/clinic-check-mark.svg" alt="Clinic Check">
+        </div>
+      </div>
+
+      <h1 class="title">Acesso do Atendente</h1>
+      <p class="subtitle">Entre para gerenciar agenda, recepcao e fluxo de atendimento.</p>
+
+      <div class="alert alert-err" id="err"></div>
+      <div class="alert alert-ok" id="ok"></div>
+
+      <form id="form">
+        <div class="field">
+          <label>Clinica</label>
+          <div class="input-wrap">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10z"/></svg>
+            <input type="text" id="clinicName" placeholder="Nome da clinica" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>E-mail</label>
+          <div class="input-wrap">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <input type="email" id="email" placeholder="atendente@clinica.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <div class="input-wrap">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            <input type="password" id="password" placeholder="••••••••" required>
+          </div>
+        </div>
+        <button class="submit-btn" id="submit" type="submit">Entrar</button>
+      </form>
+
+      <div class="divider"><span>ou</span></div>
+      <a href="/medico/login" class="access-link medico">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 8h-1V6a5 5 0 0 0-10 0v2H7a2 2 0 0 0-2 2v8h16v-8a2 2 0 0 0-2-2zM10 6a2 2 0 1 1 4 0v2h-4V6z"/></svg>
+        Sou Medico - Acesso Clinico
+      </a>
+      <a href="/paciente/login" class="access-link paciente">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.42 0-8 2-8 4.5V21h16v-2.5C20 16 16.42 14 12 14z"/></svg>
+        Sou Paciente - Portal Seguro
+      </a>
+
+      <p class="footer-note">Precisa de acesso? <strong>Fale com a administracao</strong></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('err');
+      const ok = document.getElementById('ok');
+      const btn = document.getElementById('submit');
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span>Entrando...';
+
+      try {
+        const res = await fetch('/api/auth/login-receptionist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clinicName: document.getElementById('clinicName').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.token) throw new Error(data.error || 'Falha no login');
+
+        localStorage.removeItem('doctorToken');
+        localStorage.removeItem('doctorData');
+        localStorage.removeItem('receptionToken');
+        localStorage.removeItem('receptionData');
+        localStorage.removeItem('patientToken');
+        localStorage.removeItem('patientData');
+        document.cookie = 'doctorToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        document.cookie = 'receptionToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        document.cookie = 'patientToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        localStorage.setItem('receptionToken', data.token);
+        localStorage.setItem('receptionData', JSON.stringify(data.receptionist));
+        document.cookie = `receptionToken=${encodeURIComponent(data.token)}; path=/; max-age=43200; SameSite=Lax`;
+        ok.textContent = 'Acesso liberado. Redirecionando...';
+        ok.style.display = 'block';
+        setTimeout(() => { window.location.href = '/recepcao'; }, 650);
+      } catch (error) {
+        err.textContent = error.message || 'Erro ao autenticar';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+      }
+    });
+  </script>
+</body>
+</html>

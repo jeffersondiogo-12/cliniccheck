@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Clinic Check favicon">
+  <defs>
+    <linearGradient id="f-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1FC87B"/>
+      <stop offset="55%" stop-color="#1DAED2"/>
+      <stop offset="100%" stop-color="#4053D9"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#f-bg)"/>
+  <path d="M36 16c0-3.9-3.1-7-7-7s-7 3.1-7 7v9H13c-3.9 0-7 3.1-7 7s3.1 7 7 7h9v9c0 3.9 3.1 7 7 7s7-3.1 7-7v-9h9c3.9 0 7-3.1 7-7s-3.1-7-7-7h-9v-9z" fill="#ffffff" fill-opacity="0.22"/>
+  <path d="M20 33l7.3 7.5L45 22.5" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

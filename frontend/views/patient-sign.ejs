@@ -1,0 +1,697 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek - Assinatura de Documento</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent:#2e7d32; --accent-bg:#f1f8e9; --accent-dark:#1b5e20;
+      --primary:#f9a825;
+      --text:#1a202c; --text-md:#4a5568; --muted:#718096;
+      --border:#e2e8f0; --bg:#f0f4f8; --white:#fff;
+      --red:#e53e3e; --green:#2e7d32; --yellow:#f9a825;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); }
+
+    .topbar { background:white; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:58px; }
+    .brand-dot { width:30px; height:30px; background:linear-gradient(135deg,var(--accent),#66bb6a); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .brand-dot svg { width:16px; height:16px; fill:white; }
+    .topbar-brand { display:flex; align-items:center; gap:9px; }
+    .brand-text h2 { font-size:13px; font-weight:700; }
+    .brand-text p { font-size:10px; color:var(--muted); }
+
+    .stepper { background:white; border-bottom:1px solid var(--border); padding:14px 24px; }
+    .steps { display:flex; align-items:center; max-width:480px; margin:0 auto; }
+    .step-wrap { display:flex; flex-direction:column; align-items:center; }
+    .step-circle { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; border:2px solid var(--border); background:white; color:var(--muted); flex-shrink:0; transition:all 0.3s; }
+    .step-circle.done { background:var(--accent); border-color:var(--accent); color:white; }
+    .step-circle.active { border-color:var(--accent); color:var(--accent); }
+    .step-label { font-size:10px; color:var(--muted); margin-top:3px; white-space:nowrap; }
+    .step-label.active { color:var(--accent); font-weight:600; }
+    .step-label.done { color:var(--accent); }
+    .step-line { flex:1; height:2px; background:var(--border); margin:0 8px 12px; transition:background 0.3s; }
+    .step-line.done { background:var(--accent); }
+
+    .page-wrap { max-width:740px; margin:0 auto; padding:26px 20px; }
+
+    .panel { background:white; border-radius:13px; border:1px solid var(--border); overflow:hidden; margin-bottom:18px; }
+    .panel-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:9px; }
+    .panel-header h3 { font-size:13px; font-weight:600; }
+    .panel-header .ico { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .panel-header .ico svg { width:15px; height:15px; fill:white; }
+    .ico-teal { background:var(--accent); }
+    .ico-blue { background:var(--primary); }
+    .ico-yellow { background:var(--yellow); }
+    .panel-body { padding:20px; }
+
+    .progress-area { margin-bottom:18px; }
+    .progress-info { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:5px; }
+    .progress-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),#66bb6a); border-radius:3px; transition:width 0.4s; }
+
+    .doc-pages { display:flex; flex-direction:column; gap:12px; }
+    .doc-page { background:#fafafa; border:1px solid var(--border); border-radius:9px; overflow:hidden; }
+    .doc-page-header { padding:9px 14px; background:var(--accent-bg); display:flex; justify-content:space-between; }
+    .doc-page-header span { font-size:10px; font-weight:600; color:var(--accent-dark); }
+    .doc-page-body { padding:14px; font-size:12px; line-height:1.8; color:var(--text-md); max-height:190px; overflow-y:auto; }
+
+    /* COMPARAÇÃO FACIAL */
+    .face-compare { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+    .face-box { border-radius:10px; overflow:hidden; border:1.5px solid var(--border); }
+    .face-box-header { padding:8px 12px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; }
+    .face-box-header.ref { background:var(--accent-bg); color:var(--accent-dark); }
+    .face-box-header.live { background:#eef4ff; color:var(--primary); }
+    .face-box-body { background:#f8f8f8; min-height:160px; display:flex; align-items:center; justify-content:center; padding:10px; }
+    .face-box-body img, .face-box-body video { width:100%; border-radius:6px; display:block; object-fit:cover; max-height:180px; }
+    .face-box-placeholder { text-align:center; color:var(--muted); font-size:11px; padding:10px; }
+    .face-box-placeholder svg { width:36px; height:36px; fill:var(--border); margin-bottom:6px; display:block; margin:0 auto 6px; }
+    .compare-hint { background:#fffde7; border:1px solid #f9a825; border-radius:8px; padding:10px 14px; font-size:11px; color:#7c5b00; margin-bottom:18px; display:flex; gap:8px; align-items:flex-start; }
+    .compare-hint svg { width:16px; height:16px; fill:#d69e2e; flex-shrink:0; margin-top:1px; }
+
+    .camera-wrap { position:relative; border-radius:10px; overflow:hidden; background:#000; aspect-ratio:4/3; }
+    .camera-wrap video { width:100%; height:100%; object-fit:cover; display:block; }
+    .camera-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+    .face-guide { width:140px; height:175px; border:2px dashed rgba(255,255,255,0.5); border-radius:50%; opacity:0.6; }
+    .camera-controls { display:flex; justify-content:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+
+    .sign-checklist { display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
+    .check-item { display:flex; align-items:flex-start; gap:11px; padding:11px 13px; border:1.5px solid var(--border); border-radius:9px; cursor:pointer; transition:all 0.2s; }
+    .check-item:hover { border-color:var(--accent); background:var(--accent-bg); }
+    .check-item.checked { border-color:var(--accent); background:var(--accent-bg); }
+    .check-item input[type=checkbox] { margin-top:2px; accent-color:var(--accent); width:15px; height:15px; flex-shrink:0; }
+    .check-item label { font-size:12px; color:var(--text-md); cursor:pointer; line-height:1.5; }
+    .sign-name-group { margin-bottom:18px; }
+    .sign-name-group label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px; display:block; }
+    .sign-name-group input { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:9px; font-size:12px; font-family:'Poppins',sans-serif; outline:none; transition:all 0.2s; }
+    .sign-name-group input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,137,123,0.1); }
+
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border:none; border-radius:9px; font-size:12px; font-weight:600; font-family:'Poppins',sans-serif; cursor:pointer; transition:all 0.2s; text-decoration:none; }
+    .btn svg { width:15px; height:15px; fill:currentColor; }
+    .btn-solid { background:var(--accent); color:white; box-shadow:0 2px 10px rgba(0,137,123,0.3); }
+    .btn-solid:hover { opacity:0.9; transform:translateY(-1px); }
+    .btn-solid:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
+    .btn-outline { background:transparent; color:var(--text-md); border:1.5px solid var(--border); }
+    .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+    .btn-full { width:100%; justify-content:center; padding:12px; font-size:13px; }
+
+    .alert { padding:10px 13px; border-radius:7px; font-size:11px; margin-top:12px; display:none; font-weight:500; }
+    .alert-ok { background:#f0faf9; color:var(--accent-dark); border-left:3px solid var(--accent); }
+    .alert-err { background:#fff5f5; color:var(--red); border-left:3px solid var(--red); }
+    .compliance-banner { display:none; padding:12px 14px; border-radius:10px; border:1px solid var(--border); margin-bottom:16px; font-size:11px; line-height:1.6; }
+    .compliance-banner.is-critical { display:block; background:#fff7ed; border-color:#f6ad55; color:#9c4221; }
+    .compliance-banner.is-info { display:block; background:#eef4ff; border-color:#90cdf4; color:#1a365d; }
+    .compliance-banner strong { display:block; font-size:12px; margin-bottom:4px; }
+    .evidence-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:14px 0 18px; }
+    .evidence-card { border:1px solid var(--border); border-radius:10px; background:#fafafa; padding:12px; text-align:left; }
+    .evidence-card.is-good { border-color:#9ae6b4; background:#f0fff4; }
+    .evidence-card.is-warn { border-color:#f6e05e; background:#fffbea; }
+    .evidence-card .eyebrow { font-size:10px; text-transform:uppercase; letter-spacing:0.4px; color:var(--muted); font-weight:600; margin-bottom:6px; }
+    .evidence-card .title { font-size:12px; font-weight:600; color:var(--text); margin-bottom:4px; }
+    .evidence-card .detail { font-size:11px; color:var(--text-md); line-height:1.5; }
+    .evidence-card .mini-badge { display:inline-flex; margin-top:8px; padding:3px 8px; border-radius:999px; font-size:10px; font-weight:600; }
+    .mini-badge.good { background:#c6f6d5; color:#22543d; }
+    .mini-badge.warn { background:#fef3c7; color:#92400e; }
+    .success-screen { text-align:center; padding:36px 18px; animation:fadeUp 0.5s ease; }
+    .success-icon { width:64px; height:64px; background:linear-gradient(135deg,var(--accent),#26a69a); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; box-shadow:0 4px 18px rgba(0,137,123,0.3); }
+    .success-icon svg { width:32px; height:32px; fill:white; }
+    .success-screen h2 { font-size:20px; font-weight:700; margin-bottom:7px; }
+    .success-screen p { font-size:12px; color:var(--muted); max-width:340px; margin:0 auto 22px; line-height:1.6; }
+    .success-actions { display:flex; gap:9px; justify-content:center; flex-wrap:wrap; }
+
+    .spin { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:4px; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    @media (max-width: 900px) {
+      .topbar { padding:10px 12px; }
+      .stepper { padding:10px 12px; }
+      .page-wrap { padding:14px 12px; }
+      .panel-body { padding:14px; }
+      .face-compare { grid-template-columns:1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .steps { max-width:100%; }
+      .step-line { margin:0 4px 12px; }
+      .step-label { font-size:9px; }
+      .doc-page-body { max-height:170px; font-size:11px; }
+      .camera-wrap,
+      #capturePreview { max-width:100% !important; }
+      .face-guide { width:120px; height:150px; }
+      .btn,
+      .success-actions .btn { width:100%; justify-content:center; }
+      .success-screen { padding:22px 8px; }
+      .success-screen h2 { font-size:18px; }
+    }
+  </style>
+  <link rel="stylesheet" href="/public/css/global-palette.css">
+  <link rel="stylesheet" href="/public/css/clinic-refresh.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-dot"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 13H9v-2h4v2zm0-4H9v-2h4v2zm-1-5V3.5L18.5 9H12z"/></svg></div>
+      <div class="brand-text"><h2>Clinic Chek</h2><p>Assinatura Digital</p></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);" id="docPatientName"></div>
+  </header>
+
+  <div class="stepper">
+    <div class="steps">
+      <div class="step-wrap">
+        <div class="step-circle active" id="stepCircle1">1</div>
+        <div class="step-label active" id="stepLabel1">Leitura</div>
+      </div>
+      <div class="step-line" id="stepLine1"></div>
+      <div class="step-wrap">
+        <div class="step-circle" id="stepCircle2">2</div>
+        <div class="step-label" id="stepLabel2">Biometria</div>
+      </div>
+      <div class="step-line" id="stepLine2"></div>
+      <div class="step-wrap">
+        <div class="step-circle" id="stepCircle3">3</div>
+        <div class="step-label" id="stepLabel3">Assinatura</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- STEP 1: LEITURA -->
+    <div id="step1">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="ico ico-teal"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 13H9v-2h4v2zm0-4H9v-2h4v2zm-1-5V3.5L18.5 9H12z"/></svg></div>
+          <h3 id="docTitle">Carregando documento...</h3>
+        </div>
+        <div class="panel-body">
+          <div class="progress-area">
+            <div class="progress-info">
+              <span id="progressText">Página 0 de 0</span>
+              <span id="progressPct">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          </div>
+          <div class="doc-pages" id="docPages">
+            <div style="text-align:center;padding:36px;color:var(--muted);font-size:12px">Carregando...</div>
+          </div>
+          <div style="margin-top:16px;text-align:center;">
+            <button class="btn btn-solid btn-full" id="nextToCapture" disabled>
+              <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+              Continuar para Verificação Biométrica
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: CAPTURA FACIAL -->
+    <div id="step2" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="ico ico-blue"><svg viewBox="0 0 24 24"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg></div>
+          <h3>Verificação Biométrica Facial</h3>
+        </div>
+        <div class="panel-body">
+
+          <!-- ALERTA DE COMPARAÇÃO -->
+          <div class="compare-hint" id="compareHint" style="display:none">
+            <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+            <div>A foto capturada agora será comparada com a foto registrada no seu cadastro. Certifique-se de estar em boa iluminação e olhando diretamente para a câmera.</div>
+          </div>
+
+          <!-- COMPARAÇÃO LADO A LADO -->
+          <div class="face-compare" id="faceCompare">
+            <div class="face-box">
+              <div class="face-box-header ref">Foto do Cadastro</div>
+              <div class="face-box-body" id="refFaceBox">
+                <div class="face-box-placeholder">
+                  <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                  Sem foto no cadastro
+                </div>
+              </div>
+            </div>
+            <div class="face-box">
+              <div class="face-box-header live">Sua Foto Agora</div>
+              <div class="face-box-body" id="liveFaceBox">
+                <div class="face-box-placeholder">
+                  <svg viewBox="0 0 24 24"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+                  Abra a câmera
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="camera-wrap" id="cameraWrap" style="display:none;max-width:360px;margin:0 auto;">
+            <video id="videoEl" autoplay playsinline muted></video>
+            <div class="camera-overlay"><div class="face-guide"></div></div>
+            <canvas id="snapCanvas" style="display:none"></canvas>
+          </div>
+          <img id="capturePreview" alt="Captura facial" style="display:none;width:100%;max-width:360px;border-radius:10px;margin:12px auto 0;border:2px solid var(--accent);display:none;">
+
+          <div class="camera-controls">
+            <button class="btn btn-outline" id="captureBtn">
+              <svg viewBox="0 0 24 24"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+              Abrir câmera
+            </button>
+            <button class="btn btn-solid" id="snapBtn" style="display:none">Capturar foto</button>
+            <button class="btn btn-outline" id="retakeBtn" style="display:none">
+              <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+              Refazer
+            </button>
+          </div>
+
+          <div style="margin-top:18px;">
+            <button class="btn btn-solid btn-full" id="nextToSign" disabled>
+              <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+              Continuar para Assinatura
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: ASSINATURA -->
+    <div id="step3" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="ico ico-yellow"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></div>
+          <h3>Assinar Documento</h3>
+        </div>
+        <div class="panel-body">
+          <div class="sign-name-group">
+            <label>Seu Nome Completo (como constará na assinatura)</label>
+            <input type="text" id="signatureName" placeholder="Digite seu nome completo">
+          </div>
+          <div id="qualifiedRequirementBanner" class="compliance-banner"></div>
+          <div id="evidencePreview" class="evidence-grid"></div>
+          <div class="sign-checklist">
+            <div class="check-item" id="check1wrap">
+              <input type="checkbox" id="check1">
+              <label for="check1">Declaro que li e compreendi integralmente o conteúdo do documento apresentado.</label>
+            </div>
+            <div class="check-item" id="check2wrap">
+              <input type="checkbox" id="check2">
+              <label for="check2">Aceito e autorizo a realização do procedimento descrito, conforme indicação médica.</label>
+            </div>
+            <div class="check-item" id="check3wrap">
+              <input type="checkbox" id="check3">
+              <label for="check3">Confirmo que sou a pessoa identificada neste documento e que a captura facial realizada autentica esta assinatura digital.</label>
+            </div>
+          </div>
+
+          <button class="btn btn-solid btn-full" id="signBtn" disabled>
+            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            Assinar com Validade Legal
+          </button>
+          <div class="alert alert-ok" id="signOk"></div>
+          <div class="alert alert-err" id="signErr"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCESSO -->
+    <div id="stepSuccess" style="display:none">
+      <div class="panel">
+        <div class="panel-body">
+          <div class="success-screen">
+            <div class="success-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            </div>
+            <h2>Documento Assinado!</h2>
+            <p id="successText">Sua assinatura digital foi registrada com sucesso junto com a verificação biométrica facial.</p>
+            <div id="successProtocol" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin:12px 0;text-align:left;font-size:0.85rem;"></div>
+            <div id="successEvidence" class="evidence-grid"></div>
+            <div class="success-actions">
+              <a href="#" id="downloadDocBtn" class="btn btn-solid">
+                <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18l-5 5h3v4h4V7h3l-5-5z"/></svg>
+                Baixar Documento
+              </a>
+              <a href="/paciente/login" class="btn btn-outline">Portal do Paciente</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const accessToken = window.location.pathname.split('/').pop();
+    const LGPD_POLICY_VERSION = '2026-04';
+    const LEGAL_TERMS_VERSION = '2026-04';
+    let docData = null;
+    let faceCapture = null;
+    let pages = [];
+    let pagesRead = 0;
+    let refFaceImage = null;
+    let hasReferenceFace = false;
+
+    function formatDateTime(value) {
+      if (!value) return 'Não registrado';
+      return new Date(value).toLocaleString('pt-BR');
+    }
+
+    function renderEvidenceSummary(targetId, summary) {
+      const target = document.getElementById(targetId);
+      if (!target || !summary) return;
+
+      const items = [
+        {
+          eyebrow: 'Status jurídico',
+          title: summary.legalLabel,
+          detail: summary.procedureClassification?.reason || 'Resumo jurídico do consentimento.',
+          complete: summary.legalStatus === 'QUALIFIED' || summary.legalStatus === 'AUTHENTICATED',
+        },
+        {
+          eyebrow: 'Biometria',
+          title: summary.biometrics?.label || 'Biometria facial',
+          detail: summary.biometrics?.completed ? 'A identidade do assinante foi vinculada à assinatura.' : 'A captura facial será exigida antes de concluir.',
+          complete: summary.biometrics?.completed,
+        },
+        {
+          eyebrow: 'Auditoria',
+          title: summary.auditTrail?.label || 'Trilha de auditoria',
+          detail: summary.auditTrail?.completed ? 'IP, navegador e hash assinado estão vinculados ao ato.' : 'A trilha de auditoria será registrada ao finalizar.',
+          complete: summary.auditTrail?.completed,
+        },
+        {
+          eyebrow: 'Integridade',
+          title: summary.integrity?.label || 'Integridade do documento',
+          detail: summary.integrity?.pdfHash ? `Hash do PDF disponível para conferência.` : 'Os hashes do conteúdo e do PDF serão consolidados no fechamento.',
+          complete: summary.integrity?.completed,
+        },
+        {
+          eyebrow: 'Carimbo do tempo',
+          title: summary.timestamp?.label || 'Carimbo do tempo',
+          detail: summary.timestamp?.completed ? `Emitido em ${formatDateTime(summary.timestamp.at)}${summary.timestamp.provider ? ` por ${summary.timestamp.provider}` : ''}.` : 'Será solicitado automaticamente quando o documento for assinado.',
+          complete: summary.timestamp?.completed,
+        },
+        {
+          eyebrow: 'ICP-Brasil',
+          title: summary.qualifiedSignature?.required ? 'Assinatura qualificada exigida' : 'Assinatura qualificada opcional',
+          detail: summary.qualifiedSignature?.completed ? `Provedor: ${summary.qualifiedSignature.provider || 'ICP-Brasil'}${summary.qualifiedSignature.ref ? ` • Ref: ${summary.qualifiedSignature.ref}` : ''}` : (summary.qualifiedSignature?.reason || 'Este fluxo não exige certificado em nuvem.'),
+          complete: summary.qualifiedSignature?.completed,
+        },
+      ];
+
+      target.innerHTML = items.map((item) => `
+        <div class="evidence-card ${item.complete ? 'is-good' : 'is-warn'}">
+          <div class="eyebrow">${item.eyebrow}</div>
+          <div class="title">${item.title}</div>
+          <div class="detail">${item.detail}</div>
+          <span class="mini-badge ${item.complete ? 'good' : 'warn'}">${item.complete ? 'Concluido' : 'Pendente/Automatico'}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderQualifiedRequirement() {
+      const banner = document.getElementById('qualifiedRequirementBanner');
+      if (!banner || !docData?.evidence_summary) return;
+
+      const summary = docData.evidence_summary;
+      if (summary.qualifiedSignature?.required) {
+        banner.className = 'compliance-banner is-critical';
+        banner.innerHTML = `<strong>Assinatura qualificada ICP-Brasil obrigatória</strong>${summary.qualifiedSignature.reason}`;
+        return;
+      }
+
+      banner.className = 'compliance-banner is-info';
+      banner.innerHTML = `<strong>Consentimento autenticado com biometria e trilha de auditoria</strong>${summary.qualifiedSignature?.reason || 'Este documento terá biometria facial, trilha de auditoria, hashes de integridade e registro de data/hora.'}`;
+    }
+
+    // -- LOAD DOC --
+    async function loadDoc() {
+      try {
+        const res = await fetch(`/api/patient/document/${accessToken}`);
+        if (!res.ok) { document.getElementById('docTitle').textContent = 'Documento não encontrado.'; return; }
+        docData = await res.json();
+        document.getElementById('docTitle').textContent = docData.procedure_name || docData.title || 'Documento Médico';
+        document.getElementById('docPatientName').textContent = docData.patient_name || '';
+
+        // Armazenar foto de referência
+        if (docData.reference_face) {
+          refFaceImage = docData.reference_face;
+          hasReferenceFace = true;
+        }
+
+        renderQualifiedRequirement();
+        renderEvidenceSummary('evidencePreview', docData.evidence_summary);
+
+        // Render pages
+        const content = docData.content || '';
+        pages = [];
+        for (let i = 0; i < content.length; i += 800) pages.push(content.slice(i, i + 800));
+        if (!pages.length) pages = ['Documento sem conteúdo textual.'];
+        renderPages();
+      } catch (e) {
+        document.getElementById('docTitle').textContent = 'Erro ao carregar documento.';
+      }
+    }
+
+    function renderPages() {
+      const container = document.getElementById('docPages');
+      container.innerHTML = pages.map((p, i) => `
+        <div class="doc-page" id="page${i}">
+          <div class="doc-page-header"><span>Página ${i + 1} de ${pages.length}</span></div>
+          <div class="doc-page-body">${p.replace(/\n/g,'<br>').replace(/<h[1-6]/gi,'<strong').replace(/<\/h[1-6]>/gi,'</strong>')}</div>
+        </div>
+      `).join('');
+      updateProgress(0);
+      observePages();
+    }
+
+    function updateProgress(read) {
+      pagesRead = Math.max(pagesRead, read);
+      const pct = pages.length ? Math.round((pagesRead / pages.length) * 100) : 0;
+      document.getElementById('progressText').textContent = `Página ${pagesRead} de ${pages.length}`;
+      document.getElementById('progressPct').textContent = pct + '%';
+      document.getElementById('progressFill').style.width = pct + '%';
+      if (pagesRead >= pages.length) {
+        document.getElementById('nextToCapture').disabled = false;
+        trackProgress(pagesRead);
+      }
+    }
+
+    function observePages() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const idx = parseInt(entry.target.id.replace('page','')) + 1;
+            if (idx > pagesRead) updateProgress(idx);
+          }
+        });
+      }, { threshold: 0.5 });
+      pages.forEach((_, i) => { const el = document.getElementById(`page${i}`); if (el) observer.observe(el); });
+    }
+
+    async function trackProgress(currentPage) {
+      try {
+        await fetch(`/api/patient/progress/${accessToken}`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ currentPage, totalPages: pages.length })
+        });
+      } catch {}
+    }
+
+    // -- STEPPER --
+    document.getElementById('nextToCapture').addEventListener('click', () => {
+      if (!hasReferenceFace) {
+        alert('Nao foi possivel continuar: o paciente nao possui foto cadastrada para comparacao biometrica. Solicite ao profissional o cadastro da foto.');
+        return;
+      }
+      setStep(2);
+      prepareCapture();
+    });
+
+    document.getElementById('nextToSign').addEventListener('click', () => setStep(3));
+
+    function setStep(n) {
+      [1,2,3].forEach(i => {
+        const c = document.getElementById(`stepCircle${i}`);
+        const l = document.getElementById(`stepLabel${i}`);
+        const line = document.getElementById(`stepLine${i}`);
+        if (i < n) { c.className='step-circle done'; c.innerHTML='&#10003;'; l.className='step-label done'; if(line)line.className='step-line done'; }
+        else if (i === n) { c.className='step-circle active'; c.textContent=i; l.className='step-label active'; }
+        else { c.className='step-circle'; c.textContent=i; l.className='step-label'; }
+      });
+      document.getElementById('step1').style.display = n===1?'block':'none';
+      document.getElementById('step2').style.display = n===2?'block':'none';
+      document.getElementById('step3').style.display = n===3?'block':'none';
+    }
+
+    // -- PREPARE CAPTURE (mostra foto de referência) --
+    function prepareCapture() {
+      const refBox = document.getElementById('refFaceBox');
+      const hint = document.getElementById('compareHint');
+      const captureBtn = document.getElementById('captureBtn');
+      const nextToSignBtn = document.getElementById('nextToSign');
+      if (refFaceImage) {
+        refBox.innerHTML = `<img src="${refFaceImage}" alt="Foto do cadastro">`;
+        hint.style.display = 'flex';
+        hint.innerHTML = `
+          <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div>A foto capturada agora sera comparada com a foto registrada no seu cadastro. Certifique-se de estar em boa iluminacao e olhando diretamente para a camera.</div>
+        `;
+        captureBtn.disabled = false;
+        nextToSignBtn.disabled = true;
+      } else {
+        refBox.innerHTML = `<div class="face-box-placeholder"><svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>Sem foto no cadastro</div>`;
+        hint.style.display = 'flex';
+        hint.innerHTML = `
+          <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div>Este consentimento exige comparacao facial com a foto do cadastro. Como nao existe foto registrada, a assinatura esta bloqueada.</div>
+        `;
+        captureBtn.disabled = true;
+        nextToSignBtn.disabled = true;
+      }
+    }
+
+    // -- CÂMERA --
+    let stream = null;
+
+    document.getElementById('captureBtn').addEventListener('click', async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:480, height:360 } });
+        const video = document.getElementById('videoEl');
+        video.srcObject = stream;
+        document.getElementById('cameraWrap').style.display = 'block';
+        document.getElementById('captureBtn').style.display = 'none';
+        document.getElementById('snapBtn').style.display = '';
+        // Update live face box
+        document.getElementById('liveFaceBox').innerHTML = `<video id="liveMirror" autoplay playsinline muted style="width:100%;border-radius:6px;object-fit:cover;max-height:180px"></video>`;
+        document.getElementById('liveMirror').srcObject = stream;
+      } catch { alert('Não foi possível acessar a câmera.'); }
+    });
+
+    document.getElementById('snapBtn').addEventListener('click', () => {
+      const video = document.getElementById('videoEl');
+      const canvas = document.getElementById('snapCanvas');
+      canvas.width = video.videoWidth || 480;
+      canvas.height = video.videoHeight || 360;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      faceCapture = canvas.toDataURL('image/jpeg', 0.8);
+
+      // Atualizar live box com foto capturada
+      document.getElementById('liveFaceBox').innerHTML = `<img src="${faceCapture}" style="width:100%;border-radius:6px;object-fit:cover;max-height:180px">`;
+
+      document.getElementById('cameraWrap').style.display = 'none';
+      document.getElementById('snapBtn').style.display = 'none';
+      document.getElementById('retakeBtn').style.display = '';
+      document.getElementById('nextToSign').disabled = false;
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    });
+
+    document.getElementById('retakeBtn').addEventListener('click', async () => {
+      faceCapture = null;
+      document.getElementById('retakeBtn').style.display = 'none';
+      document.getElementById('captureBtn').style.display = '';
+      document.getElementById('nextToSign').disabled = true;
+      document.getElementById('cameraWrap').style.display = 'none';
+      document.getElementById('liveFaceBox').innerHTML = `<div class="face-box-placeholder"><svg viewBox="0 0 24 24"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>Abra a câmera</div>`;
+    });
+
+    // -- SIGN --
+    ['check1','check2','check3'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('change', () => {
+        document.getElementById(id+'wrap').classList.toggle('checked', el.checked);
+        checkSignReady();
+      });
+    });
+    document.getElementById('signatureName').addEventListener('input', checkSignReady);
+
+    function checkSignReady() {
+      const name = document.getElementById('signatureName').value.trim();
+      const allChecked = ['check1','check2','check3'].every(id => document.getElementById(id).checked);
+      document.getElementById('signBtn').disabled = !(name.length >= 3 && allChecked && faceCapture);
+    }
+
+    document.getElementById('signBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('signBtn');
+      const err = document.getElementById('signErr');
+      const ok = document.getElementById('signOk');
+      err.style.display='none'; ok.style.display='none';
+      btn.disabled=true; btn.innerHTML='<span class="spin"></span>Assinando...';
+      try {
+        const res = await fetch(`/api/patient/sign/${accessToken}`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            signatureName: document.getElementById('signatureName').value.trim(),
+            faceImage: faceCapture,
+            lgpdPolicyVersion: LGPD_POLICY_VERSION,
+            legalTermsVersion: LEGAL_TERMS_VERSION,
+            riskAckText: document.getElementById('check2').nextElementSibling?.textContent || null,
+            confirmations: {
+              readConfirmed: document.getElementById('check1').checked,
+              procedureConsentConfirmed: document.getElementById('check2').checked,
+              identityConfirmed: document.getElementById('check3').checked,
+            },
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('step3').style.display='none';
+          document.getElementById('stepSuccess').style.display='block';
+          [1,2,3].forEach(i => {
+            document.getElementById(`stepCircle${i}`).className='step-circle done';
+            document.getElementById(`stepCircle${i}`).innerHTML='&#10003;';
+            document.getElementById(`stepLabel${i}`).className='step-label done';
+            const line = document.getElementById(`stepLine${i}`);
+            if(line) line.className='step-line done';
+          });
+          document.getElementById('downloadDocBtn').href = `/api/patient/download/${accessToken}/pdf`;
+          const successText = data.evidenceSummary?.qualifiedSignature?.completed
+            ? 'Sua assinatura foi registrada com biometria facial, trilha de auditoria e assinatura qualificada ICP-Brasil.'
+            : 'Sua assinatura foi registrada com biometria facial, trilha de auditoria e evidências de integridade do documento.';
+          document.getElementById('successText').textContent = successText;
+          // Exibe protocolo ICP-Brasil e carimbo de tempo de forma destacada
+          const ev = data.evidenceSummary || docData?.evidence_summary;
+          const protocolBox = document.getElementById('successProtocol');
+          if (ev && protocolBox) {
+            const lines = [];
+            if (ev.qualifiedSignature?.ref) {
+              lines.push(`<div><strong>Protocolo ICP-Brasil:</strong> <code style="background:#dcfce7;padding:2px 6px;border-radius:4px;font-size:0.9em;">${ev.qualifiedSignature.ref}</code></div>`);
+            }
+            if (ev.timestamp?.at) {
+              const tsDate = formatDateTime(ev.timestamp.at);
+              const tsProv = ev.timestamp.provider ? ` via <strong>${ev.timestamp.provider}</strong>` : '';
+              lines.push(`<div><strong>Carimbo de tempo:</strong> ${tsDate}${tsProv}</div>`);
+            }
+            if (ev.signedAt) {
+              lines.push(`<div><strong>Assinado em:</strong> ${formatDateTime(ev.signedAt)}</div>`);
+            }
+            if (lines.length) {
+              protocolBox.innerHTML = lines.join('');
+              protocolBox.style.display = 'block';
+            }
+          }
+          renderEvidenceSummary('successEvidence', ev);
+        } else {
+          err.textContent = data.error || 'Erro ao assinar.';
+          err.style.display='block';
+          btn.disabled=false;
+          btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> Assinar com Validade Legal';
+        }
+      } catch {
+        err.textContent='Erro de conexão.'; err.style.display='block';
+        btn.disabled=false; btn.textContent='Assinar com Validade Legal';
+      }
+    });
+
+    loadDoc();
+  </script>
+</body>
+</html>
+
+
+
+
+
+

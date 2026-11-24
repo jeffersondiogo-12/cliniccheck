@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek · Contas a Pagar</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    /* ============================================================
+       TEMA ÚNICO — EXATAMENTE O MESMO DA SIDEBAR ORIGINAL
+       ============================================================ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* ----- TEMA CLARO (padrão) ----- */
+      --sb-bg: #f8fafc;
+      --sb-surface: #ffffff;
+      --sb-elevated: #f1f5f9;
+      --sb-border: #e2e8f0;
+      --sb-text: #1e293b;
+      --sb-text-secondary: #334155;
+      --sb-text-muted: #64748b;
+      --sb-accent: #2563eb;
+      --sb-accent-dim: #eff6ff;
+      --sb-accent-hover: #dbeafe;
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+      --sb-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.10);
+      --sb-radius: 12px;
+      --sb-font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sb-sidebar-width: 280px;
+      --sb-sidebar-collapsed: 72px;
+      --sb-transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* TEMA ESCURO (exatamente igual ao da sidebar) */
+    [data-theme="dark"] {
+      --sb-bg: #0b1120;
+      --sb-surface: #111c2e;
+      --sb-elevated: #1e2d45;
+      --sb-border: rgba(255, 255, 255, 0.06);
+      --sb-text: #f0f4ff;
+      --sb-text-secondary: #b0c4e8;
+      --sb-text-muted: #7a8aa8;
+      --sb-accent: #3b82f6;
+      --sb-accent-dim: rgba(59, 130, 246, 0.15);
+      --sb-accent-hover: rgba(59, 130, 246, 0.25);
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      --sb-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       SIDEBAR — ESTRUTURA PRINCIPAL (mesmo código)
+       ============================================================ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sb-sidebar-width);
+      background: var(--sb-surface);
+      border-right: 1px solid var(--sb-border);
+      color: var(--sb-text);
+      font-family: var(--sb-font);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: width var(--sb-transition), transform var(--sb-transition), background var(--sb-transition);
+      box-shadow: var(--sb-shadow);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sb-sidebar-collapsed);
+    }
+    .sidebar.collapsed .sb-brand-title,
+    .sidebar.collapsed .sidebar-user,
+    .sidebar.collapsed .sb-group-btn span:not(.caret),
+    .sidebar.collapsed .nav-item span,
+    .sidebar.collapsed .sidebar-footer .btn-logout span,
+    .sidebar.collapsed .sb-toggle-label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sidebar.collapsed .sb-brand-icon {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .nav-item i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+    .sidebar.collapsed .sb-group-btn {
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .sidebar.collapsed .sb-group-btn .caret {
+      display: none;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout i {
+      margin-right: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--sb-border);
+      flex-shrink: 0;
+    }
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .sb-brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--sb-accent), #06b6d4);
+      border-radius: var(--sb-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .sb-brand-icon:hover {
+      transform: rotate(-8deg) scale(1.05);
+    }
+    .sb-brand-title {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sb-brand-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--sb-text);
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--sb-text) 60%, var(--sb-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sb-brand-title small {
+      font-size: 10px;
+      color: var(--sb-text-muted);
+      font-weight: 400;
+      -webkit-text-fill-color: var(--sb-text-muted);
+    }
+
+    .sb-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--sb-text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn:hover {
+      background: var(--sb-elevated);
+      color: var(--sb-text);
+    }
+    .sb-toggle-btn:active {
+      transform: scale(0.9);
+    }
+
+    .sidebar-user {
+      margin: 12px 16px 8px;
+      padding: 14px 16px;
+      background: var(--sb-elevated);
+      border-radius: var(--sb-radius);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .sidebar-user .role {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-user .clinic {
+      font-size: 11px;
+      color: var(--sb-accent);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-user .clinic i {
+      font-size: 10px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 12px 8px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--sb-border) transparent;
+    }
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--sb-border);
+      border-radius: 10px;
+    }
+
+    .sb-group {
+      margin-top: 4px;
+    }
+    .sb-group + .sb-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--sb-border);
+    }
+
+    .sb-group-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      border: 0;
+      color: var(--sb-text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--sb-font);
+      border-radius: 6px;
+      transition: color 0.25s, background 0.25s;
+    }
+    .sb-group-btn:hover {
+      color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+    }
+    .sb-group-btn .caret {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 9px;
+    }
+    .sb-group.open .sb-group-btn .caret {
+      transform: rotate(90deg);
+      color: var(--sb-accent);
+    }
+
+    .sb-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+    }
+    .sb-group.open .sb-group-list {
+      max-height: 600px;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sb-text-secondary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, transform 0.15s, padding 0.2s;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sb-font);
+      overflow: hidden;
+    }
+    .nav-item i {
+      width: 20px;
+      font-size: 15px;
+      color: var(--sb-text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--sb-accent);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .nav-item:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      transform: translateX(3px);
+    }
+    .nav-item:hover i {
+      color: var(--sb-accent);
+      transform: scale(1.1) rotate(-4deg);
+    }
+    .nav-item:hover::before {
+      transform: scaleY(0.5);
+    }
+    .nav-item.active {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--sb-accent);
+    }
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    .nav-item.active i {
+      color: var(--sb-accent);
+    }
+    .nav-item:active {
+      transform: scale(0.97);
+    }
+    .nav-item[hidden] {
+      display: none !important;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--sb-border);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--sb-elevated);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s;
+    }
+    .theme-toggle .sb-toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sb-text-muted);
+      transition: opacity 0.2s;
+    }
+    .theme-toggle .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--sb-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .theme-toggle .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch {
+      background: var(--sb-accent);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch .slider {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--sb-font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-logout i {
+      font-size: 15px;
+    }
+    .btn-logout span {
+      transition: opacity 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+    .btn-logout:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sb-sidebar-width);
+        border-right: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .sidebar.collapsed {
+        width: var(--sb-sidebar-width);
+      }
+      .sidebar.collapsed .sb-brand-title,
+      .sidebar.collapsed .sidebar-user,
+      .sidebar.collapsed .sb-group-btn span:not(.caret),
+      .sidebar.collapsed .nav-item span,
+      .sidebar.collapsed .sidebar-footer .btn-logout span,
+      .sidebar.collapsed .sb-toggle-label {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        overflow: visible;
+      }
+      .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 9px 12px !important;
+      }
+      .sidebar.collapsed .nav-item i {
+        font-size: 15px;
+        margin-right: 0;
+      }
+      .sidebar.collapsed .sb-group-btn {
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .sidebar.collapsed .sb-group-btn .caret {
+        display: inline;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout {
+        justify-content: flex-start;
+        padding: 10px 14px !important;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout i {
+        margin-right: 0;
+      }
+    }
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 320px;
+      }
+      .sb-brand-title h2 {
+        font-size: 15px;
+      }
+    }
+
+    /* ============================================================
+       MAIN — CONTEÚDO PRINCIPAL (usa as mesmas variáveis)
+       ============================================================ */
+    .main {
+      margin-left: var(--sb-sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--sb-bg);
+      transition: background var(--sb-transition), margin-left var(--sb-transition);
+    }
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--sb-surface);
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--sb-text);
+      transition: color var(--sb-transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--sb-text-muted);
+      margin-top: 2px;
+      transition: color var(--sb-transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--sb-text-secondary);
+      background: var(--sb-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--sb-border);
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--sb-accent);
+      font-size: 10px;
+      transition: color var(--sb-transition);
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+      animation: fadeUp 0.35s ease;
+    }
+
+    /* ============================================================
+       CARDS E GRIDS (com as variáveis da sidebar)
+       ============================================================ */
+    .card {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      border: 1px solid var(--sb-border);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--sb-shadow);
+      transition: background var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--sb-shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--sb-accent);
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--sb-transition), background var(--sb-transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--sb-transition);
+    }
+    .card-header h3 i {
+      color: var(--sb-accent);
+      font-size: 16px;
+      transition: color var(--sb-transition);
+    }
+    .card-body {
+      padding: 18px 20px;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      padding: 16px 20px;
+      border: 1px solid var(--sb-border);
+      box-shadow: var(--sb-shadow);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.25s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--sb-shadow-hover);
+      border-color: var(--sb-accent);
+    }
+    .stat-card .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--sb-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+      color: #fff;
+      transition: transform 0.3s ease;
+    }
+    .stat-card:hover .icon {
+      transform: scale(1.08) rotate(-2deg);
+    }
+    .stat-card .icon.blue {
+      background: linear-gradient(135deg, var(--sb-accent), #3b82f6);
+    }
+    .stat-card .icon.green {
+      background: linear-gradient(135deg, #10b981, #34d399);
+    }
+    .stat-card .icon.purple {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+    }
+    .stat-card .info {
+      flex: 1;
+    }
+    .stat-card .stat-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--sb-text);
+      line-height: 1.2;
+      transition: color var(--sb-transition);
+    }
+    .stat-card .stat-label {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+      transition: color var(--sb-transition);
+    }
+
+    @media (max-width: 768px) {
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toolbar input,
+    .toolbar select {
+      padding: 7px 12px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      font-size: 12px;
+      font-family: var(--sb-font);
+      background: var(--sb-surface);
+      color: var(--sb-text);
+      outline: none;
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition);
+    }
+    .toolbar input:focus,
+    .toolbar select:focus {
+      border-color: var(--sb-accent);
+    }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--sb-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--sb-border);
+      background: var(--sb-elevated);
+      transition: color var(--sb-transition), border-color var(--sb-transition), background var(--sb-transition);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--sb-border);
+      transition: background 0.2s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--sb-accent-dim);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--sb-text-secondary);
+      vertical-align: middle;
+      transition: color var(--sb-transition);
+    }
+    tbody td .td-name {
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .td-desc {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-blue {
+      background: var(--sb-accent-dim);
+      color: var(--sb-accent);
+    }
+    .badge-green {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+    }
+    .badge-yellow {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+    }
+    .badge-red {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+    }
+    .badge-gray {
+      background: var(--sb-elevated);
+      color: var(--sb-text-muted);
+    }
+    .badge-purple {
+      background: rgba(124, 58, 237, 0.12);
+      color: #7c3aed;
+    }
+    .badge-teal {
+      background: rgba(6, 182, 212, 0.12);
+      color: #06b6d4;
+    }
+    .badge-sig {
+      background: rgba(124, 58, 237, 0.12);
+      color: #7c3aed;
+      font-size: 9px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--sb-text-muted);
+    }
+    .empty-state i {
+      font-size: 48px;
+      color: var(--sb-border);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .empty-state h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+      margin-bottom: 4px;
+    }
+    .empty-state p {
+      font-size: 12px;
+    }
+
+    /* ============================================================
+       FORMULÁRIOS (padrão da sidebar)
+       ============================================================ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group.span3 {
+      grid-column: span 3;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sb-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--sb-transition);
+    }
+    .form-group label .req {
+      color: #ef4444;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      font-size: 13px;
+      font-family: var(--sb-font);
+      color: var(--sb-text);
+      background: var(--sb-surface);
+      outline: none;
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition), box-shadow var(--sb-transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--sb-accent);
+      box-shadow: 0 0 0 3px var(--sb-accent-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--sb-text-muted);
+      font-weight: 300;
+      transition: color var(--sb-transition);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      background: var(--sb-surface);
+      cursor: pointer;
+      transition: border-color 0.2s, background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .checkbox-row:hover {
+      border-color: var(--sb-accent);
+    }
+    .checkbox-row input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--sb-accent);
+    }
+    .checkbox-row label {
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--sb-text);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid, .form-grid.cols3 {
+        grid-template-columns: 1fr;
+      }
+      .form-group.span2, .form-group.span3 {
+        grid-column: span 1;
+      }
+    }
+
+    /* ============================================================
+       BOTÕES (padrão da sidebar)
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--sb-radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--sb-font);
+      cursor: pointer;
+      transition: background var(--sb-transition), color var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--sb-accent);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+    }
+    .btn-solid:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(37, 99, 235, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--sb-text-secondary);
+      border: 1px solid var(--sb-border);
+    }
+    .btn-outline:hover {
+      border-color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-teal {
+      background: #06b6d4;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+    }
+    .btn-teal:hover {
+      background: #0891b2;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(6, 182, 212, 0.4);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-xs {
+      padding: 3px 10px;
+      font-size: 10px;
+    }
+    .btn-red {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(239, 68, 68, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-green {
+      background: rgba(16, 185, 129, 0.08);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+    .btn-green:hover {
+      background: rgba(16, 185, 129, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* ============================================================
+       ALERTAS
+       ============================================================ */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--sb-radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--sb-transition), color var(--sb-transition), border-color var(--sb-transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      border-left: 3px solid #10b981;
+    }
+    .alert-err {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      border-left: 3px solid #ef4444;
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       MODAIS
+       ============================================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--sb-shadow-hover);
+      border: 1px solid var(--sb-border);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--sb-elevated);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      transition: border-color var(--sb-transition), background var(--sb-transition);
+    }
+    .modal-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--sb-text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+    }
+    .modal-body {
+      padding: 20px;
+    }
+    .modal-foot {
+      padding: 12px 20px;
+      border-top: 1px solid var(--sb-border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      transition: border-color var(--sb-transition);
+    }
+
+    /* CATEGORIA LIST */
+    .cat-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cat-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--sb-border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .cat-item .cat-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sb-text-secondary);
+    }
+    .cat-item .cat-name.default {
+      color: #166534;
+    }
+    .cat-item .cat-name.inactive {
+      color: var(--sb-text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+  SIDEBAR (exatamente igual à primeira tela)
+  ============================================================ -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-header">
+      <div class="sb-brand">
+        <div class="sb-brand-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="sb-brand-title">
+          <h2>Clinic Chek</h2>
+          <small>Gestão inteligente</small>
+        </div>
+      </div>
+      <button class="sb-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name" id="sidebarName">Carregando...</div>
+      <div class="role" id="sidebarRole">Profissional</div>
+      <div class="clinic"><i class="fas fa-hospital"></i> <span id="sidebarClinic">Clínica: --</span></div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- PRINCIPAL -->
+      <div class="sb-group open" data-group="principal">
+        <button class="sb-group-btn" type="button"><span>Principal</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="dashboard" data-page-codes="dashboard,dashboard.insights" href="/medico">
+            <i class="fas fa-th-large"></i> <span>Dashboard</span>
+          </a>
+          <a class="nav-item" hidden data-page="agenda" data-page-codes="agenda,agenda.consultations" href="/medico/agenda">
+            <i class="fas fa-calendar-check"></i> <span>Agenda</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CADASTROS -->
+      <div class="sb-group open" data-group="cadastro">
+        <button class="sb-group-btn" type="button"><span>Cadastros</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="patients" data-page-codes="patients,patients.profile" href="/medico/pacientes">
+            <i class="fas fa-user-injured"></i> <span>Pacientes</span>
+          </a>
+          <a class="nav-item" hidden data-page="patients.records" data-page-codes="patients.records,patients.followups" href="/medico/prontuarios">
+            <i class="fas fa-notes-medical"></i> <span>Prontuários</span>
+          </a>
+          <a class="nav-item" hidden data-page="procedures" data-page-codes="procedures,procedures.register,procedures.types" href="/medico/procedimentos">
+            <i class="fas fa-procedures"></i> <span>Procedimentos</span>
+          </a>
+          <a class="nav-item" hidden data-page="prescriptions" data-page-codes="prescriptions,prescriptions.certificates" href="/medico/receita">
+            <i class="fas fa-prescription"></i> <span>Receita / Atestado</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- FINANCEIRO -->
+      <div class="sb-group open" data-group="financeiro">
+        <button class="sb-group-btn" type="button"><span>Financeiro</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/dashboard">
+            <i class="fas fa-chart-line"></i> <span>Dashboard Financeiro</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.caixa" data-page-codes="financeiro.caixa" href="/medico/caixa">
+            <i class="fas fa-cash-register"></i> <span>Caixa</span>
+          </a>
+          <a class="nav-item active" hidden data-page="financeiro.despesas" data-page-codes="financeiro.despesas" href="/medico/financeiro/despesas">
+            <i class="fas fa-file-invoice-dollar"></i> <span>Contas a Pagar</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/relatorios">
+            <i class="fas fa-chart-pie"></i> <span>Relatórios</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CONVÊNIOS -->
+      <div class="sb-group open" data-group="convenios">
+        <button class="sb-group-btn" type="button"><span>Convênios</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="convenios" data-page-codes="convenios,convenios.guias" href="/medico/convenios">
+            <i class="fas fa-handshake"></i> <span>Convênios</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ESTOQUE -->
+      <div class="sb-group open" data-group="estoque">
+        <button class="sb-group-btn" type="button"><span>Estoque</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="estoque" data-page-codes="estoque" href="/medico/estoque">
+            <i class="fas fa-boxes-stacked"></i> <span>Estoque</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- MINHA CONTA -->
+      <div class="sb-group open" data-group="minha-conta">
+        <button class="sb-group-btn" type="button"><span>Minha Conta</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="perfil" href="/medico/perfil">
+            <i class="fas fa-id-badge"></i> <span>Meu Perfil</span>
+          </a>
+          <a class="nav-item" hidden data-page="portfolio" data-page-codes="portfolio" href="/medico/portfolio">
+            <i class="fas fa-globe"></i> <span>Portfólio</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- DOCUMENTOS -->
+      <div class="sb-group open" data-group="documentos">
+        <button class="sb-group-btn" type="button"><span>Documentos</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="templates" data-page-codes="templates,templates.editor" href="/medico/templates">
+            <i class="fas fa-file-alt"></i> <span>Modelos</span>
+          </a>
+          <a class="nav-item" hidden data-page="documents" data-page-codes="documents,documents.signature" href="/medico/documentos">
+            <i class="fas fa-file-signature"></i> <span>Documentos</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ADMINISTRAÇÃO -->
+      <div class="sb-group open" data-group="administracao">
+        <button class="sb-group-btn" type="button"><span>Administração</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="team" data-page-codes="team,team.doctors,team.receptionists" id="navTeamItem" href="/admin">
+            <i class="fas fa-user-md"></i> <span>Equipe (Admin)</span>
+          </a>
+          <a class="nav-item" hidden data-page="clinic" data-page-codes="clinic,clinic.members,clinic.permissions" href="/medico/clinica">
+            <i class="fas fa-hospital-alt"></i> <span>Minha Clínica</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ACESSO EXTRA -->
+      <div class="sb-group open" data-group="acesso-extra">
+        <button class="sb-group-btn" type="button"><span>Acesso Extra</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="reception" data-page-codes="reception,reception.dashboard,reception.patients,reception.agenda" href="/recepcao">
+            <i class="fas fa-concierge-bell"></i> <span>Painel de Recepção</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span class="sb-toggle-label"><i class="fas fa-moon"></i> Tema</span>
+        <div class="toggle-switch" id="themeToggle" role="button" tabindex="0" aria-label="Alternar tema">
+          <div class="slider"></div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+  MAIN — CONTAS A PAGAR (DESPESAS)
+  ============================================================ -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Contas a Pagar</h1>
+        <div class="meta">Despesas, fornecedores, aluguel e salários</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-solid btn-sm" id="openNewExpenseBtn"><i class="fas fa-plus"></i> Nova Despesa</button>
+        <a href="/medico/financeiro/dashboard" class="btn btn-outline btn-sm">Dashboard</a>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="stats-row" id="expenseStats"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <span><i class="fas fa-list"></i> Despesas</span>
+        </div>
+        <div class="card-body">
+          <div class="toolbar" style="margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+            <select id="filterStatus">
+              <option value="PENDING">Pendentes</option>
+              <option value="PAID">Pagas</option>
+              <option value="CANCELED">Canceladas</option>
+              <option value="ALL">Todas</option>
+            </select>
+            <select id="filterCategory">
+              <option value="">Todas as categorias</option>
+              <option value="ALUGUEL">Aluguel</option>
+              <option value="FORNECEDORES">Fornecedores</option>
+              <option value="SALARIOS">Salários</option>
+              <option value="IMPOSTOS">Impostos</option>
+              <option value="MARKETING">Marketing</option>
+              <option value="EQUIPAMENTOS">Equipamentos</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="OUTROS">Outros</option>
+            </select>
+            <button class="btn btn-outline btn-sm" id="refreshExpensesBtn"><i class="fas fa-sync"></i></button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th>Fornecedor</th>
+                  <th>Vencimento</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="expensesTbody">
+                <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL: nova/editar despesa -->
+  <div class="modal-overlay" id="expenseModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="expenseModalTitle">Nova Despesa</h3>
+        <button class="modal-close" onclick="closeExpenseModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="expenseEditId">
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Descrição *</label>
+            <input type="text" id="expenseDescription" placeholder="Ex: Aluguel de julho">
+          </div>
+          <div class="form-group">
+            <label>Categoria *</label>
+            <select id="expenseCategory">
+              <option value="ALUGUEL">Aluguel</option>
+              <option value="FORNECEDORES">Fornecedores</option>
+              <option value="SALARIOS">Salários</option>
+              <option value="IMPOSTOS">Impostos</option>
+              <option value="MARKETING">Marketing</option>
+              <option value="EQUIPAMENTOS">Equipamentos</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="OUTROS" selected>Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fornecedor</label>
+            <input type="text" id="expenseSupplier" placeholder="Opcional">
+          </div>
+          <div class="form-group">
+            <label>Valor (R$) *</label>
+            <input type="number" id="expenseAmount" min="0" step="0.01" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label>Vencimento *</label>
+            <input type="date" id="expenseDueDate">
+          </div>
+          <div class="form-group span2">
+            <div class="checkbox-row" onclick="document.getElementById('expenseRecurring').click()">
+              <input type="checkbox" id="expenseRecurring">
+              <label for="expenseRecurring" onclick="event.stopPropagation()">Despesa recorrente (mensal)</label>
+            </div>
+          </div>
+          <div class="form-group span2">
+            <label>Observações</label>
+            <textarea id="expenseNotes" rows="2" placeholder="Opcional"></textarea>
+          </div>
+        </div>
+        <div class="alert-err" id="expenseModalErr"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="closeExpenseModal()">Cancelar</button>
+        <button class="btn btn-solid" id="confirmExpenseBtn">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: pagar despesa -->
+  <div class="modal-overlay" id="payExpenseOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Marcar como Paga</h3>
+        <button class="modal-close" onclick="closePayExpenseModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="payExpenseSummary" style="margin-bottom:14px;font-size:13px;color:var(--sb-text-secondary);"></div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Forma de pagamento</label>
+            <select id="payExpenseMethod">
+              <option value="">— Não informar —</option>
+              <option value="DINHEIRO">Dinheiro</option>
+              <option value="CARTAO_DEBITO">Cartão Débito</option>
+              <option value="CARTAO_CREDITO">Cartão Crédito</option>
+              <option value="PIX">PIX</option>
+              <option value="TRANSFERENCIA">Transferência</option>
+              <option value="BOLETO">Boleto</option>
+            </select>
+          </div>
+          <div class="form-group span2">
+            <label>Valor pago (se diferente do valor original)</label>
+            <input type="number" id="payExpenseAmount" min="0" step="0.01" placeholder="Deixe em branco para usar o valor original">
+          </div>
+        </div>
+        <div class="alert-err" id="payExpenseErr"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="closePayExpenseModal()">Cancelar</button>
+        <button class="btn btn-green" id="confirmPayExpenseBtn"><i class="fas fa-check"></i> Confirmar Pagamento</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // ============================================================
+    // SIDEBAR (mesmo da primeira tela)
+    // ============================================================
+    (function initSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      if (isCollapsed) sidebar.classList.add('collapsed');
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.innerWidth <= 992) {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+          document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        } else {
+          isCollapsed = !isCollapsed;
+          sidebar.classList.toggle('collapsed', isCollapsed);
+          localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      // Tema
+      const themeToggle = document.getElementById('themeToggle');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      // Grupos colapsáveis
+      document.querySelectorAll('.sb-group-btn').forEach((btn) => {
+        btn.addEventListener('click', function() {
+          const group = this.closest('.sb-group');
+          if (group) group.classList.toggle('open');
+        });
+      });
+
+      // Dados do usuário
+      const doctorToken = localStorage.getItem('doctorToken');
+      const receptionToken = localStorage.getItem('receptionToken');
+      const token = doctorToken || receptionToken;
+      const isReceptionSession = !doctorToken && !!receptionToken;
+      const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+      const nameEl = document.getElementById('sidebarName');
+      const roleEl = document.getElementById('sidebarRole');
+      const clinicEl = document.getElementById('sidebarClinic');
+      if (nameEl) nameEl.textContent = doctorData.name || 'Profissional';
+      if (roleEl) roleEl.textContent = isReceptionSession ? 'Recepcionista' : (doctorData.isClinicOwner ? 'Owner da Clinica' : 'Profissional');
+      if (clinicEl) clinicEl.textContent = 'Clinica: ' + (doctorData.clinicName || '--');
+
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('doctorToken'); localStorage.removeItem('doctorData');
+        localStorage.removeItem('receptionToken'); localStorage.removeItem('receptionData');
+        window.location.href = isReceptionSession ? '/recepcao/login' : '/medico/login';
+      });
+
+      // Permissões (opcional)
+      if (token) {
+        fetch(isReceptionSession ? '/api/auth/permissions-receptionist' : '/api/auth/permissions', { headers: { Authorization: 'Bearer ' + token } })
+          .then((r) => r.ok ? r.json() : null)
+          .then((data) => {
+            if (!data || !Array.isArray(data.pages)) return;
+            const allowed = new Set((data.pages || []).filter((p) => p.can_view).map((p) => p.code));
+            document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+              const rawCodes = item.getAttribute('data-page-codes') || item.getAttribute('data-page') || '';
+              const pageCodes = rawCodes.split(',').map((code) => code.trim()).filter(Boolean);
+              const canSee = pageCodes.some((code) => allowed.has(code));
+              item.hidden = !canSee;
+            });
+            document.querySelectorAll('.sb-group').forEach((g) => {
+              const hasVisible = Array.from(g.querySelectorAll('.nav-item')).some((i) => !i.hidden);
+              g.style.display = hasVisible ? '' : 'none';
+            });
+          })
+          .catch(() => {});
+      }
+    })();
+
+    // ============================================================
+    // CONTAS A PAGAR (DESPESAS)
+    // ============================================================
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    if (!token) window.location.href = '/medico/login';
+    const H = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+    const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+
+    const CATEGORY_LABELS = {
+      ALUGUEL: 'Aluguel', FORNECEDORES: 'Fornecedores', SALARIOS: 'Salários', IMPOSTOS: 'Impostos',
+      MARKETING: 'Marketing', EQUIPAMENTOS: 'Equipamentos', MANUTENCAO: 'Manutenção', OUTROS: 'Outros',
+    };
+    const PAYMENT_LABELS = {
+      DINHEIRO: 'Dinheiro', CARTAO_DEBITO: 'Cartão Débito', CARTAO_CREDITO: 'Cartão Crédito',
+      PIX: 'PIX', TRANSFERENCIA: 'Transferência', BOLETO: 'Boleto',
+    };
+
+    let payExpenseId = null;
+
+    function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function fmtMoney(v){ return Number(v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }); }
+    function fmtDate(v){ if(!v) return '—'; return new Date(v).toLocaleDateString('pt-BR', { timeZone: 'UTC' }); }
+
+    async function apiGet(url){
+      const res = await fetch(url, { headers: H });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'Falha na requisição.');
+      return data;
+    }
+    async function apiSend(url, method, body){
+      const res = await fetch(url, { method, headers: H, body: body != null ? JSON.stringify(body) : undefined });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'Falha na requisição.');
+      return data;
+    }
+
+    function statusBadge(status, dueDate){
+      if (status === 'PAID') return '<span class="badge badge-green">Paga</span>';
+      if (status === 'CANCELED') return '<span class="badge badge-gray">Cancelada</span>';
+      const isOverdue = new Date(dueDate) < new Date(new Date().toDateString());
+      return isOverdue ? '<span class="badge badge-red">Vencida</span>' : '<span class="badge badge-yellow">Pendente</span>';
+    }
+
+    async function loadExpenses(){
+      const tbody = document.getElementById('expensesTbody');
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Carregando...</td></tr>';
+      try {
+        const status = document.getElementById('filterStatus').value;
+        const category = document.getElementById('filterCategory').value;
+        const params = new URLSearchParams({ status });
+        if (category) params.set('category', category);
+        const rows = await apiGet(`/api/finance/expenses?${params.toString()}`);
+
+        if (rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma despesa encontrada.</td></tr>';
+        } else {
+          tbody.innerHTML = rows.map(r => `
+            <tr>
+              <td>${esc(r.description)}</td>
+              <td>${esc(CATEGORY_LABELS[r.category] || r.category)}</td>
+              <td>${esc(r.supplier_name || '—')}</td>
+              <td>${fmtDate(r.due_date)}</td>
+              <td>${fmtMoney(r.amount)}</td>
+              <td>${statusBadge(r.status, r.due_date)}</td>
+              <td>
+                ${r.status === 'PENDING' ? `
+                  <button class="btn btn-green btn-xs" onclick='openPayExpenseModal(${JSON.stringify(r.id)}, ${JSON.stringify(r.description)}, ${r.amount})' title="Marcar como paga"><i class="fas fa-check"></i></button>
+                  <button class="btn btn-outline btn-xs" onclick='openEditExpenseModal(${JSON.stringify(r)})' title="Editar"><i class="fas fa-pen"></i></button>
+                  <button class="btn btn-outline btn-xs" onclick="cancelExpense('${r.id}')" title="Cancelar"><i class="fas fa-times"></i></button>
+                ` : '<span style="color:var(--sb-text-muted);">—</span>'}
+              </td>
+            </tr>
+          `).join('');
+        }
+
+        renderStats(rows);
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${esc(e.message)}</td></tr>`;
+      }
+    }
+
+    function renderStats(rows){
+      const pending = rows.filter(r => r.status === 'PENDING');
+      const totalPending = pending.reduce((acc, r) => acc + Number(r.amount), 0);
+      const overdue = pending.filter(r => new Date(r.due_date) < new Date(new Date().toDateString()));
+      const totalOverdue = overdue.reduce((acc, r) => acc + Number(r.amount), 0);
+      const paid = rows.filter(r => r.status === 'PAID');
+      const totalPaid = paid.reduce((acc, r) => acc + Number(r.amount), 0);
+
+      document.getElementById('expenseStats').innerHTML = `
+        <div class="stat-card"><div class="info"><div class="stat-val">${fmtMoney(totalPending)}</div><div class="stat-label">Total pendente (${pending.length})</div></div></div>
+        <div class="stat-card"><div class="info"><div class="stat-val" style="color:#ef4444;">${fmtMoney(totalOverdue)}</div><div class="stat-label">Vencidas (${overdue.length})</div></div></div>
+        <div class="stat-card"><div class="info"><div class="stat-val" style="color:#10b981;">${fmtMoney(totalPaid)}</div><div class="stat-label">Pagas neste filtro (${paid.length})</div></div></div>
+      `;
+    }
+
+    document.getElementById('filterStatus').addEventListener('change', loadExpenses);
+    document.getElementById('filterCategory').addEventListener('change', loadExpenses);
+    document.getElementById('refreshExpensesBtn').addEventListener('click', loadExpenses);
+
+    // ── MODAL: criar/editar ──
+    function openNewExpenseModal(){
+      document.getElementById('expenseModalTitle').textContent = 'Nova Despesa';
+      document.getElementById('expenseEditId').value = '';
+      document.getElementById('expenseDescription').value = '';
+      document.getElementById('expenseCategory').value = 'OUTROS';
+      document.getElementById('expenseSupplier').value = '';
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseDueDate').value = '';
+      document.getElementById('expenseRecurring').checked = false;
+      document.getElementById('expenseNotes').value = '';
+      document.getElementById('expenseModalErr').style.display = 'none';
+      document.getElementById('expenseModalOverlay').classList.add('show');
+    }
+    function openEditExpenseModal(expense){
+      document.getElementById('expenseModalTitle').textContent = 'Editar Despesa';
+      document.getElementById('expenseEditId').value = expense.id;
+      document.getElementById('expenseDescription').value = expense.description || '';
+      document.getElementById('expenseCategory').value = expense.category || 'OUTROS';
+      document.getElementById('expenseSupplier').value = expense.supplier_name || '';
+      document.getElementById('expenseAmount').value = expense.amount || '';
+      document.getElementById('expenseDueDate').value = expense.due_date ? expense.due_date.slice(0,10) : '';
+      document.getElementById('expenseRecurring').checked = !!expense.is_recurring;
+      document.getElementById('expenseNotes').value = expense.notes || '';
+      document.getElementById('expenseModalErr').style.display = 'none';
+      document.getElementById('expenseModalOverlay').classList.add('show');
+    }
+    function closeExpenseModal(){ document.getElementById('expenseModalOverlay').classList.remove('show'); }
+    document.getElementById('openNewExpenseBtn').addEventListener('click', openNewExpenseModal);
+    document.getElementById('expenseModalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeExpenseModal(); });
+
+    document.getElementById('confirmExpenseBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('expenseModalErr');
+      errEl.style.display = 'none';
+      const description = document.getElementById('expenseDescription').value.trim();
+      const amount = document.getElementById('expenseAmount').value;
+      const dueDate = document.getElementById('expenseDueDate').value;
+      if (!description) { errEl.textContent = 'Informe a descrição.'; errEl.style.display = 'block'; return; }
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) { errEl.textContent = 'Informe um valor válido.'; errEl.style.display = 'block'; return; }
+      if (!dueDate) { errEl.textContent = 'Informe a data de vencimento.'; errEl.style.display = 'block'; return; }
+
+      const body = {
+        description,
+        category: document.getElementById('expenseCategory').value,
+        supplierName: document.getElementById('expenseSupplier').value.trim() || null,
+        amount: Number(amount),
+        dueDate,
+        isRecurring: document.getElementById('expenseRecurring').checked,
+        notes: document.getElementById('expenseNotes').value.trim() || null,
+      };
+
+      const editId = document.getElementById('expenseEditId').value;
+      try {
+        let response;
+        if (editId) {
+          response = await apiSend(`/api/finance/expenses/${editId}`, 'PUT', body);
+        } else {
+          response = await apiSend('/api/finance/expenses', 'POST', body);
+        }
+        closeExpenseModal();
+        loadExpenses();
+        if (body.isRecurring && response?.projectedOccurrences?.length) {
+          alert(`Despesa mensal: ${response.projectedOccurrences.length} ocorrência(s) futura(s) já geradas nos próximos meses.`);
+        }
+      } catch (e) {
+        errEl.textContent = e.message; errEl.style.display = 'block';
+      }
+    });
+
+    async function cancelExpense(id){
+      if (!confirm('Cancelar esta despesa?')) return;
+      try {
+        await apiSend(`/api/finance/expenses/${id}/cancel`, 'POST', {});
+        loadExpenses();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // ── MODAL: pagar ──
+    function openPayExpenseModal(id, description, amount){
+      payExpenseId = id;
+      document.getElementById('payExpenseSummary').innerHTML = `Confirmar pagamento de <strong>${fmtMoney(amount)}</strong> referente a <strong>${esc(description)}</strong>.`;
+      document.getElementById('payExpenseMethod').value = '';
+      document.getElementById('payExpenseAmount').value = '';
+      document.getElementById('payExpenseErr').style.display = 'none';
+      document.getElementById('payExpenseOverlay').classList.add('show');
+    }
+    function closePayExpenseModal(){ document.getElementById('payExpenseOverlay').classList.remove('show'); }
+    document.getElementById('payExpenseOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closePayExpenseModal(); });
+
+    document.getElementById('confirmPayExpenseBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('payExpenseErr');
+      errEl.style.display = 'none';
+      const paidAmount = document.getElementById('payExpenseAmount').value;
+      try {
+        await apiSend(`/api/finance/expenses/${payExpenseId}/pay`, 'POST', {
+          paymentMethod: document.getElementById('payExpenseMethod').value || null,
+          paidAmount: paidAmount !== '' ? Number(paidAmount) : null,
+        });
+        closePayExpenseModal();
+        loadExpenses();
+      } catch (e) {
+        errEl.textContent = e.message; errEl.style.display = 'block';
+      }
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+    });
+
+    loadExpenses();
+
+    // Socket.io — atualiza a lista quando houver mudancas nas despesas (outra aba/usuario)
+    (function() {
+      const _d = JSON.parse(localStorage.getItem('doctorData') || '{}');
+      if (!_d.id) return;
+      const _sock = io({ transports: ['websocket', 'polling'] });
+      _sock.on('connect', () => {
+        _sock.emit('join_doctor', _d.id);
+        if (_d.clinicId) _sock.emit('join_clinic', _d.clinicId);
+      });
+      ['expense_created', 'expense_paid', 'expense_updated', 'expense_canceled'].forEach((evt) => {
+        _sock.on(evt, () => { loadExpenses(); });
+      });
+    })();
+  </script>
+
+  <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>

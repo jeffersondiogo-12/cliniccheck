@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Paciente</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-a:#e9f4ff;
+      --bg-b:#f7fbff;
+      --card:#ffffff;
+      --text:#14324d;
+      --muted:#5c7490;
+      --primary:#1166b1;
+      --primary-2:#118bb1;
+      --ok:#167a44;
+      --err:#b42318;
+      --border:#d4e3f3;
+      --shadow:0 26px 60px rgba(17,73,125,.16);
+      --radius:18px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Manrope',sans-serif;min-height:100vh;background:radial-gradient(1200px 700px at 20% -10%, #cae4ff 0%, transparent 65%),linear-gradient(180deg,var(--bg-a) 0%,var(--bg-b) 100%);color:var(--text);padding:16px;}
+    .wrap{width:min(960px,100%);margin:0 auto;background:rgba(255,255,255,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.8);border-radius:26px;box-shadow:var(--shadow);overflow:hidden;}
+    .head{padding:20px 22px;border-bottom:1px solid var(--border);background:linear-gradient(120deg,#ffffff 0%,#eff8ff 65%,#ebfbff 100%);display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+    .head h1{font-size:24px;line-height:1.1;}
+    .head p{font-size:12px;color:var(--muted);margin-top:4px;}
+    .expiry{font-size:11px;color:var(--muted);text-align:right;}
+    .body{padding:22px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .field{display:flex;flex-direction:column;gap:6px;}
+    .field.span2{grid-column:span 2;}
+    .field label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px;}
+    .field input,.field textarea{border:1.5px solid var(--border);border-radius:12px;padding:11px 12px;font:600 12px 'Manrope',sans-serif;outline:none;background:#fff;}
+    .field textarea{min-height:88px;resize:vertical;}
+    .field input:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(17,102,177,.14);}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+    .btn{border:none;border-radius:12px;padding:11px 16px;font:800 12px 'Manrope',sans-serif;cursor:pointer;}
+    .btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 12px 26px rgba(17,102,177,.26);}
+    .btn.secondary{background:#fff;color:var(--primary);border:1.5px solid var(--border);}
+    .msg{display:none;margin-top:12px;padding:11px 13px;border-radius:12px;font-size:12px;font-weight:700;}
+    .msg.ok{display:block;background:#edfff4;border:1px solid #b7f2ce;color:var(--ok);}
+    .msg.err{display:block;background:#fff3f2;border:1px solid #ffd0cb;color:var(--err);}
+    .msg.info{display:block;background:#eef7ff;border:1px solid #cfe6ff;color:#0d4f89;}
+    .locked{opacity:.65;pointer-events:none;}
+    .cam-area{grid-column:span 2;background:#f6fbff;border:1.5px dashed var(--border);border-radius:14px;padding:16px;text-align:center;}
+    .cam-area label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px;display:block;margin-bottom:8px;}
+    #camVideo{width:100%;max-width:320px;border-radius:12px;display:none;}
+    #camPreview{width:96px;height:96px;object-fit:cover;border-radius:50%;border:3px solid var(--primary);display:none;margin:0 auto;}
+    .cam-status{font-size:11px;color:var(--muted);margin-top:8px;font-weight:700;}
+    .cam-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+    .btn.small{padding:8px 12px;font-size:11px;}
+    @media (max-width:760px){
+      .grid{grid-template-columns:1fr;}
+      .field.span2{grid-column:span 1;}
+      .cam-area{grid-column:span 1;}
+      .actions .btn{width:100%;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <div>
+        <h1>Cadastro do Paciente</h1>
+        <p>Preencha as informações para enviar seu cadastro para a clínica.</p>
+      </div>
+      <div class="expiry" id="expiryInfo">Carregando link...</div>
+    </header>
+
+    <main class="body" id="formArea">
+      <div class="msg info" id="topInfo">Validando o link de cadastro...</div>
+      <form id="registrationForm" style="display:none;">
+        <div class="grid">
+          <div class="field span2"><label>Nome completo</label><input id="name" required placeholder="Nome completo"></div>
+          <div class="field"><label>E-mail</label><input id="email" type="email" required placeholder="email@exemplo.com"></div>
+          <div class="field"><label>Senha de acesso</label><input id="password" type="password" required minlength="6" placeholder="Mínimo 6 caracteres"></div>
+          <div class="field"><label>Telefone</label><input id="phone" placeholder="(11) 99999-9999"></div>
+          <div class="field"><label>Data de nascimento</label><input id="birthDate" type="date"></div>
+          <div class="field"><label>CPF / RG</label><input id="documentId" placeholder="000.000.000-00"></div>
+          <div class="field"><label>Versão LGPD</label><input id="lgpdConsentVersion" placeholder="Ex: LGPD-2026.1"></div>
+          <div class="field"><label>Aceite LGPD</label><input id="lgpdConsentAt" type="datetime-local"></div>
+          <div class="field span2"><label>Endereço</label><input id="address" placeholder="Rua, número, bairro, cidade"></div>
+          <div class="field"><label>Contato de emergência (nome)</label><input id="emergencyContactName" placeholder="Nome do contato"></div>
+          <div class="field"><label>Contato de emergência (telefone)</label><input id="emergencyContactPhone" placeholder="(11) 99999-9999"></div>
+          <div class="field span2"><label>Histórico médico inicial</label><textarea id="medicalHistory" placeholder="Condições prévias, alergias, observações"></textarea></div>
+          <div class="cam-area">
+            <label>Foto biométrica (obrigatória)</label>
+            <div>
+              <video id="camVideo" autoplay muted playsinline></video>
+              <img id="camPreview" alt="Foto capturada">
+            </div>
+            <div class="cam-status" id="camStatus">Sem foto capturada</div>
+            <div class="cam-btns">
+              <button type="button" class="btn secondary small" id="camStartBtn">Abrir Câmera</button>
+              <button type="button" class="btn secondary small" id="camCaptureBtn" style="display:none">Capturar</button>
+              <button type="button" class="btn secondary small" id="camRetakeBtn" style="display:none">Refazer</button>
+            </div>
+            <canvas id="camCanvas" style="display:none"></canvas>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" type="submit" id="submitBtn">Enviar cadastro</button>
+          <button class="btn secondary" type="button" id="clearBtn">Limpar formulário</button>
+        </div>
+      </form>
+      <div class="msg ok" id="okMsg"></div>
+      <div class="msg err" id="errMsg"></div>
+    </main>
+  </div>
+
+  <script>
+    const token = '<%= token %>';
+    let camStream = null;
+    let faceBase64 = null;
+
+    function byId(id) { return document.getElementById(id); }
+
+    byId('camStartBtn').addEventListener('click', async () => {
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 320, height: 240 } });
+        const video = byId('camVideo');
+        video.srcObject = camStream;
+        video.style.display = 'block';
+        byId('camPreview').style.display = 'none';
+        byId('camStartBtn').style.display = 'none';
+        byId('camCaptureBtn').style.display = '';
+        byId('camStatus').textContent = 'Câmera ativa — clique em Capturar';
+      } catch (_e) {
+        byId('camStatus').textContent = 'Câmera não disponível. Verifique as permissões do navegador.';
+      }
+    });
+
+    byId('camCaptureBtn').addEventListener('click', () => {
+      const video = byId('camVideo');
+      const canvas = byId('camCanvas');
+      canvas.width = video.videoWidth || 320;
+      canvas.height = video.videoHeight || 240;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      faceBase64 = canvas.toDataURL('image/jpeg', 0.8);
+      const preview = byId('camPreview');
+      preview.src = faceBase64;
+      preview.style.display = 'block';
+      video.style.display = 'none';
+      byId('camCaptureBtn').style.display = 'none';
+      byId('camRetakeBtn').style.display = '';
+      byId('camStatus').textContent = '✓ Foto capturada com sucesso';
+      if (camStream) { camStream.getTracks().forEach((t) => t.stop()); camStream = null; }
+    });
+
+    byId('camRetakeBtn').addEventListener('click', () => {
+      faceBase64 = null;
+      byId('camPreview').style.display = 'none';
+      byId('camRetakeBtn').style.display = 'none';
+      byId('camStartBtn').style.display = '';
+      byId('camStatus').textContent = 'Sem foto capturada';
+    });
+
+    function showMsg(type, text) {
+      const ok = byId('okMsg');
+      const err = byId('errMsg');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      if (!text) return;
+      if (type === 'ok') {
+        ok.textContent = text;
+        ok.style.display = 'block';
+      } else {
+        err.textContent = text;
+        err.style.display = 'block';
+      }
+    }
+
+    function collectPayload() {
+      return {
+        name: byId('name').value.trim(),
+        email: byId('email').value.trim(),
+        password: byId('password').value,
+        phone: byId('phone').value.trim(),
+        birthDate: byId('birthDate').value || null,
+        documentId: byId('documentId').value.trim(),
+        address: byId('address').value.trim(),
+        emergencyContactName: byId('emergencyContactName').value.trim(),
+        emergencyContactPhone: byId('emergencyContactPhone').value.trim(),
+        medicalHistory: byId('medicalHistory').value.trim(),
+        lgpdConsentVersion: byId('lgpdConsentVersion').value.trim(),
+        lgpdConsentAt: byId('lgpdConsentAt').value || null,
+        faceImage: faceBase64,
+      };
+    }
+
+    async function init() {
+      const info = byId('topInfo');
+      try {
+        const res = await fetch(`/api/patient-registration/${token}`);
+        const data = await res.json();
+        if (!res.ok) {
+          info.className = 'msg err';
+          info.style.display = 'block';
+          info.textContent = data.error || 'Link de cadastro inválido.';
+          byId('formArea').classList.add('locked');
+          return;
+        }
+
+        info.className = 'msg info';
+        info.style.display = 'block';
+        info.textContent = 'Link válido. Preencha todos os dados necessários e envie.';
+        byId('registrationForm').style.display = 'block';
+        byId('expiryInfo').textContent = data.link?.expires_at
+          ? `Link expira em ${new Date(data.link.expires_at).toLocaleString('pt-BR')}`
+          : 'Link de cadastro ativo';
+        if (data.link?.requested_email) {
+          byId('email').value = data.link.requested_email;
+        }
+      } catch (_e) {
+        info.className = 'msg err';
+        info.style.display = 'block';
+        info.textContent = 'Não foi possível validar o link agora.';
+      }
+    }
+
+    byId('clearBtn').addEventListener('click', () => {
+      byId('registrationForm').reset();
+      showMsg('', '');
+    });
+
+    byId('registrationForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showMsg('', '');
+
+      if (!faceBase64) {
+        showMsg('err', 'A foto biométrica é obrigatória. Abra a câmera e capture sua foto antes de enviar.');
+        return;
+      }
+
+      const btn = byId('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      try {
+        const res = await fetch(`/api/patient-registration/${token}/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(collectPayload()),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao enviar cadastro.');
+
+        showMsg('ok', data.message || 'Cadastro enviado com sucesso.');
+        byId('registrationForm').classList.add('locked');
+      } catch (error) {
+        showMsg('err', error.message || 'Falha ao enviar cadastro.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enviar cadastro';
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

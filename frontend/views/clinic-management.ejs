@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinic Chek · Gerenciamento de Clínica</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    /* ============================================================
+       TEMA CLARO / ESCURO — SISTEMA DA TELA DE REFERÊNCIA
+       ============================================================ */
+    :root {
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sidebar-width: 280px;
+      --sidebar-collapsed: 72px;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       RESET E BASE
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ============================================================
+       SIDEBAR (idêntica à referência)
+       ============================================================ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: var(--font);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition), transform var(--transition), background var(--transition);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed);
+    }
+    .sidebar.collapsed .sb-brand-title,
+    .sidebar.collapsed .sidebar-user,
+    .sidebar.collapsed .sb-group-btn span:not(.caret),
+    .sidebar.collapsed .nav-item span,
+    .sidebar.collapsed .sidebar-footer .btn-logout span,
+    .sidebar.collapsed .sb-toggle-label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sidebar.collapsed .sb-brand-icon {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .nav-item i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+    .sidebar.collapsed .sb-group-btn {
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .sidebar.collapsed .sb-group-btn .caret {
+      display: none;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout i {
+      margin-right: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .sb-brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--accent-1), #06b6d4);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .sb-brand-icon:hover {
+      transform: rotate(-8deg) scale(1.05);
+    }
+    .sb-brand-title {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sb-brand-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--text-primary) 60%, var(--accent-1));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sb-brand-title small {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 400;
+      -webkit-text-fill-color: var(--text-muted);
+    }
+
+    .sb-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+    .sb-toggle-btn:active {
+      transform: scale(0.9);
+    }
+
+    .sidebar-user {
+      margin: 12px 16px 8px;
+      padding: 14px 16px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      transition: background 0.3s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .sidebar-user .role {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-user .clinic {
+      font-size: 11px;
+      color: var(--accent-1);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-user .clinic i {
+      font-size: 10px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 12px 8px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-subtle) transparent;
+    }
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 10px;
+    }
+
+    .sb-group {
+      margin-top: 4px;
+    }
+    .sb-group + .sb-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .sb-group-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      border: 0;
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--font);
+      border-radius: 6px;
+      transition: color 0.25s, background 0.25s;
+    }
+    .sb-group-btn:hover {
+      color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .sb-group-btn .caret {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 9px;
+    }
+    .sb-group.open .sb-group-btn .caret {
+      transform: rotate(90deg);
+      color: var(--accent-1);
+    }
+
+    .sb-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+    }
+    .sb-group.open .sb-group-list {
+      max-height: 600px;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, transform 0.15s, padding 0.2s;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font);
+      overflow: hidden;
+    }
+    .nav-item i {
+      width: 20px;
+      font-size: 15px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--accent-1);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-item:hover {
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateX(3px);
+    }
+    .nav-item:hover i {
+      color: var(--accent-1);
+      transform: scale(1.1) rotate(-4deg);
+    }
+    .nav-item:hover::before {
+      transform: scaleY(0.5);
+    }
+
+    .nav-item.active {
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--accent-1);
+    }
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    .nav-item.active i {
+      color: var(--accent-1);
+    }
+    .nav-item:active {
+      transform: scale(0.97);
+    }
+    .nav-item[hidden] {
+      display: none !important;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      transition: background 0.3s;
+    }
+    .theme-toggle .sb-toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: opacity 0.2s;
+    }
+    .theme-toggle .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--border-subtle);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .theme-toggle .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch {
+      background: var(--accent-1);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch .slider {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-logout i {
+      font-size: 15px;
+    }
+    .btn-logout span {
+      transition: opacity 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+    .btn-logout:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        border-right: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .sidebar.collapsed {
+        width: var(--sidebar-width);
+      }
+      .sidebar.collapsed .sb-brand-title,
+      .sidebar.collapsed .sidebar-user,
+      .sidebar.collapsed .sb-group-btn span:not(.caret),
+      .sidebar.collapsed .nav-item span,
+      .sidebar.collapsed .sidebar-footer .btn-logout span,
+      .sidebar.collapsed .sb-toggle-label {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        overflow: visible;
+      }
+      .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 9px 12px !important;
+      }
+      .sidebar.collapsed .nav-item i {
+        font-size: 15px;
+        margin-right: 0;
+      }
+      .sidebar.collapsed .sb-group-btn {
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .sidebar.collapsed .sb-group-btn .caret {
+        display: inline;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout {
+        justify-content: flex-start;
+        padding: 10px 14px !important;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout i {
+        margin-right: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 320px;
+      }
+      .sb-brand-title h2 {
+        font-size: 15px;
+      }
+    }
+
+    /* ============================================================
+       MAIN / TOPBAR / CONTENT
+       ============================================================ */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--accent-5);
+      font-size: 10px;
+      transition: color var(--transition);
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       CARDS, BOTÕES, FORMULÁRIOS, TABELAS (sistema unificado)
+       ============================================================ */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--accent-1);
+    }
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--transition);
+    }
+    .card-header h3 i {
+      color: var(--accent-1);
+      font-size: 16px;
+      transition: color var(--transition);
+    }
+    .card-body {
+      padding: 20px 22px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--accent-1);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3);
+    }
+    .btn-solid:hover {
+      background: #3b7ec8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-teal {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3);
+    }
+    .btn-teal:hover {
+      background: #5ab8a9;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(107, 197, 184, 0.4);
+    }
+    .btn-teal:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(229, 62, 62, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(229, 62, 62, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols1 {
+      grid-template-columns: 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .form-group input.err {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px var(--red-bg);
+    }
+    .form-group input::placeholder {
+      color: var(--text-muted);
+      font-weight: 300;
+      transition: color var(--transition);
+    }
+    .form-group select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+    .form-group select[multiple] {
+      min-height: 100px;
+    }
+
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      border-left: 3px solid var(--accent-5);
+    }
+    .alert-err {
+      background: var(--red-bg);
+      color: var(--red);
+      border-left: 3px solid var(--red);
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.2s ease, border-color var(--transition), transform 0.15s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--bg-card-hover);
+      transform: scale(1.002);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--text-secondary);
+      vertical-align: middle;
+      transition: color var(--transition);
+    }
+    tbody td strong {
+      color: var(--text-primary);
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: background var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .badge:hover {
+      transform: scale(1.06);
+    }
+    .badge-blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .badge-yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .badge-gray {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .badge-purple {
+      background: var(--accent-3-dim);
+      color: var(--accent-3);
+    }
+    .badge-owner {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .badge-admin {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-member {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-doc {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .badge-rec {
+      background: #fce4ec;
+      color: #c2185b;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1.7fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1000px) {
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── COMPONENTES ESPECÍFICOS DO CLINIC MANAGER ── */
+    .clinic-card {
+      border: 1.5px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--bg-card);
+      position: relative;
+    }
+    .clinic-card:hover {
+      border-color: var(--accent-1);
+      box-shadow: var(--shadow-hover);
+    }
+    .clinic-card.selected {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      box-shadow: var(--shadow-hover);
+    }
+    .clinic-card .cc-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .clinic-card .cc-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .clinic-card .cc-actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 5px;
+    }
+    .clinic-card .badge-inactive {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border-radius: 20px;
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-left: 6px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state svg {
+      width: 42px;
+      height: 42px;
+      fill: currentColor;
+      opacity: 0.25;
+      margin-bottom: 10px;
+    }
+    .empty-state p {
+      font-size: 12px;
+    }
+
+    .member-add-area {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 4px;
+    }
+    .member-add-area label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* ── MODAL DE PERMISSÕES ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 920px;
+      margin: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-card);
+      max-height: 88vh;
+      overflow: auto;
+    }
+    .modal-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-head h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 22px;
+      line-height: 1;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .modal-close:hover {
+      color: var(--text-primary);
+      transform: rotate(90deg);
+    }
+    .modal-body {
+      padding: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .modal-foot {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+      .topbar {
+        padding: 12px 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .topbar h1 {
+        font-size: 18px;
+      }
+      .content {
+        padding: 16px;
+      }
+    }
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.span2 {
+        grid-column: span 1;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .btn-sm {
+        width: auto;
+      }
+      .card-body {
+        padding: 14px;
+      }
+      .table-wrap table {
+        min-width: 500px;
+      }
+      .clinic-card .cc-actions {
+        position: static;
+        margin-top: 8px;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+  SIDEBAR (idêntica à referência)
+  ============================================================ -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-header">
+      <div class="sb-brand">
+        <div class="sb-brand-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="sb-brand-title">
+          <h2>Clinic Chek</h2>
+          <small>Gestão inteligente</small>
+        </div>
+      </div>
+      <button class="sb-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name" id="sidebarName">Carregando...</div>
+      <div class="role" id="sidebarRole">Profissional</div>
+      <div class="clinic"><i class="fas fa-hospital"></i> <span id="sidebarClinic">Clínica: --</span></div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- PRINCIPAL -->
+      <div class="sb-group open" data-group="principal">
+        <button class="sb-group-btn" type="button"><span>Principal</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="dashboard" href="/medico">
+            <i class="fas fa-th-large"></i> <span>Dashboard</span>
+          </a>
+          <a class="nav-item" hidden data-page="agenda" href="/medico/agenda">
+            <i class="fas fa-calendar-check"></i> <span>Agenda</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CADASTROS -->
+      <div class="sb-group open" data-group="cadastro">
+        <button class="sb-group-btn" type="button"><span>Cadastros</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="patients" href="/medico/pacientes">
+            <i class="fas fa-user-injured"></i> <span>Pacientes</span>
+          </a>
+          <a class="nav-item" hidden data-page="patients.records" href="/medico/prontuarios">
+            <i class="fas fa-notes-medical"></i> <span>Prontuários</span>
+          </a>
+          <a class="nav-item" hidden data-page="procedures" href="/medico/procedimentos">
+            <i class="fas fa-procedures"></i> <span>Procedimentos</span>
+          </a>
+          <a class="nav-item" hidden data-page="prescriptions" href="/medico/receita">
+            <i class="fas fa-prescription"></i> <span>Receita / Atestado</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- FINANCEIRO -->
+      <div class="sb-group open" data-group="financeiro">
+        <button class="sb-group-btn" type="button"><span>Financeiro</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/dashboard">
+            <i class="fas fa-chart-line"></i> <span>Dashboard Financeiro</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.caixa" data-page-codes="financeiro.caixa" href="/medico/caixa">
+            <i class="fas fa-cash-register"></i> <span>Caixa</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.despesas" data-page-codes="financeiro.despesas" href="/medico/financeiro/despesas">
+            <i class="fas fa-file-invoice-dollar"></i> <span>Contas a Pagar</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/relatorios">
+            <i class="fas fa-chart-pie"></i> <span>Relatórios</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- DOCUMENTOS -->
+      <div class="sb-group open" data-group="documentos">
+        <button class="sb-group-btn" type="button"><span>Documentos</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="documents" href="/medico/documentos">
+            <i class="fas fa-file-signature"></i> <span>Documentos</span>
+          </a>
+          <a class="nav-item" hidden data-page="templates" href="/medico/templates">
+            <i class="fas fa-file-alt"></i> <span>Modelos</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ADMINISTRAÇÃO (com item ativo para Minha Clínica) -->
+      <div class="sb-group open" data-group="administracao">
+        <button class="sb-group-btn" type="button"><span>Administração</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="team" id="navTeamItem" href="/admin">
+            <i class="fas fa-user-md"></i> <span>Equipe (Admin)</span>
+          </a>
+          <a class="nav-item active" hidden data-page="clinic" href="/medico/clinica">
+            <i class="fas fa-hospital-alt"></i> <span>Minha Clínica</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ACESSO EXTRA -->
+      <div class="sb-group open" data-group="acesso-extra">
+        <button class="sb-group-btn" type="button"><span>Acesso Extra</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="reception" href="/recepcao">
+            <i class="fas fa-concierge-bell"></i> <span>Painel de Recepção</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span class="sb-toggle-label"><i class="fas fa-moon"></i> Tema</span>
+        <div class="toggle-switch" id="themeToggle" role="button" tabindex="0" aria-label="Alternar tema">
+          <div class="slider"></div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+  MAIN
+  ============================================================ -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Gerenciamento de Clínica</h1>
+        <div class="meta">Cadastre sua clínica e vincule profissionais e atendentes</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+        <a href="/medico" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="grid2">
+
+        <!-- COLUNA ESQUERDA — formulário + lista de clínicas -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <h3 id="formTitle"><i class="fas fa-plus-circle"></i> Nova Clínica</h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" id="cancelEditBtn" style="display:none" onclick="cancelEdit()"><i class="fas fa-times"></i> Cancelar</button>
+                <button class="btn btn-teal btn-sm" id="newClinicBtn" onclick="openNewClinicForm()"><i class="fas fa-plus"></i> Nova</button>
+              </div>
+            </div>
+            <div class="card-body" id="clinicFormWrap">
+              <div class="form-grid">
+                <div class="form-group span2">
+                  <label>Nome da Clínica *</label>
+                  <input type="text" id="fName" placeholder="Ex: Clínica Aline — Estética Avançada" maxlength="120" />
+                </div>
+                <div class="form-group">
+                  <label>CNPJ</label>
+                  <input type="text" id="fCnpj" placeholder="00.000.000/0001-00" maxlength="18" oninput="maskCnpj(this)" />
+                </div>
+                <div class="form-group">
+                  <label>Telefone</label>
+                  <input type="text" id="fPhone" placeholder="(00) 00000-0000" maxlength="20" />
+                </div>
+                <div class="form-group">
+                  <label>E-mail</label>
+                  <input type="email" id="fEmail" placeholder="contato@clinica.com.br" />
+                </div>
+                <div class="form-group">
+                  <label>CEP</label>
+                  <input type="text" id="fZip" placeholder="00000-000" maxlength="9" oninput="maskCep(this)" onblur="fetchCep(this.value)" />
+                </div>
+                <div class="form-group span2">
+                  <label>Endereço</label>
+                  <input type="text" id="fAddress" placeholder="Rua, número, complemento" />
+                </div>
+                <div class="form-group">
+                  <label>Cidade</label>
+                  <input type="text" id="fCity" placeholder="Cidade" />
+                </div>
+                <div class="form-group">
+                  <label>Estado (UF)</label>
+                  <input type="text" id="fState" placeholder="SP" maxlength="2" style="text-transform:uppercase" />
+                </div>
+              </div>
+
+              <!-- Identidade visual -->
+              <div style="margin-top:18px;padding-top:14px;border-top:1.5px dashed var(--border-card)">
+                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:12px">
+                  <i class="fas fa-paint-brush"></i> Identidade Visual (aparece nas receitas e atestados)
+                </p>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Cor do Cabeçalho</label>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <input type="color" id="fHeaderColor" value="#1a237e" style="width:44px;height:36px;padding:2px;border:1px solid var(--border-card);border-radius:8px;cursor:pointer;background:var(--bg-input)" />
+                      <span id="fHeaderColorTxt" style="font-size:12px;color:var(--text-muted)">#1a237e</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Logo / Imagem do Cabeçalho</label>
+                    <input type="file" id="fHeaderImageFile" accept="image/*" onchange="handleLogoUpload(this)" style="font-size:12px" />
+                    <div id="fHeaderImagePreview" style="margin-top:6px;display:none">
+                      <img id="fHeaderImagePreviewImg" src="" alt="Preview" style="max-height:60px;max-width:180px;object-fit:contain;border:1px solid var(--border-card);border-radius:8px;padding:4px;background:var(--bg-card)" />
+                      <button type="button" onclick="clearLogo()" style="margin-left:8px;font-size:11px;color:var(--red);background:none;border:none;cursor:pointer"><i class="fas fa-times-circle"></i> Remover</button>
+                    </div>
+                    <input type="hidden" id="fHeaderImageUrl" />
+                  </div>
+                  <div class="form-group span2">
+                    <label>Texto do Rodapé dos Documentos</label>
+                    <input type="text" id="fFooterText" placeholder="Ex: CRM 000 | www.clinica.com.br | Atendimento de Seg a Sex 08h–18h" maxlength="200" />
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button class="btn btn-solid" id="saveClinicBtn" onclick="saveClinic()">
+                  <i class="fas fa-save"></i> Salvar Clínica
+                </button>
+                <input type="hidden" id="editingClinicId" />
+              </div>
+              <div class="alert-msg alert-ok" id="fOk"></div>
+              <div class="alert-msg alert-err" id="fErr"></div>
+            </div>
+          </div>
+
+          <!-- Lista de clínicas -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-clinic-medical"></i> Minhas Clínicas</h3>
+              <span id="clinicCount" style="font-size:11px;color:var(--text-muted)"></span>
+            </div>
+            <div class="card-body" id="clinicListWrap" style="padding:12px;">
+              <div class="empty-state">
+                <i class="fas fa-building" style="font-size:32px;opacity:0.25;display:block;margin-bottom:10px;"></i>
+                <p>Carregando clínicas...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUNA DIREITA — painel de membros -->
+        <div id="memberPanel" style="display:none">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 id="memberPanelTitle"><i class="fas fa-users"></i> Membros da Clínica</h3>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px" id="memberPanelSub"></div>
+              </div>
+            </div>
+
+            <!-- Adicionar membro -->
+            <div class="card-body" style="padding-bottom:0">
+              <div class="member-add-area">
+                <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end;">
+                  <div>
+                    <label>Adicionar Profissional / Atendente</label>
+                    <select id="addMemberType" style="margin-bottom:6px;padding:8px 10px;border:1px solid var(--border-card);border-radius:var(--radius);font-size:12px;font-family:var(--font);width:100%;background:var(--bg-input);outline:none;" onchange="loadMemberOptions()">
+                      <option value="doctor">Médico / Profissional</option>
+                      <option value="receptionist">Recepcionista / Atendente</option>
+                    </select>
+                    <select id="addMemberId" style="padding:8px 10px;border:1px solid var(--border-card);border-radius:var(--radius);font-size:12px;font-family:var(--font);width:100%;background:var(--bg-input);outline:none;">
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-teal" onclick="addMember()" id="addMemberBtn" style="height:38px;align-self:end;"><i class="fas fa-plus"></i> Adicionar</button>
+                </div>
+                <div class="alert-msg alert-ok" id="mOk"></div>
+                <div class="alert-msg alert-err" id="mErr"></div>
+              </div>
+            </div>
+
+            <!-- Tabela de membros -->
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Papel</th><th>Ações</th></tr></thead>
+                <tbody id="membersBody">
+                  <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Nenhum membro cadastrado</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado inicial direita -->
+        <div id="emptyRight" style="display:flex;align-items:center;justify-content:center;min-height:300px;">
+          <div class="empty-state">
+            <i class="fas fa-hand-pointer" style="font-size:42px;opacity:0.25;display:block;margin-bottom:12px;"></i>
+            <p style="margin-top:12px;font-size:13px;font-weight:500;color:var(--text-secondary)">Selecione uma clínica</p>
+            <p style="font-size:11px;margin-top:4px;">Clique em uma clínica à esquerda para ver e gerenciar seus membros</p>
+          </div>
+        </div>
+
+        <!-- Modal de Permissões -->
+        <div class="modal-overlay" id="permModal">
+          <div class="modal">
+            <div class="modal-head">
+              <div>
+                <h3><i class="fas fa-lock"></i> Permissões por Tela</h3>
+                <div id="permModalSub" style="font-size:12px;color:var(--text-muted);margin-top:2px;"></div>
+              </div>
+              <button class="modal-close" onclick="closePermissionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                  <thead>
+                    <tr>
+                      <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Tela</th>
+                      <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Grupo</th>
+                      <th style="text-align:left;padding:8px;border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Perfil</th>
+                      <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Ver</th>
+                      <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Criar</th>
+                      <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Editar</th>
+                      <th style="text-align:center;padding:8px;border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Excluir</th>
+                    </tr>
+                  </thead>
+                  <tbody id="permTableBody"></tbody>
+                </table>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+                <i class="fas fa-info-circle"></i> Telas marcadas como "Fora do perfil" podem ser concedidas manualmente (ex.: atendente com tela médica).
+              </div>
+            </div>
+            <div class="modal-foot">
+              <button class="btn btn-outline" onclick="closePermissionsModal()">Cancelar</button>
+              <button class="btn btn-solid" id="savePermBtn" onclick="savePermissions()"><i class="fas fa-save"></i> Salvar Permissões</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal de Edição de Perfil (qualquer membro) -->
+        <div class="modal-overlay" id="editProfileModal">
+          <div class="modal">
+            <div class="modal-head">
+              <div>
+                <h3><i class="fas fa-user-edit"></i> Editar Perfil</h3>
+                <div id="editProfileSub" style="font-size:12px;color:var(--text-muted);margin-top:2px;"></div>
+              </div>
+              <button class="modal-close" onclick="closeEditProfileModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="editProfileMemberRowId">
+              <div style="display:flex;gap:18px;align-items:center;margin-bottom:18px;">
+                <div style="position:relative;">
+                  <img id="epPhotoPreview" src="" alt="" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:none;">
+                  <div id="epPhotoPlaceholder" style="width:76px;height:76px;border-radius:50%;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--text-muted);"><i class="fas fa-user"></i></div>
+                </div>
+                <div>
+                  <button type="button" class="btn btn-outline btn-sm" id="epChoosePhotoBtn"><i class="fas fa-camera"></i> Trocar foto</button>
+                  <input type="file" id="epPhotoInput" accept="image/*" style="display:none;">
+                </div>
+              </div>
+              <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-group span2"><label>Nome completo</label><input type="text" id="epName"></div>
+                <div class="form-group"><label>Telefone</label><input type="text" id="epPhone" placeholder="(11) 99999-9999"></div>
+                <div class="form-group" id="epSpecialtyGroup"><label>Especialidade</label><input type="text" id="epSpecialty"></div>
+                <div class="form-group span2" id="epBioGroup"><label>Resumo profissional (bio)</label><textarea id="epBio" rows="3"></textarea></div>
+              </div>
+              <div class="alert-msg alert-err" id="editProfileErr" style="display:none;"></div>
+            </div>
+            <div class="modal-foot">
+              <button class="btn btn-outline" onclick="closeEditProfileModal()">Cancelar</button>
+              <button class="btn btn-solid" id="confirmEditProfileBtn"><i class="fas fa-save"></i> Salvar Perfil</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================
+  SCRIPTS (mantidos integrais, com pequenos ajustes para o novo CSS)
+  ============================================================ -->
+  <script>
+    (function() {
+      // ============================================================
+      // SIDEBAR — TOGGLE, TEMA, LOGOUT (idêntico à referência)
+      // ============================================================
+      const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      let isCollapsed = false;
+
+      const savedCollapse = localStorage.getItem('sidebarCollapsed');
+      if (savedCollapse === 'true') {
+        sidebar.classList.add('collapsed');
+        isCollapsed = true;
+      }
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.innerWidth <= 992) {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+          document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        } else {
+          isCollapsed = !isCollapsed;
+          sidebar.classList.toggle('collapsed', isCollapsed);
+          localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      // TEMA
+      const themeToggle = document.getElementById('themeToggle');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      // LOGOUT
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('doctorToken');
+        localStorage.removeItem('doctorData');
+        window.location.href = '/medico/login';
+      });
+
+      // ============================================================
+      // DADOS DO USUÁRIO
+      // ============================================================
+      const token = localStorage.getItem('doctorToken');
+      const doctorData = JSON.parse(localStorage.getItem('doctorData') || '{}');
+      if (!token) { window.location.href = '/medico/login'; }
+
+      const nameEl = document.getElementById('sidebarName');
+      const roleEl = document.getElementById('sidebarRole');
+      const clinicEl = document.getElementById('sidebarClinic');
+      if (nameEl) nameEl.textContent = doctorData.name || 'Profissional';
+      if (roleEl) roleEl.textContent = doctorData.isClinicOwner ? 'Owner da Clínica' : 'Profissional';
+      if (clinicEl) clinicEl.textContent = 'Clínica: ' + (doctorData.clinicName || '--');
+
+      const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+
+      // ============================================================
+      // PERMISSÕES — esconde da sidebar as páginas que este usuário
+      // não pode ver (os itens já nascem com "hidden" no HTML pra não
+      // aparecer nem um instante antes desta checagem terminar).
+      // ============================================================
+      document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+        item.hidden = true;
+      });
+      fetch('/api/auth/permissions', { headers })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (!data || !Array.isArray(data.pages)) return;
+          const allowed = new Set((data.pages || []).filter((p) => p.can_view).map((p) => p.code));
+          document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+            const rawCodes = item.getAttribute('data-page-codes') || item.getAttribute('data-page') || '';
+            const pageCodes = rawCodes.split(',').map((code) => code.trim()).filter(Boolean);
+            if (!pageCodes.length) { item.hidden = false; return; }
+            const canSee = pageCodes.some((code) => allowed.has(code));
+            item.hidden = !canSee;
+          });
+          document.querySelectorAll('.sb-group').forEach((g) => {
+            const hasVisible = Array.from(g.querySelectorAll('.nav-item')).some((i) => !i.hidden);
+            g.style.display = hasVisible ? '' : 'none';
+          });
+        })
+        .catch(() => {});
+
+      // ============================================================
+      // LÓGICA ORIGINAL DO CLINIC MANAGER (mantida intacta)
+      // ============================================================
+      let clinics = [];
+      let clinicDoctors = [];
+      let clinicReceptionists = [];
+      let selectedClinicId = null;
+      let editingId = null;
+      let currentPermissionsMemberRowId = null;
+      let canCreateNewClinic = true;
+
+      function escH(s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      // ── LOGO UPLOAD ────────────────────────────────────────────
+      function handleLogoUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { alert('A imagem deve ter no máximo 2MB.'); input.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const dataUrl = e.target.result;
+          document.getElementById('fHeaderImageUrl').value = dataUrl;
+          document.getElementById('fHeaderImagePreviewImg').src = dataUrl;
+          document.getElementById('fHeaderImagePreview').style.display = '';
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function clearLogo() {
+        document.getElementById('fHeaderImageUrl').value = '';
+        document.getElementById('fHeaderImageFile').value = '';
+        document.getElementById('fHeaderImagePreview').style.display = 'none';
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const cp = document.getElementById('fHeaderColor');
+        if (cp) cp.addEventListener('input', function() {
+          document.getElementById('fHeaderColorTxt').textContent = this.value;
+        });
+      });
+
+      // ── MÁSCARAS ────────────────────────────────────────────────
+      function maskCnpj(el) {
+        let v = el.value.replace(/\D/g, '').slice(0, 14);
+        v = v.replace(/^(\d{2})(\d)/, '$1.$2')
+          .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+          .replace(/\.(\d{3})(\d)/, '.$1/$2')
+          .replace(/(\d{4})(\d)/, '$1-$2');
+        el.value = v;
+      }
+
+      function maskCep(el) {
+        let v = el.value.replace(/\D/g, '').slice(0, 8);
+        if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+        el.value = v;
+      }
+
+      async function fetchCep(cep) {
+        const digits = cep.replace(/\D/g, '');
+        if (digits.length !== 8) return;
+        try {
+          const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+          const data = await res.json();
+          if (!data.erro) {
+            document.getElementById('fAddress').value = data.logradouro || '';
+            document.getElementById('fCity').value = data.localidade || '';
+            document.getElementById('fState').value = data.uf || '';
+          }
+        } catch {}
+      }
+
+      // ── CARREGAR DADOS BASE ──────────────────────────────────────
+      async function loadBase() {
+        const cRes = await fetch('/api/clinics', { headers });
+        clinics = cRes.ok ? await cRes.json() : [];
+        renderClinicList();
+
+        if (clinics.length === 1 && clinics[0]?.id) {
+          await selectClinic(clinics[0].id);
+        }
+      }
+
+      // ── RENDERIZAR LISTA ─────────────────────────────────────────
+      function renderClinicList() {
+        const wrap = document.getElementById('clinicListWrap');
+        document.getElementById('clinicCount').textContent = `${clinics.length} clínica(s)`;
+        if (!clinics.length) {
+          wrap.innerHTML = `<div class="empty-state">
+            <i class="fas fa-building" style="font-size:32px;opacity:0.25;display:block;margin-bottom:10px;"></i>
+            <p>Nenhuma clínica cadastrada ainda.</p>
+            <p style="font-size:11px;margin-top:4px;">Use o formulário acima para criar a sua.</p>
+          </div>`;
+          return;
+        }
+        wrap.innerHTML = clinics.map(c => `
+          <div class="clinic-card${c.id === selectedClinicId ? ' selected' : ''}" id="cc_${c.id}" onclick="selectClinic('${c.id}')">
+            <div class="cc-actions">
+              <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editClinic('${c.id}')"><i class="fas fa-edit"></i></button>
+              ${c.is_owner ? `<button class="btn btn-red btn-sm" onclick="event.stopPropagation();deleteClinic('${c.id}')"><i class="fas fa-trash-alt"></i></button>` : ''}
+            </div>
+            <div class="cc-name">${escH(c.name)}${!c.active ? '<span class="badge-inactive">Inativa</span>' : ''}</div>
+            <div class="cc-meta">
+              ${c.cnpj ? `CNPJ: ${formatCnpj(c.cnpj)} &nbsp;·&nbsp; ` : ''}
+              ${c.city ? escH(c.city) + (c.state ? '/' + escH(c.state) : '') + ' &nbsp;·&nbsp; ' : ''}
+              <strong>${c.member_count}</strong> membro(s)
+              ${c.is_owner ? ' &nbsp;·&nbsp; <span style="color:var(--accent-1);font-weight:600;">Você é o owner</span>' : ''}
+            </div>
+          </div>`
+        ).join('');
+
+        updateCreateClinicUI();
+      }
+
+      function updateCreateClinicUI() {
+        const btn = document.getElementById('newClinicBtn');
+        if (!btn) return;
+
+        const hasOwnedClinic = clinics.some(c => !!c.is_owner);
+        const hasAnyClinic = clinics.length > 0;
+        canCreateNewClinic = hasOwnedClinic || !hasAnyClinic;
+
+        btn.disabled = !canCreateNewClinic;
+        btn.title = canCreateNewClinic ? 'Criar nova clínica' : 'Somente owner pode criar nova clínica.';
+      }
+
+      function formatCnpj(v) {
+        const d = String(v).replace(/\D/g, '');
+        return d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5') || v;
+      }
+
+      // ── SELECIONAR CLÍNICA ───────────────────────────────────────
+      async function selectClinic(id) {
+        selectedClinicId = id;
+        document.querySelectorAll('.clinic-card').forEach(el => el.classList.remove('selected'));
+        const card = document.getElementById('cc_' + id);
+        if (card) card.classList.add('selected');
+        const clinic = clinics.find(c => c.id === id);
+        document.getElementById('memberPanel').style.display = '';
+        document.getElementById('emptyRight').style.display = 'none';
+        document.getElementById('memberPanelTitle').textContent = `Membros — ${clinic?.name || ''}`;
+        document.getElementById('memberPanelSub').textContent =
+          `${clinic?.city || ''} ${clinic?.state ? '/ ' + clinic.state : ''} ${clinic?.cnpj ? '· CNPJ: ' + formatCnpj(clinic.cnpj) : ''}`.trim();
+        await loadMembers(id);
+      }
+
+      let currentMembers = [];
+      async function loadMembers(clinicId) {
+        const res = await fetch(`/api/clinics/${clinicId}/members`, { headers });
+        const members = res.ok ? await res.json() : [];
+        currentMembers = members;
+        renderMembersTable(members);
+      }
+
+      function renderMembersTable(members) {
+        const tbody = document.getElementById('membersBody');
+        if (!members.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Nenhum membro. Adicione profissionais e atendentes acima.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = members.map(m => `<tr id="mr_${m.member_row_id}">
+          <td>
+            ${m.photo_url ? `<img src="${escH(m.photo_url)}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">` : ''}
+            <strong>${escH(m.name || '—')}</strong>${m.crm ? `<br><small style="color:var(--text-muted)">CRM: ${escH(m.crm)}</small>` : ''}${!m.active ? '<br><small style="color:var(--red)">Inativo</small>' : ''}
+          </td>
+          <td>${escH(m.email || '—')}</td>
+          <td><span class="badge ${m.member_type === 'doctor' ? 'badge-doc' : 'badge-rec'}">${m.member_type === 'doctor' ? 'Médico' : 'Recepcionista'}</span></td>
+          <td>
+            <select onchange="updateMemberRole('${m.member_row_id}',this.value)" style="padding:4px 8px;border:1px solid var(--border-card);border-radius:6px;font-size:11px;font-family:var(--font);background:var(--bg-input);color:var(--text-primary);">
+              <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>Admin</option>
+              <option value="member" ${m.role === 'member' ? 'selected' : ''}>Membro</option>
+            </select>
+          </td>
+          <td style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="openEditProfileModal('${m.member_row_id}')"><i class="fas fa-user-edit"></i> Perfil</button>
+            <button class="btn btn-outline btn-sm" onclick="openPermissionsModal('${m.member_row_id}','${escH(m.name || 'Membro')}')"><i class="fas fa-lock"></i> Permissões</button>
+            <button class="btn btn-red btn-sm" onclick="removeMember('${m.member_row_id}')"><i class="fas fa-user-minus"></i></button>
+          </td>
+        </tr>`).join('');
+      }
+
+      // ── EDITAR PERFIL DE QUALQUER MEMBRO ────────────────────────────
+      function openEditProfileModal(memberRowId) {
+        const m = currentMembers.find((x) => x.member_row_id === memberRowId);
+        if (!m) return;
+        document.getElementById('editProfileMemberRowId').value = memberRowId;
+        document.getElementById('editProfileSub').textContent = `${m.member_type === 'doctor' ? 'Médico' : 'Recepcionista'}: ${m.name || ''}`;
+        document.getElementById('epName').value = m.name || '';
+        document.getElementById('epPhone').value = m.phone || '';
+        const isDoctor = m.member_type === 'doctor';
+        document.getElementById('epSpecialtyGroup').style.display = isDoctor ? '' : 'none';
+        document.getElementById('epBioGroup').style.display = isDoctor ? '' : 'none';
+        document.getElementById('epSpecialty').value = m.specialty || '';
+        document.getElementById('epBio').value = m.bio || '';
+        pendingEditProfilePhoto = null;
+        if (m.photo_url) { document.getElementById('epPhotoPreview').src = m.photo_url; document.getElementById('epPhotoPreview').style.display = 'block'; document.getElementById('epPhotoPlaceholder').style.display = 'none'; }
+        else { document.getElementById('epPhotoPreview').style.display = 'none'; document.getElementById('epPhotoPlaceholder').style.display = 'flex'; }
+        document.getElementById('editProfileErr').style.display = 'none';
+        document.getElementById('editProfileModal').style.display = 'flex';
+      }
+      function closeEditProfileModal(){ document.getElementById('editProfileModal').style.display = 'none'; }
+
+      let pendingEditProfilePhoto = null;
+      document.getElementById('epChoosePhotoBtn').addEventListener('click', () => document.getElementById('epPhotoInput').click());
+      document.getElementById('epPhotoInput').addEventListener('change', () => {
+        const file = document.getElementById('epPhotoInput').files[0];
+        if (!file) return;
+        if (file.size > 3.2 * 1024 * 1024) { alert('Imagem muito grande — escolha uma de até ~3MB.'); return; }
+        const reader = new FileReader();
+        reader.onload = () => {
+          pendingEditProfilePhoto = reader.result;
+          document.getElementById('epPhotoPreview').src = pendingEditProfilePhoto;
+          document.getElementById('epPhotoPreview').style.display = 'block';
+          document.getElementById('epPhotoPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('confirmEditProfileBtn').addEventListener('click', async () => {
+        const errEl = document.getElementById('editProfileErr');
+        errEl.style.display = 'none';
+        const memberRowId = document.getElementById('editProfileMemberRowId').value;
+        const name = document.getElementById('epName').value.trim();
+        if (!name) { errEl.textContent = 'O nome não pode ficar em branco.'; errEl.style.display = 'block'; return; }
+        const payload = {
+          name,
+          phone: document.getElementById('epPhone').value.trim(),
+          specialty: document.getElementById('epSpecialty').value.trim(),
+          bio: document.getElementById('epBio').value,
+        };
+        if (pendingEditProfilePhoto) payload.photoUrl = pendingEditProfilePhoto;
+        try {
+          const res = await fetch(`/api/clinics/${selectedClinicId}/members/${memberRowId}/profile`, {
+            method: 'PUT', headers, body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Falha ao salvar perfil.');
+          closeEditProfileModal();
+          loadMembers(selectedClinicId);
+        } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+      });
+
+      // ── PERMISSÕES ───────────────────────────────────────────────
+      async function openPermissionsModal(memberRowId, memberName) {
+        if (!selectedClinicId) return;
+        currentPermissionsMemberRowId = memberRowId;
+        document.getElementById('permModalSub').textContent = `Membro: ${memberName}`;
+        document.getElementById('permTableBody').innerHTML = '<tr><td colspan="7" style="padding:12px;text-align:center;color:var(--text-muted)">Carregando...</td></tr>';
+        document.getElementById('permModal').style.display = 'flex';
+
+        const res = await fetch(`/api/clinics/${selectedClinicId}/members/${memberRowId}/permissions`, { headers });
+        const pages = res.ok ? await res.json() : [];
+        if (!pages.length) {
+          document.getElementById('permTableBody').innerHTML = '<tr><td colspan="7" style="padding:12px;text-align:center;color:var(--text-muted)">Sem páginas cadastradas.</td></tr>';
+          return;
+        }
+
+        const groupedPages = {};
+        pages.forEach(p => {
+          const g = p.menu_group || 'outros';
+          if (!groupedPages[g]) groupedPages[g] = [];
+          groupedPages[g].push(p);
+        });
+        let permHtml = '';
+        for (const [group, items] of Object.entries(groupedPages)) {
+          permHtml += `<tr><td colspan="7" style="padding:5px 8px;background:var(--bg-elevated);color:var(--text-secondary);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border-subtle);">${escH(group.replace(/_/g, ' '))}</td></tr>`;
+          permHtml += items.map(p => {
+            const isSub = p.code.includes('.');
+            const rowBg = p.is_out_of_profile ? 'background:rgba(251,146,60,0.07);' : '';
+            const indent = isSub ? 'padding-left:22px;' : '';
+            const prefix = isSub ? '<span style="color:var(--text-muted);margin-right:4px;font-size:10px;">└</span>' : '';
+            return `<tr data-page="${p.code}" style="${rowBg}">
+              <td style="padding:7px 8px;${indent}border-bottom:1px solid var(--border-subtle);font-size:12px;">${prefix}${escH(p.name)} <small style="color:var(--text-muted)">(${escH(p.code)})</small></td>
+              <td style="padding:7px 8px;border-bottom:1px solid var(--border-subtle);font-size:11px;color:var(--text-muted);text-transform:capitalize;">${escH(group.replace(/_/g, ' '))}</td>
+              <td style="padding:7px 8px;border-bottom:1px solid var(--border-subtle);font-size:11px;">${p.is_out_of_profile ? '<span class="badge badge-rec">Fora do perfil</span>' : '<span class="badge badge-doc">Padrão</span>'}</td>
+              <td style="padding:7px 8px;border-bottom:1px solid var(--border-subtle);text-align:center;"><input type="checkbox" class="perm-view" ${p.can_view ? 'checked' : ''}></td>
+              <td style="padding:7px 8px;border-bottom:1px solid var(--border-subtle);text-align:center;"><input type="checkbox" class="perm-create" ${p.can_create ? 'checked' : ''}></td>
+              <td style="padding:7px 8px;border-bottom:1px solid var(--border-subtle);text-align:center;"><input type="checkbox" class="perm-update" ${p.can_update ? 'checked' : ''}></td>
+              <td style="padding:7px 8px;border-bottom:1px solid var(--border-subtle);text-align:center;"><input type="checkbox" class="perm-delete" ${p.can_delete ? 'checked' : ''}></td>
+            </tr>`;
+          }).join('');
+        }
+        document.getElementById('permTableBody').innerHTML = permHtml;
+      }
+
+      function closePermissionsModal() {
+        document.getElementById('permModal').style.display = 'none';
+        currentPermissionsMemberRowId = null;
+      }
+
+      async function savePermissions() {
+        if (!selectedClinicId || !currentPermissionsMemberRowId) return;
+        const btn = document.getElementById('savePermBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spin"></span>Salvando...';
+
+        const permissions = Array.from(document.querySelectorAll('#permTableBody tr[data-page]')).map((row) => ({
+          pageCode: row.getAttribute('data-page'),
+          canView: row.querySelector('.perm-view').checked,
+          canCreate: row.querySelector('.perm-create').checked,
+          canUpdate: row.querySelector('.perm-update').checked,
+          canDelete: row.querySelector('.perm-delete').checked,
+        }));
+
+        const res = await fetch(`/api/clinics/${selectedClinicId}/members/${currentPermissionsMemberRowId}/permissions`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ permissions }),
+        });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Salvar Permissões';
+
+        if (!res.ok) {
+          alert('Erro ao salvar permissões.');
+          return;
+        }
+        alert('Permissões atualizadas com sucesso.');
+        closePermissionsModal();
+      }
+
+      // ── FORM CLÍNICA ──────────────────────────────────────────────
+      function openNewClinicForm() {
+        if (!canCreateNewClinic) {
+          alert('Somente owner pode criar nova clínica.');
+          return;
+        }
+        cancelEdit();
+        document.getElementById('clinicFormWrap').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('fName').focus();
+      }
+
+      function fillForm(c) {
+        document.getElementById('fName').value = c.name || '';
+        document.getElementById('fCnpj').value = c.cnpj ? formatCnpj(c.cnpj) : '';
+        document.getElementById('fPhone').value = c.phone || '';
+        document.getElementById('fEmail').value = c.email || '';
+        document.getElementById('fZip').value = c.zip_code ? c.zip_code.replace(/^(\d{5})(\d{3})$/, '$1-$2') : '';
+        document.getElementById('fAddress').value = c.address || '';
+        document.getElementById('fCity').value = c.city || '';
+        document.getElementById('fState').value = c.state || '';
+        const color = c.header_color || '#1a237e';
+        document.getElementById('fHeaderColor').value = color;
+        document.getElementById('fHeaderColorTxt').textContent = color;
+        document.getElementById('fFooterText').value = c.footer_text || '';
+        const imgUrl = c.header_image_url || '';
+        document.getElementById('fHeaderImageUrl').value = imgUrl;
+        if (imgUrl) {
+          document.getElementById('fHeaderImagePreviewImg').src = imgUrl;
+          document.getElementById('fHeaderImagePreview').style.display = '';
+        } else {
+          document.getElementById('fHeaderImagePreview').style.display = 'none';
+        }
+      }
+
+      function editClinic(id) {
+        const c = clinics.find(x => x.id === id);
+        if (!c) return;
+        editingId = id;
+        document.getElementById('editingClinicId').value = id;
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Clínica';
+        document.getElementById('cancelEditBtn').style.display = '';
+        document.getElementById('saveClinicBtn').innerHTML = '<i class="fas fa-save"></i> Atualizar';
+        fillForm(c);
+        document.getElementById('clinicFormWrap').scrollIntoView({ behavior: 'smooth' });
+      }
+
+      function cancelEdit() {
+        editingId = null;
+        document.getElementById('editingClinicId').value = '';
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Nova Clínica';
+        document.getElementById('cancelEditBtn').style.display = 'none';
+        document.getElementById('saveClinicBtn').innerHTML = '<i class="fas fa-save"></i> Salvar Clínica';
+        ['fName', 'fCnpj', 'fPhone', 'fEmail', 'fZip', 'fAddress', 'fCity', 'fState', 'fFooterText'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('fHeaderColor').value = '#1a237e';
+        document.getElementById('fHeaderColorTxt').textContent = '#1a237e';
+        document.getElementById('fHeaderImageUrl').value = '';
+        document.getElementById('fHeaderImagePreview').style.display = 'none';
+        document.getElementById('fOk').style.display = 'none';
+        document.getElementById('fErr').style.display = 'none';
+      }
+
+      async function saveClinic() {
+        const ok = document.getElementById('fOk');
+        const err = document.getElementById('fErr');
+        ok.style.display = 'none';
+        err.style.display = 'none';
+        const name = document.getElementById('fName').value.trim();
+        if (!name) {
+          err.textContent = 'Nome da clínica é obrigatório.';
+          err.style.display = 'block';
+          document.getElementById('fName').classList.add('err');
+          return;
+        }
+        document.getElementById('fName').classList.remove('err');
+        const body = {
+          name,
+          cnpj: document.getElementById('fCnpj').value.replace(/\D/g, '') || null,
+          phone: document.getElementById('fPhone').value.trim() || null,
+          email: document.getElementById('fEmail').value.trim() || null,
+          zipCode: document.getElementById('fZip').value.replace(/\D/g, '') || null,
+          address: document.getElementById('fAddress').value.trim() || null,
+          city: document.getElementById('fCity').value.trim() || null,
+          state: document.getElementById('fState').value.trim().toUpperCase() || null,
+          headerColor: document.getElementById('fHeaderColor').value || null,
+          headerImageUrl: document.getElementById('fHeaderImageUrl').value || null,
+          footerText: document.getElementById('fFooterText').value.trim() || null,
+        };
+        const btn = document.getElementById('saveClinicBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spin"></span>Salvando...';
+        try {
+          const url = editingId ? `/api/clinics/${editingId}` : '/api/clinics';
+          const method = editingId ? 'PUT' : 'POST';
+          const res = await fetch(url, { method, headers, body: JSON.stringify(body) });
+          const data = await res.json();
+          if (res.ok) {
+            ok.textContent = editingId ? 'Clínica atualizada!' : 'Clínica criada com sucesso!';
+            ok.style.display = 'block';
+            if (editingId) {
+              const idx = clinics.findIndex(c => c.id === editingId);
+              if (idx >= 0) clinics[idx] = { ...clinics[idx], ...data };
+            } else {
+              data.member_count = 1;
+              data.is_owner = true;
+              clinics.unshift(data);
+            }
+            renderClinicList();
+            cancelEdit();
+            if (!editingId && data.id) selectClinic(data.id);
+          } else {
+            err.textContent = data.error || 'Erro ao salvar.';
+            err.style.display = 'block';
+            updateCreateClinicUI();
+          }
+        } catch {
+          err.textContent = 'Erro de conexão.';
+          err.style.display = 'block';
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> ' + (editingId ? 'Atualizar' : 'Salvar Clínica');
+      }
+
+      async function deleteClinic(id) {
+        if (!confirm('Desativar esta clínica? Os dados serão mantidos.')) return;
+        const res = await fetch(`/api/clinics/${id}`, { method: 'DELETE', headers });
+        if (res.ok) {
+          clinics = clinics.filter(c => c.id !== id);
+          renderClinicList();
+          if (selectedClinicId === id) {
+            document.getElementById('memberPanel').style.display = 'none';
+            document.getElementById('emptyRight').style.display = 'flex';
+            selectedClinicId = null;
+          }
+        } else {
+          alert('Erro ao remover.');
+        }
+      }
+
+      // ── MEMBROS ───────────────────────────────────────────────────
+      function loadMemberOptions() {
+        const type = document.getElementById('addMemberType').value;
+        const sel = document.getElementById('addMemberId');
+        const list = type === 'doctor' ? allDoctors : allReceptionists;
+        sel.innerHTML = '<option value="">Selecione...</option>';
+        list.forEach(p => {
+          const o = document.createElement('option');
+          o.value = p.id;
+          o.textContent = p.name + (p.email ? ' — ' + p.email : '') + (p.crm ? ' (CRM: ' + p.crm + ')' : '');
+          sel.appendChild(o);
+        });
+      }
+
+      async function addMember() {
+        const ok = document.getElementById('mOk');
+        const err = document.getElementById('mErr');
+        ok.style.display = 'none';
+        err.style.display = 'none';
+        if (!selectedClinicId) {
+          err.textContent = 'Selecione uma clínica primeiro.';
+          err.style.display = 'block';
+          return;
+        }
+        const memberId = document.getElementById('addMemberId').value;
+        const memberType = document.getElementById('addMemberType').value;
+        if (!memberId) {
+          err.textContent = 'Selecione um profissional.';
+          err.style.display = 'block';
+          return;
+        }
+        const btn = document.getElementById('addMemberBtn');
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/clinics/${selectedClinicId}/members`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ memberId, memberType })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            ok.textContent = 'Membro adicionado com sucesso!';
+            ok.style.display = 'block';
+            const clinic = clinics.find(c => c.id === selectedClinicId);
+            if (clinic) { clinic.member_count = Number(clinic.member_count || 0) + 1;
+              renderClinicList(); }
+            await loadMembers(selectedClinicId);
+            document.getElementById('addMemberId').value = '';
+          } else {
+            err.textContent = data.error || 'Erro ao adicionar.';
+            err.style.display = 'block';
+          }
+        } catch {
+          err.textContent = 'Erro de conexão.';
+          err.style.display = 'block';
+        }
+        btn.disabled = false;
+      }
+
+      async function updateMemberRole(memberRowId, role) {
+        const res = await fetch(`/api/clinics/${selectedClinicId}/members/${memberRowId}`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ role })
+        });
+        if (!res.ok) {
+          alert('Erro ao atualizar papel do membro.');
+        }
+        await loadMembers(selectedClinicId);
+      }
+
+      async function removeMember(memberRowId) {
+        if (!confirm('Remover este membro da clínica?')) return;
+        const res = await fetch(`/api/clinics/${selectedClinicId}/members/${memberRowId}`, { method: 'DELETE', headers });
+        if (res.ok) {
+          const clinic = clinics.find(c => c.id === selectedClinicId);
+          if (clinic && clinic.member_count > 0) clinic.member_count--;
+          renderClinicList();
+          await loadMembers(selectedClinicId);
+        } else {
+          alert('Erro ao remover membro.');
+        }
+      }
+
+      async function assertClinicAccess() {
+        try {
+          const meRes = await fetch('/api/auth/me', { headers });
+          if (!meRes.ok) {
+            alert('Sessão inválida. Faça login novamente.');
+            window.location.href = '/medico/login';
+            return false;
+          }
+          return true;
+        } catch (_err) {
+          alert('Não foi possível validar sua permissão.');
+          window.location.href = '/medico';
+          return false;
+        }
+      }
+
+      // ── EXPOR FUNÇÕES PARA O GLOBAL ──────────────────────────────
+      window.selectClinic = selectClinic;
+      window.editClinic = editClinic;
+      window.deleteClinic = deleteClinic;
+      window.openNewClinicForm = openNewClinicForm;
+      window.cancelEdit = cancelEdit;
+      window.saveClinic = saveClinic;
+      window.handleLogoUpload = handleLogoUpload;
+      window.clearLogo = clearLogo;
+      window.maskCnpj = maskCnpj;
+      window.maskCep = maskCep;
+      window.fetchCep = fetchCep;
+      window.loadMemberOptions = loadMemberOptions;
+      window.addMember = addMember;
+      window.updateMemberRole = updateMemberRole;
+      window.removeMember = removeMember;
+      window.openPermissionsModal = openPermissionsModal;
+      window.closePermissionsModal = closePermissionsModal;
+      window.savePermissions = savePermissions;
+      window.loadBase = loadBase;
+
+      // ── INIT ──────────────────────────────────────────────────────
+      (async () => {
+        const allowed = await assertClinicAccess();
+        if (!allowed) return;
+        loadBase();
+      })();
+
+      // ── SOCKET.IO ──────────────────────────────────────────────────
+      (function() {
+        const _d = JSON.parse(localStorage.getItem('doctorData') || '{}');
+        if (!_d.id) return;
+        const _sock = io({ transports: ['websocket', 'polling'] });
+        _sock.on('connect', () => _sock.emit('join_doctor', _d.id));
+        const refreshBase = () => { if (typeof loadBase === 'function') loadBase(); };
+        const refreshMembers = () => {
+          if (typeof loadMembers === 'function' && selectedClinicId) loadMembers(selectedClinicId);
+          if (typeof renderClinicList === 'function') renderClinicList();
+        };
+        _sock.on('clinic_created', refreshBase);
+        _sock.on('clinic_updated', refreshBase);
+        _sock.on('clinic_deactivated', refreshBase);
+        _sock.on('clinic_member_added', refreshMembers);
+        _sock.on('clinic_member_role_updated', refreshMembers);
+        _sock.on('clinic_member_removed', refreshMembers);
+      })();
+
+    })();
+  </script>
+
+  <!-- Socket.io (já incluso via CDN) -->
+  <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>

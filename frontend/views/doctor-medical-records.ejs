@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek · Prontuários</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ============================================================
+       SISTEMA DE TEMAS — CLARO EQUILIBRADO / ESCURO
+       ============================================================ */
+    :root {
+      /* TEMA CLARO — tons suaves, fundo acinzentado */
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sidebar-width: 260px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* TEMA ESCURO (mantido) */
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       RESET E BASE
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ============================================================
+       MAIN
+       ============================================================ */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+
+    /* ============================================================
+       TOPBAR
+       ============================================================ */
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--accent-5);
+      font-size: 10px;
+      transition: color var(--transition);
+    }
+
+    /* ============================================================
+       CONTENT
+       ============================================================ */
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       SEÇÕES (toggle)
+       ============================================================ */
+    .section {
+      display: none;
+      animation: fadeUp 0.3s ease;
+    }
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================================
+       CARDS E GRIDS — COM ANIMAÇÕES DE HOVER
+       ============================================================ */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--accent-1);
+    }
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--transition);
+    }
+    .card-header h3 i {
+      color: var(--accent-1);
+      font-size: 16px;
+      transition: color var(--transition);
+    }
+    .card-header .badge {
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .card-body {
+      padding: 20px 22px;
+    }
+
+    /* ============================================================
+       STATS GRID
+       ============================================================ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+      cursor: default;
+    }
+    .stat-card:hover {
+      transform: translateY(-5px) scale(1.005);
+      background: var(--bg-card-hover);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent-1);
+    }
+    .stat-card .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      transition: background var(--transition), color var(--transition), transform 0.3s ease;
+    }
+    .stat-card:hover .icon {
+      transform: scale(1.08) rotate(-2deg);
+    }
+    .stat-card .icon.blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .stat-card .icon.teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .stat-card .icon.yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .stat-card .icon.green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .stat-card .info {
+      flex: 1;
+      min-width: 0;
+    }
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+      transition: color var(--transition);
+    }
+    .stat-card .sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .stat-card .trend {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 12px;
+      border-radius: 20px;
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      transition: background var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .stat-card:hover .trend {
+      transform: scale(1.05);
+    }
+
+    /* ============================================================
+       GRIDS AUXILIARES
+       ============================================================ */
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 8px;
+    }
+    .pulse-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    /* ============================================================
+       PULSE CARD
+       ============================================================ */
+    .pulse-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      padding: 18px 22px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .pulse-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-3px);
+      border-color: var(--accent-2);
+    }
+    .pulse-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color var(--transition);
+    }
+    .pulse-title i {
+      font-size: 14px;
+      color: var(--accent-2);
+      transition: color var(--transition);
+    }
+    .pulse-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+      gap: 12px;
+      transition: color var(--transition);
+    }
+    .pulse-row strong {
+      color: var(--text-primary);
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+    .pulse-progress {
+      height: 6px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--bg-elevated);
+      margin-top: 10px;
+      transition: background var(--transition);
+    }
+    .pulse-progress > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      transition: width 0.6s ease, background var(--transition);
+    }
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    /* ============================================================
+       TABELAS
+       ============================================================ */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.2s ease, border-color var(--transition), transform 0.15s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--bg-card-hover);
+      transform: scale(1.002);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--text-secondary);
+      vertical-align: middle;
+      transition: color var(--transition);
+    }
+    tbody td strong {
+      color: var(--text-primary);
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+
+    /* ============================================================
+       BADGES
+       ============================================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: background var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .badge:hover {
+      transform: scale(1.06);
+    }
+    .badge-blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .badge-yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .badge-gray {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .badge-purple {
+      background: var(--accent-3-dim);
+      color: var(--accent-3);
+    }
+    .stacked-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .inline-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .inline-tag {
+      display: inline-flex;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 600;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .inline-tag:hover {
+      transform: scale(1.05);
+    }
+    .table-note {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.45;
+      transition: color var(--transition);
+    }
+
+    /* ============================================================
+       FILTROS
+       ============================================================ */
+    .header-tools {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .table-search,
+    .filter-select {
+      padding: 7px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      outline: none;
+      min-width: 160px;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+    }
+    .table-search:focus,
+    .filter-select:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .table-search::placeholder {
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+    .filter-select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    /* ============================================================
+       BOTÕES — COM ANIMAÇÕES
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--accent-1);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3);
+    }
+    .btn-solid:hover {
+      background: #3b7ec8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-teal {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3);
+    }
+    .btn-teal:hover {
+      background: #5ab8a9;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(107, 197, 184, 0.4);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(229, 62, 62, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(229, 62, 62, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* ============================================================
+       FORMULÁRIOS
+       ============================================================ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols1 {
+      grid-template-columns: 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-muted);
+      font-weight: 300;
+      transition: color var(--transition);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-group select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    /* ============================================================
+       ALERTAS
+       ============================================================ */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      border-left: 3px solid var(--accent-5);
+    }
+    .alert-err {
+      background: var(--red-bg);
+      color: var(--red);
+      border-left: 3px solid var(--red);
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ============================================================
+       CÂMERA
+       ============================================================ */
+    .cam-box {
+      border: 1.5px dashed var(--border-card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 12px;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .cam-box:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .cam-preview,
+    .cam-video {
+      max-width: 240px;
+      border-radius: var(--radius);
+      display: block;
+      margin: 8px auto 0;
+    }
+    .cam-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       MODELOS
+       ============================================================ */
+    .tpl-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .tpl-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 16px;
+      position: relative;
+      transition: background var(--transition), border-color var(--transition), transform 0.25s ease, box-shadow var(--transition);
+    }
+    .tpl-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-3);
+      box-shadow: var(--shadow-hover);
+    }
+    .tpl-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      transition: color var(--transition);
+    }
+    .tpl-card .tpl-type {
+      font-size: 11px;
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+    .tpl-card .tpl-del {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.15s, transform 0.2s ease;
+    }
+    .tpl-card .tpl-del:hover {
+      color: var(--red);
+      transform: scale(1.2) rotate(10deg);
+    }
+
+    /* ============================================================
+       CERTIFICADO
+       ============================================================ */
+    .cert-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      background: var(--bg-card);
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      transition: background var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .cert-bar:hover {
+      transform: scale(1.003);
+    }
+    .cert-bar.is-ok {
+      border-color: rgba(111, 207, 151, 0.4);
+      background: var(--accent-5-dim);
+    }
+    .cert-bar.is-warn {
+      border-color: rgba(246, 173, 85, 0.4);
+      background: var(--accent-4-dim);
+    }
+    .cert-bar.is-none {
+      border-color: var(--border-card);
+      background: var(--bg-card);
+    }
+    .cert-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+      transition: background var(--transition), color var(--transition), transform 0.3s ease;
+    }
+    .cert-bar:hover .cert-icon {
+      transform: scale(1.08) rotate(-4deg);
+    }
+    .cert-bar.is-ok .cert-icon {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .cert-bar.is-warn .cert-icon {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .cert-bar.is-none .cert-icon {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .cert-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .cert-info .cert-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .cert-info .cert-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .cert-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       MODAL CERTIFICADO
+       ============================================================ */
+    .cert-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .cert-modal-overlay.open {
+      display: flex;
+    }
+    .cert-modal {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      max-width: 540px;
+      width: 100%;
+      margin: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-card);
+      transition: background var(--transition), border-color var(--transition), transform 0.25s ease;
+    }
+    .cert-modal:hover {
+      transform: scale(1.005);
+    }
+    .cert-modal-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color var(--transition);
+    }
+    .cert-modal-head h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .cert-modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s, transform 0.2s ease;
+    }
+    .cert-modal-close:hover {
+      color: var(--text-primary);
+      transform: rotate(90deg);
+    }
+    .cert-modal-body {
+      padding: 22px;
+    }
+    .cert-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .cert-list-item {
+      padding: 12px 16px;
+      border: 2px solid var(--border-card);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--bg-card);
+    }
+    .cert-list-item:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      transform: translateX(4px);
+    }
+    .cert-list-item.selected {
+      border-color: var(--accent-2);
+      background: var(--accent-2-dim);
+    }
+    .cert-list-item .cn {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .cert-list-item .issuer {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .cert-list-item .expiry {
+      font-size: 12px;
+      margin-top: 3px;
+    }
+    .cert-list-item .expiry.ok {
+      color: var(--accent-5);
+    }
+    .cert-list-item .expiry.warn {
+      color: var(--accent-4);
+    }
+    .cert-ext-banner {
+      padding: 14px;
+      background: var(--accent-1-dim);
+      border: 1px solid rgba(74, 144, 217, 0.2);
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .cert-ext-banner a {
+      color: var(--accent-1);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .cert-ext-banner a:hover {
+      text-decoration: underline;
+    }
+    .cert-upload-area {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      transition: border-color var(--transition);
+    }
+    .cert-upload-area label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 8px;
+      transition: color var(--transition);
+    }
+    .cert-upload-area input[type="file"] {
+      color: var(--text-secondary);
+      font-size: 13px;
+      transition: color var(--transition);
+    }
+    .cert-upload-area input[type="password"] {
+      padding: 6px 12px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: var(--font);
+      outline: none;
+      width: 140px;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), transform 0.15s ease;
+    }
+    .cert-upload-area input[type="password"]:focus {
+      border-color: var(--accent-1);
+      transform: scale(1.02);
+    }
+
+    /* ============================================================
+       INSIGHT ITEMS
+       ============================================================ */
+    .insight-list {
+      display: grid;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+    }
+    .insight-item {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition), transform 0.2s ease, box-shadow var(--transition);
+    }
+    .insight-item:hover {
+      transform: translateX(4px);
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      box-shadow: var(--shadow-hover);
+    }
+    .insight-item .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .insight-item .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .insight-item .actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       RESPONSIVO
+       ============================================================ */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+      .pulse-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        display: block;
+      }
+      .main {
+        margin-left: 0;
+      }
+      .topbar {
+        padding: 12px 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .topbar h1 {
+        font-size: 18px;
+      }
+      .content {
+        padding: 16px;
+      }
+      .card-header {
+        flex-wrap: wrap;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.span2 {
+        grid-column: span 1;
+      }
+      .tpl-grid {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        gap: 12px;
+      }
+      .stat-card {
+        padding: 16px;
+      }
+      .stat-card .value {
+        font-size: 24px;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .btn-sm {
+        width: auto;
+      }
+      .table-wrap table {
+        min-width: 500px;
+      }
+      .header-tools .table-search {
+        min-width: 130px;
+      }
+      .quick-actions {
+        grid-template-columns: 1fr 1fr;
+      }
+      .quick-actions .btn {
+        width: 100%;
+      }
+      .cert-actions .btn {
+        width: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .stat-card .value {
+        font-size: 22px;
+      }
+      .card-body {
+        padding: 14px;
+      }
+      .topbar-actions .badge {
+        font-size: 10px;
+        padding: 2px 10px 2px 8px;
+      }
+      .cert-modal {
+        margin: 12px;
+      }
+    }
+
+    /* ============================================================
+       UTILITÁRIOS
+       ============================================================ */
+    .text-muted {
+      color: var(--text-muted);
+    }
+    .text-secondary {
+      color: var(--text-secondary);
+    }
+    .mt-8 {
+      margin-top: 8px;
+    }
+    .mt-12 {
+      margin-top: 12px;
+    }
+    .gap-8 {
+      gap: 8px;
+    }
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+    .flex {
+      display: flex;
+    }
+    .items-center {
+      align-items: center;
+    }
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    /* ============================================================
+       CORREÇÕES PARA O TEMA
+       ============================================================ */
+    .card-header .badge {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      transition: background var(--transition), color var(--transition);
+    }
+    .badge-blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .badge-yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .badge-gray {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .btn-outline {
+      border-color: var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .cert-modal {
+      background: var(--bg-surface);
+    }
+    .cert-list-item {
+      background: var(--bg-card);
+    }
+    .cert-list-item.selected {
+      border-color: var(--accent-2);
+      background: var(--accent-2-dim);
+    }
+    .cert-ext-banner {
+      background: var(--accent-1-dim);
+      border-color: rgba(74, 144, 217, 0.2);
+    }
+
+    /* ============================================================
+       AJUSTES ADICIONAIS PARA O TEMA CLARO EQUILIBRADO
+       ============================================================ */
+    /* Fundo da página mais suave, não totalmente branco */
+    [data-theme="light"] .stat-card,
+    [data-theme="light"] .card,
+    [data-theme="light"] .pulse-card,
+    [data-theme="light"] .cert-bar {
+      background: #ffffff;
+    }
+    [data-theme="light"] .topbar {
+      background: #f7fafc;
+    }
+    [data-theme="light"] .sidebar-user {
+      background: #edf2f7;
+    }
+
+    /* ============================================================
+       PRONTUÁRIOS — realce de busca, item selecionado, animação de salvar
+       ============================================================ */
+    .hl {
+      background: var(--accent-4-dim);
+      color: var(--text-primary);
+      padding: 0 2px;
+      border-radius: 3px;
+      transition: background var(--transition), color var(--transition);
+    }
+    .insight-item.is-selected {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .insight-item.is-selected .name {
+      color: var(--accent-1);
+    }
+    .insight-item .meta + .meta {
+      margin-top: 4px;
+    }
+    .save-pulse {
+      animation: savePulse 0.6s ease;
+    }
+    @keyframes savePulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(111, 207, 151, 0.35); }
+      55% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(111, 207, 151, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(111, 207, 151, 0); }
+    }
+  </style>
+<body>
+
+  <!-- ========== SIDEBAR (partial compartilhado) ========== -->
+  <%- include('partials/doctor-sidebar') %>
+
+  <!-- ========== MAIN ========== -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Prontuários Médicos</h1>
+        <div class="meta">Fluxo: buscar paciente, selecionar e cadastrar prontuário</div>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-outline btn-sm" href="/medico/procedimentos">Ir para Procedimentos <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="grid2" style="grid-template-columns: 1fr 1.2fr; align-items:start;">
+
+        <!-- ========== BUSCAR E SELECIONAR PACIENTE ========== -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-search" style="color:var(--accent-1);"></i> 1) Buscar e Selecionar Paciente</h3>
+          </div>
+          <div class="card-body">
+            <div class="header-tools" style="margin-bottom:14px;">
+              <input id="patientSearchInput" class="table-search" type="text" placeholder="Pesquisar por nome, email, telefone ou documento" style="flex:1;min-width:0;">
+              <button id="refreshPatientsBtn" class="btn btn-outline btn-sm" type="button"><i class="fas fa-sync"></i> Atualizar</button>
+            </div>
+
+            <div id="selectedPatient" class="insight-item" style="margin-bottom:12px;">
+              <div class="meta">Nenhum paciente selecionado.</div>
+            </div>
+
+            <div id="patientsList" class="insight-list"></div>
+          </div>
+        </div>
+
+        <!-- ========== CADASTRAR PRONTUÁRIO ========== -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-notes-medical" style="color:var(--accent-2);"></i> 2) Cadastrar Prontuário do Paciente Selecionado</h3>
+          </div>
+          <div class="card-body">
+            <form id="recordForm">
+              <div class="form-grid">
+                <div class="form-group span2">
+                  <label>Título *</label>
+                  <input id="titleInput" type="text" placeholder="Ex: Prontuário Pré-operatório" required>
+                </div>
+                <div class="form-group span2">
+                  <label>Resumo Clínico</label>
+                  <textarea id="summaryInput" placeholder="Resumo do caso e objetivo da consulta"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>História Clínica</label>
+                  <textarea id="historyInput" placeholder="História da moléstia atual / antecedentes relevantes"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Alergias</label>
+                  <input id="allergiesInput" type="text" placeholder="Ex: Dipirona, látex">
+                </div>
+                <div class="form-group">
+                  <label>Condições Crônicas</label>
+                  <input id="chronicInput" type="text" placeholder="Ex: HAS, DM2">
+                </div>
+                <div class="form-group span2">
+                  <label>Medicações em Uso</label>
+                  <input id="medsInput" type="text" placeholder="Ex: Losartana 50mg/dia">
+                </div>
+                <div class="form-group span2">
+                  <label>Status Inicial</label>
+                  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <span class="badge badge-gray">Em andamento</span>
+                    <span style="font-size:11px;color:var(--text-muted);">Será concluído automaticamente ao vincular este prontuário em um procedimento.</span>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button id="saveRecordBtn" class="btn btn-solid" type="submit"><i class="fas fa-save"></i> Salvar Prontuário</button>
+                <button id="clearRecordBtn" class="btn btn-outline" type="button"><i class="fas fa-eraser"></i> Limpar</button>
+              </div>
+              <div id="recordOk" class="alert-msg alert-ok"></div>
+              <div id="recordErr" class="alert-msg alert-err"></div>
+            </form>
+
+            <div style="margin-top:20px;border-top:1px solid var(--border-card);padding-top:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+                <h3 style="font-size:13px;font-weight:600;"><i class="fas fa-clipboard-list" style="color:var(--accent-1);"></i> Histórico de Prontuários do Paciente</h3>
+                <div class="header-tools">
+                  <input id="recordsSearchInput" class="table-search" type="text" placeholder="Buscar no histórico e destacar termos">
+                  <button id="refreshRecordsBtn" class="btn btn-outline btn-sm" type="button"><i class="fas fa-sync"></i> Atualizar</button>
+                </div>
+              </div>
+              <div id="recordsList" class="insight-list">
+                <div class="insight-item"><div class="meta">Selecione um paciente para ver os prontuários.</div></div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;border-top:1px solid var(--border-card);padding-top:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+                <h3 style="font-size:13px;font-weight:600;"><i class="fas fa-tablet-alt" style="color:var(--accent-3);"></i> Pré-prontuários do Tablet</h3>
+                <span class="badge badge-purple">Pré-preenchimento com validação facial</span>
+              </div>
+              <div id="tabletSessionsList" class="insight-list">
+                <div class="insight-item"><div class="meta">Selecione um paciente para ver os pré-prontuários do tablet.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ============================================================
+    // INICIALIZAÇÃO DO TEMA (sincroniza com a sidebar)
+    // ============================================================
+    (function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    if (!token) window.location.href = '/medico/login';
+
+    let patients = [];
+    let selectedPatient = null;
+    let patientRecords = [];
+    let tabletSessions = [];
+
+    function esc(v){ return String(v || '').replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s])); }
+    function normalize(v){ return String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    function dt(v){ return v ? new Date(v).toLocaleString('pt-BR',{ dateStyle:'short', timeStyle:'short' }) : '-'; }
+    function byId(id){ return document.getElementById(id); }
+    function highlightMatch(text, query) {
+      const safeText = String(text || '');
+      const term = String(query || '').trim();
+      if (!term) return esc(safeText);
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return esc(safeText).replace(new RegExp(escapedTerm, 'gi'), (m) => `<span class="hl">${m}</span>`);
+    }
+
+    function setAlert(type, message) {
+      const ok = byId('recordOk');
+      const err = byId('recordErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      ok.textContent = '';
+      err.textContent = '';
+      if (!message) return;
+      if (type === 'ok') {
+        ok.style.display = 'block';
+        ok.textContent = message;
+      } else {
+        err.style.display = 'block';
+        err.textContent = message;
+      }
+    }
+
+    function renderSelectedPatient() {
+      const box = byId('selectedPatient');
+      if (!selectedPatient) {
+        box.classList.remove('is-selected');
+        box.innerHTML = '<div class="meta">Nenhum paciente selecionado.</div>';
+        return;
+      }
+
+      box.classList.add('is-selected');
+      box.innerHTML = `
+        <div class="name">Paciente Selecionado: ${esc(selectedPatient.name || '-')}</div>
+        <div class="meta">Email: ${esc(selectedPatient.email || '-')}</div>
+        <div class="meta">Telefone: ${esc(selectedPatient.phone || '-')} · Documento: ${esc(selectedPatient.document_id || '-')}</div>
+        <div class="actions"><span class="badge badge-blue">ID: ${esc(selectedPatient.id)}</span></div>
+      `;
+    }
+
+    function renderPatients(items) {
+      const list = byId('patientsList');
+      const q = (byId('patientSearchInput').value || '').trim();
+      if (!items.length) {
+        list.innerHTML = '<div class="insight-item"><div class="meta">Nenhum paciente encontrado.</div></div>';
+        return;
+      }
+
+      list.innerHTML = items.map((p) => `
+        <div class="insight-item">
+          <div class="name">${highlightMatch(p.name || '-', q)}</div>
+          <div class="meta">${highlightMatch(p.email || '-', q)} ${p.phone ? '· ' + highlightMatch(p.phone, q) : ''}</div>
+          <div class="meta">Documento: ${esc(p.document_id || 'Não informado')} · Nasc.: ${p.birth_date ? esc(new Date(p.birth_date).toLocaleDateString('pt-BR')) : '-'}</div>
+          <div class="actions">
+            <button class="btn btn-outline btn-sm" type="button" data-patient-id="${esc(p.id)}"><i class="fas fa-user-check"></i> Selecionar Paciente</button>
+            <a class="btn btn-outline btn-sm" href="/medico/pacientes/${esc(p.id)}"><i class="fas fa-id-card"></i> Perfil Completo</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderRecords(items, query = '') {
+      const list = byId('recordsList');
+      if (!items.length) {
+        list.innerHTML = '<div class="insight-item"><div class="meta">Nenhum prontuário encontrado para o paciente selecionado.</div></div>';
+        return;
+      }
+
+      list.innerHTML = items.map((r) => {
+        const isCompleted = String(r.status || '').toUpperCase() === 'COMPLETED';
+        return `
+        <div class="insight-item">
+          <div class="name">${highlightMatch(r.title || 'Prontuário', query)}</div>
+          <div class="actions" style="margin-top:0;margin-bottom:6px;"><span class="badge ${isCompleted ? 'badge-green' : 'badge-blue'}">${isCompleted ? 'Concluído' : 'Em andamento'}</span></div>
+          <div class="meta">Médico: ${esc(r.doctor_name || '-')} ${r.crm ? '(' + esc(r.crm) + ')' : ''}</div>
+          <div class="meta">Atualizado: ${dt(r.updated_at || r.created_at)}${r.closed_at ? ' · Concluído em: ' + dt(r.closed_at) : ''}</div>
+          <div class="meta">Resumo: ${highlightMatch(r.summary || 'Sem resumo', query)}</div>
+          ${r.clinical_history ? `<div class="meta">História clínica: ${highlightMatch(r.clinical_history, query)}</div>` : ''}
+          ${r.allergies ? `<div class="meta">Alergias: ${highlightMatch(r.allergies, query)}</div>` : ''}
+          ${r.chronic_conditions ? `<div class="meta">Condições crônicas: ${highlightMatch(r.chronic_conditions, query)}</div>` : ''}
+          ${r.current_medications ? `<div class="meta">Medicações em uso: ${highlightMatch(r.current_medications, query)}</div>` : ''}
+        </div>
+      `;
+      }).join('');
+    }
+
+    function renderTabletSessions(items) {
+      const list = byId('tabletSessionsList');
+      if (!selectedPatient) {
+        list.innerHTML = '<div class="insight-item"><div class="meta">Selecione um paciente para ver os pré-prontuários do tablet.</div></div>';
+        return;
+      }
+
+      if (!items.length) {
+        list.innerHTML = '<div class="insight-item"><div class="meta">Nenhum pré-prontuário do tablet encontrado para este paciente.</div></div>';
+        return;
+      }
+
+      list.innerHTML = items.map((s) => {
+        const intake = s.intake_data_json || {};
+        const isSubmitted = String(s.status || '').toUpperCase() === 'SUBMITTED';
+        const status = isSubmitted ? 'Enviado' : 'Em aberto';
+        const statusBadge = isSubmitted ? 'badge-green' : 'badge-gray';
+        const faceLabel = s.face_verified ? `Face ${Math.round(Number(s.face_similarity || 0))}%` : 'Face pendente';
+        const faceBadge = s.face_verified ? 'badge-teal' : 'badge-yellow';
+        const summary = [intake.chief_complaint, intake.symptoms, intake.observations].filter(Boolean).join(' · ');
+        return `
+          <div class="insight-item">
+            <div class="name">${esc(intake.chief_complaint || 'Pré-prontuário do Tablet')}</div>
+            <div class="actions" style="margin-top:4px;margin-bottom:6px;"><span class="badge ${statusBadge}">${status}</span><span class="badge ${faceBadge}">${faceLabel}</span></div>
+            <div class="meta">Recebido: ${dt(s.submitted_at || s.created_at)}${s.consultation_id ? ` · Consulta ${esc(s.consultation_id)}` : ''}</div>
+            <div class="meta">${esc(summary || 'Sem resumo informado')}</div>
+            <div class="actions">
+              <button class="btn btn-solid btn-sm" type="button" data-tablet-load-id="${esc(s.id)}"><i class="fas fa-file-import"></i> Preencher prontuário</button>
+              <button class="btn btn-outline btn-sm" type="button" data-tablet-clear-id="${esc(s.id)}"><i class="fas fa-file"></i> Abrir em branco</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterRecords() {
+      const qRaw = (byId('recordsSearchInput').value || '').trim();
+      const q = normalize(qRaw);
+      if (!q) {
+        renderRecords(patientRecords, '');
+        return;
+      }
+      const filtered = patientRecords.filter((r) => {
+        const haystack = [
+          r.title,
+          r.summary,
+          r.clinical_history,
+          r.allergies,
+          r.chronic_conditions,
+          r.current_medications,
+        ].map((v) => normalize(v)).join(' ');
+        return haystack.includes(q);
+      });
+      renderRecords(filtered, qRaw);
+    }
+
+    function filterPatients() {
+      const q = (byId('patientSearchInput').value || '').toLowerCase().trim();
+      if (!q) {
+        renderPatients(patients);
+        return;
+      }
+      const filtered = patients.filter((r) => {
+        const haystack = [
+          r.name,
+          r.email,
+          r.phone,
+          r.document_id,
+        ].map((v) => String(v || '').toLowerCase()).join(' ');
+        return haystack.includes(q);
+      });
+      renderPatients(filtered);
+    }
+
+    async function loadPatients() {
+      const list = byId('patientsList');
+      list.innerHTML = '<div class="insight-item"><div class="meta">Carregando pacientes...</div></div>';
+      const res = await fetch('/api/patients', {
+        headers: { Authorization: 'Bearer ' + token },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        list.innerHTML = `<div class="insight-item"><div class="meta">${esc(data.error || 'Erro ao carregar pacientes.')}</div></div>`;
+        return;
+      }
+      patients = Array.isArray(data) ? data : [];
+      renderPatients(patients);
+    }
+
+    async function loadPatientRecords() {
+      const list = byId('recordsList');
+      if (!selectedPatient) {
+        list.innerHTML = '<div class="insight-item"><div class="meta">Selecione um paciente para ver os prontuários.</div></div>';
+        byId('tabletSessionsList').innerHTML = '<div class="insight-item"><div class="meta">Selecione um paciente para ver os pré-prontuários do tablet.</div></div>';
+        return;
+      }
+      list.innerHTML = '<div class="insight-item"><div class="meta">Carregando prontuários do paciente...</div></div>';
+      byId('tabletSessionsList').innerHTML = '<div class="insight-item"><div class="meta">Carregando pré-prontuários do tablet...</div></div>';
+      const res = await fetch(`/api/patients/${selectedPatient.id}/medical-records`, {
+        headers: { Authorization: 'Bearer ' + token },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        list.innerHTML = `<div class="insight-item"><div class="meta">${esc(data.error || 'Erro ao carregar prontuários do paciente.')}</div></div>`;
+        return;
+      }
+      patientRecords = Array.isArray(data) ? data : [];
+      filterRecords();
+
+      const tabletRes = await fetch(`/api/patients/${selectedPatient.id}/tablet-sessions`, {
+        headers: { Authorization: 'Bearer ' + token },
+      });
+      const tabletData = await tabletRes.json();
+      if (!tabletRes.ok) {
+        tabletSessions = [];
+        byId('tabletSessionsList').innerHTML = `<div class="insight-item"><div class="meta">${esc(tabletData.error || 'Erro ao carregar pré-prontuários do tablet.')}</div></div>`;
+        return;
+      }
+      tabletSessions = Array.isArray(tabletData.sessions) ? tabletData.sessions : [];
+      renderTabletSessions(tabletSessions);
+    }
+
+    byId('patientsList').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-patient-id]');
+      if (!btn) return;
+      const pid = btn.getAttribute('data-patient-id');
+      selectedPatient = patients.find((p) => p.id === pid) || null;
+      renderSelectedPatient();
+      loadPatientRecords().catch(() => {});
+    });
+
+    byId('tabletSessionsList').addEventListener('click', (e) => {
+      const loadBtn = e.target.closest('button[data-tablet-load-id]');
+      if (loadBtn) {
+        const session = tabletSessions.find((item) => String(item.id) === String(loadBtn.getAttribute('data-tablet-load-id')));
+        if (!session) return;
+        const intake = session.intake_data_json || {};
+        byId('titleInput').value = intake.chief_complaint ? `Prontuário do Tablet - ${intake.chief_complaint}` : 'Prontuário do Tablet';
+        byId('summaryInput').value = intake.observations || intake.symptoms || '';
+        byId('historyInput').value = [intake.symptoms || '', intake.patient_medical_history || ''].filter(Boolean).join('\n\n');
+        byId('allergiesInput').value = intake.allergies || '';
+        byId('chronicInput').value = intake.patient_medical_history || '';
+        byId('medsInput').value = intake.medications || '';
+        setAlert('ok', 'Dados do tablet carregados no prontuário.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      const clearBtn = e.target.closest('button[data-tablet-clear-id]');
+      if (clearBtn) {
+        byId('recordForm').reset();
+        setAlert();
+      }
+    });
+
+    byId('recordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setAlert();
+
+      if (!selectedPatient) {
+        setAlert('err', 'Selecione um paciente antes de cadastrar o prontuário.');
+        return;
+      }
+
+      const saveBtn = byId('saveRecordBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="spin"></span>Salvando...';
+
+      try {
+        const payload = {
+          title: byId('titleInput').value.trim(),
+          summary: byId('summaryInput').value.trim(),
+          clinicalHistory: byId('historyInput').value.trim(),
+          allergies: byId('allergiesInput').value.trim(),
+          chronicConditions: byId('chronicInput').value.trim(),
+          currentMedications: byId('medsInput').value.trim(),
+        };
+
+        const res = await fetch(`/api/patients/${selectedPatient.id}/medical-records`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao salvar prontuário.');
+
+        setAlert('ok', `Prontuário salvo para ${selectedPatient.name}.`);
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo';
+        saveBtn.classList.add('save-pulse');
+        byId('recordForm').reset();
+        await loadPatientRecords();
+        setTimeout(() => {
+          saveBtn.classList.remove('save-pulse');
+          saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Prontuário';
+        }, 800);
+      } catch (err) {
+        setAlert('err', err.message || 'Erro ao salvar prontuário.');
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Prontuário';
+      }
+
+      saveBtn.disabled = false;
+    });
+
+    byId('clearRecordBtn').addEventListener('click', () => {
+      byId('recordForm').reset();
+      setAlert();
+    });
+
+    byId('patientSearchInput').addEventListener('input', filterPatients);
+    byId('recordsSearchInput').addEventListener('input', filterRecords);
+    byId('refreshPatientsBtn').addEventListener('click', () => loadPatients().catch(() => {}));
+    byId('refreshRecordsBtn').addEventListener('click', () => loadPatientRecords().catch(() => {}));
+
+    loadPatients().catch(() => {
+      byId('patientsList').innerHTML = '<div class="insight-item"><div class="meta">Erro ao carregar pacientes.</div></div>';
+    });
+  </script>
+</body>
+</html>

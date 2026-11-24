@@ -1,0 +1,1031 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek - Pacientes</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sidebar-width: 260px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* aliases kept for backward-compatibility com estilos inline/JS existentes */
+      --primary: var(--accent-1);
+      --primary-light: #3b7ec8;
+      --primary-bg: var(--accent-1-dim);
+      --accent: var(--accent-3);
+      --accent-bg: var(--accent-3-dim);
+      --text: var(--text-primary);
+      --text-md: var(--text-secondary);
+      --muted: var(--text-muted);
+      --border: var(--border-card);
+      --bg: var(--bg-base);
+      --bg-2: var(--bg-surface);
+      --white: var(--bg-card);
+      --yellow: var(--accent-4);
+      --yellow-bg: var(--accent-4-dim);
+      --green: var(--accent-5);
+      --green-bg: var(--accent-5-dim);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+      --primary-light: #5b9ce0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .topbar-actions .badge i { color: var(--accent-5); font-size: 10px; }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-3px);
+      border-color: var(--accent-1);
+    }
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-header h3 i { color: var(--accent-1); font-size: 16px; }
+    .card-body { padding: 20px 22px; }
+
+    /* ============================================================
+       TABS
+       ============================================================ */
+    .tabs-row { display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap; }
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      color: var(--text-secondary);
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .tab-btn:hover { border-color: var(--accent-1); color: var(--text-primary); transform: translateY(-1px); }
+    .tab-btn.active { background: var(--accent-1); color: #fff; border-color: var(--accent-1); box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3); }
+
+    /* ============================================================
+       FORMULÁRIOS
+       ============================================================ */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid.cols1 { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group.span2 { grid-column: span 2; }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition);
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+    }
+    .form-group textarea { resize: vertical; min-height: 72px; }
+
+    /* ============================================================
+       BOTÕES
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn i { font-size: 13px; }
+    .btn:hover { border-color: var(--accent-1); background: var(--accent-1-dim); color: var(--text-primary); transform: translateY(-1px); }
+    .btn-solid { background: var(--accent-1); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3); }
+    .btn-solid:hover { background: #3b7ec8; color: #fff; transform: translateY(-2px); box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4); }
+    .btn-solid:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-card); }
+    .btn-outline:hover { border-color: var(--accent-1); background: var(--accent-1-dim); color: var(--text-primary); }
+    .btn-teal { background: var(--accent-2); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3); }
+    .btn-teal:hover { background: #5ab8a9; color: #fff; }
+    .btn-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(229, 62, 62, 0.15); }
+    .btn-red:hover { background: rgba(229, 62, 62, 0.12); }
+    .btn-sm { padding: 5px 14px; font-size: 11px; }
+
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+    }
+    .alert-ok { background: var(--accent-5-dim); color: var(--accent-5); border-left: 3px solid var(--accent-5); }
+    .alert-err { background: var(--red-bg); color: var(--red); border-left: 3px solid var(--red); }
+
+    .spin {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.35); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================================
+       TABELAS
+       ============================================================ */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    tbody tr { border-bottom: 1px solid var(--border-subtle); transition: background 0.2s ease; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-card-hover); }
+    tbody td { padding: 11px 14px; color: var(--text-secondary); vertical-align: middle; }
+    tbody td strong { color: var(--text-primary); font-weight: 500; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-blue { background: var(--accent-1-dim); color: var(--accent-1); }
+    .badge-green { background: var(--accent-5-dim); color: var(--accent-5); }
+    .badge-gray { background: var(--bg-elevated); color: var(--text-muted); }
+
+    /* ============================================================
+       BUSCA
+       ============================================================ */
+    .search-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .search-bar .search-input-wrap { position: relative; }
+    .search-bar .search-input-wrap i {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 12px; pointer-events: none;
+    }
+    .search-bar input {
+      padding: 8px 12px 8px 32px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: var(--font);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      outline: none;
+      min-width: 220px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .search-bar input:focus { border-color: var(--accent-1); box-shadow: 0 0 0 3px var(--accent-1-dim); }
+
+    /* ============================================================
+       CÂMERA BIOMÉTRICA
+       ============================================================ */
+    .cam-area {
+      background: var(--bg-surface); border: 1.5px dashed var(--border-card);
+      border-radius: var(--radius); padding: 16px; text-align: center; margin-top: 16px;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .cam-area:hover { border-color: var(--accent-1); background: var(--accent-1-dim); }
+    .cam-area label { font-size: 10px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+    #camVideo { width: 100%; max-width: 320px; border-radius: var(--radius); display: none; }
+    #camPreview { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-1); display: none; }
+    .cam-status { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .cam-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+    .edit-face-wrap {
+      margin-top: 16px; padding: 16px;
+      border: 1.5px dashed var(--border-card); border-radius: var(--radius);
+      background: var(--bg-surface);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .edit-face-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 10px; }
+    .edit-face-preview { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 92px; }
+    .edit-face-preview img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-1); }
+    #editCamVideo { width: 100%; max-width: 260px; border-radius: var(--radius); display: none; }
+    .edit-face-empty { font-size: 11px; color: var(--text-muted); }
+    .edit-face-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+    /* ============================================================
+       MODAIS
+       ============================================================ */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+      z-index: 200; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-card {
+      background: var(--bg-card); border-radius: 14px; width: 100%; max-width: 520px;
+      margin: 16px; overflow: hidden; box-shadow: var(--shadow-hover);
+      border: 1px solid var(--border-card);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-head {
+      padding: 18px 20px; border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: var(--bg-card); z-index: 1;
+    }
+    .modal-head h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .modal-head h3 i { color: var(--accent-1); }
+    .modal-close {
+      background: none; border: none; cursor: pointer; font-size: 20px;
+      color: var(--text-muted); line-height: 1; transition: color var(--transition);
+    }
+    .modal-close:hover { color: var(--accent-1); }
+    .modal-body { padding: 20px; }
+
+    /* ============================================================
+       RESPONSIVIDADE
+       ============================================================ */
+    @media (max-width: 992px) { .main { margin-left: 0; } }
+    @media (max-width: 900px) {
+      body { display: block; }
+      .main { margin-left: 0; }
+      .topbar { padding: 12px 18px; }
+      .topbar h1 { font-size: 18px; }
+      .content { padding: 16px; }
+      .card-header { flex-wrap: wrap; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.span2 { grid-column: span 1; }
+    }
+    @media (max-width: 640px) {
+      .btn { width: 100%; justify-content: center; }
+      .btn-sm { width: auto; }
+      .tabs-row .tab-btn { flex: 1; justify-content: center; }
+    }
+  </style>
+
+</head>
+<body>
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <%- include('partials/doctor-sidebar') %>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Pacientes</h1>
+        <div class="meta">Cadastro e histórico de pacientes</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+        <a href="/medico" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      </div>
+    </header>
+    <div class="content">
+
+      <div class="tabs-row">
+        <button class="tab-btn active" id="tabNew" onclick="showTab('new')"><i class="fas fa-user-plus"></i> Novo Paciente</button>
+        <button class="tab-btn" id="tabHistory" onclick="showTab('history')"><i class="fas fa-list"></i> Histórico</button>
+      </div>
+
+      <!-- CADASTRO -->
+      <div id="paneNew">
+        <div class="card">
+          <div class="card-header"><h3 id="paneNewTitle"><i class="fas fa-user-plus"></i> Cadastrar Paciente</h3></div>
+          <div class="card-body">
+            <div class="alert-msg" id="receptionCreateNote" style="display:none;background:rgba(74,144,217,.12);color:var(--text);border-left:3px solid var(--accent);">
+              <i class="fas fa-circle-info"></i> A recepção cadastra paciente só por link de auto-cadastro — o próprio paciente preenche os dados e define a senha de acesso.
+            </div>
+            <form id="patientForm">
+              <div id="manualPatientFormFields">
+              <div class="form-grid">
+                <div class="form-group span2"><label>Nome completo</label><input type="text" id="pName" required placeholder="Nome completo do paciente"></div>
+                <div class="form-group"><label>E-mail</label><input type="email" id="pEmail" required placeholder="email@exemplo.com"></div>
+                <div class="form-group"><label>Senha (acesso portal)</label><input type="password" id="pPassword" required placeholder="Mínimo 6 caracteres"></div>
+                <div class="form-group"><label>Telefone</label><input type="text" id="pPhone" placeholder="(11) 99999-9999"></div>
+                <div class="form-group"><label>Data de Nascimento</label><input type="date" id="pBirthDate"></div>
+                <div class="form-group"><label>CPF / RG</label><input type="text" id="pDocumentId" placeholder="000.000.000-00"></div>
+                <div class="form-group"><label>Endereço</label><input type="text" id="pAddress" placeholder="Rua, número, cidade"></div>
+                <div class="form-group"><label>Contato de Emergência (Nome)</label><input type="text" id="pEmergencyName" placeholder="Nome do contato"></div>
+                <div class="form-group"><label>Contato de Emergência (Telefone)</label><input type="text" id="pEmergencyPhone" placeholder="(11) 99999-9999"></div>
+                <div class="form-group"><label>Versão do Termo LGPD</label><input type="text" id="pLgpdVersion" placeholder="Ex: LGPD-2026.1"></div>
+                <div class="form-group"><label>Data/Hora Aceite LGPD</label><input type="datetime-local" id="pLgpdAt"></div>
+                <div class="form-group span2"><label>Histórico Médico Inicial</label><textarea id="pMedicalHistory" placeholder="Condições prévias, alergias, observações clínicas..."></textarea></div>
+              </div>
+
+              <!-- CÂMERA BIOMÉTRICA -->
+              <div class="cam-area">
+                <label><i class="fas fa-camera"></i> Foto Biométrica (opcional)</label>
+                <div>
+                  <video id="camVideo" autoplay muted playsinline></video>
+                  <img id="camPreview" alt="Foto capturada">
+                </div>
+                <div class="cam-status" id="camStatus">Sem foto capturada</div>
+                <div class="cam-btns">
+                  <button type="button" class="btn btn-outline btn-sm" id="camStartBtn"><i class="fas fa-camera"></i> Abrir Câmera</button>
+                  <button type="button" class="btn btn-outline btn-sm" id="camCaptureBtn" style="display:none"><i class="fas fa-circle"></i> Capturar</button>
+                  <button type="button" class="btn btn-outline btn-sm" id="camRetakeBtn" style="display:none"><i class="fas fa-redo"></i> Refazer</button>
+                </div>
+                <canvas id="camCanvas" style="display:none"></canvas>
+              </div>
+              </div>
+
+              <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button type="submit" class="btn btn-solid" id="patientSubmitBtn"><i class="fas fa-user-plus"></i> Cadastrar Paciente</button>
+                <button type="button" class="btn btn-outline" id="openSelfRegLinkBtn"><i class="fas fa-link"></i> Enviar Link de Cadastro</button>
+                <button type="button" class="btn btn-outline" onclick="showTab('history')"><i class="fas fa-history"></i> Ver Histórico</button>
+              </div>
+              <div class="alert-msg alert-ok" id="patientOk"></div>
+              <div class="alert-msg alert-err" id="patientErr"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div id="paneHistory" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-list"></i> Lista de Pacientes</h3>
+            <div class="search-bar">
+              <div class="search-input-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchPat" placeholder="Buscar nome ou e-mail...">
+              </div>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Nome</th><th>Contato</th><th>Foto</th><th>Cadastro</th><th>Detalhes</th><th>Ações</th></tr></thead>
+                <tbody id="patientsList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL LINK DE AUTO CADASTRO -->
+  <div id="selfRegModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3><i class="fas fa-link"></i> Enviar Link de Cadastro</h3>
+        <button id="closeSelfRegModal" class="modal-close">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <form id="selfRegForm">
+          <div class="form-grid cols1">
+            <div class="form-group">
+              <label>E-mail do paciente (opcional)</label>
+              <input type="email" id="selfRegEmail" placeholder="paciente@exemplo.com">
+            </div>
+            <div class="form-group">
+              <label>Validade do link (horas)</label>
+              <input type="number" id="selfRegHours" min="1" max="168" value="72">
+            </div>
+            <div class="form-group">
+              <label>Link gerado</label>
+              <input type="text" id="selfRegLink" readonly placeholder="Clique em gerar para criar o link">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+            <button type="submit" class="btn btn-solid btn-sm" id="selfRegGenerateBtn"><i class="fas fa-magic"></i> Gerar Link</button>
+            <button type="button" class="btn btn-outline btn-sm" id="selfRegCopyBtn"><i class="fas fa-copy"></i> Copiar Link</button>
+          </div>
+          <div class="alert-msg alert-ok" id="selfRegOk"></div>
+          <div class="alert-msg alert-err" id="selfRegErr"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR -->
+  <div id="editModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3><i class="fas fa-user-edit"></i> Editar Paciente</h3>
+        <button onclick="closeEditModal()" class="modal-close">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <div class="form-grid">
+            <div class="form-group span2"><label>Nome</label><input type="text" id="eName" required></div>
+            <div class="form-group"><label>E-mail</label><input type="email" id="eEmail" required></div>
+            <div class="form-group"><label>Telefone</label><input type="text" id="ePhone"></div>
+            <div class="form-group"><label>Data de Nascimento</label><input type="date" id="eBirthDate"></div>
+            <div class="form-group"><label>CPF / RG</label><input type="text" id="eDocumentId"></div>
+            <div class="form-group span2"><label>Endereço</label><input type="text" id="eAddress"></div>
+            <div class="form-group"><label>Contato Emergência (Nome)</label><input type="text" id="eEmergencyName"></div>
+            <div class="form-group"><label>Contato Emergência (Telefone)</label><input type="text" id="eEmergencyPhone"></div>
+            <div class="form-group"><label>Versão LGPD</label><input type="text" id="eLgpdVersion"></div>
+            <div class="form-group"><label>Aceite LGPD</label><input type="datetime-local" id="eLgpdAt"></div>
+            <div class="form-group span2"><label>Histórico Médico</label><textarea id="eMedicalHistory"></textarea></div>
+          </div>
+
+          <div class="edit-face-wrap">
+            <div class="edit-face-title"><i class="fas fa-camera"></i> Foto Biométrica</div>
+            <div class="edit-face-preview" id="editFacePreviewWrap">
+              <span class="edit-face-empty" id="editFaceEmpty">Sem foto cadastrada</span>
+              <img id="editFacePreview" alt="Foto biométrica" style="display:none;">
+              <video id="editCamVideo" autoplay muted playsinline></video>
+            </div>
+            <div class="cam-status" id="editCamStatus">Sem alteração na foto</div>
+            <div class="edit-face-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="editCamStartBtn"><i class="fas fa-camera"></i> Abrir Câmera</button>
+              <button type="button" class="btn btn-outline btn-sm" id="editCamCaptureBtn" style="display:none"><i class="fas fa-circle"></i> Capturar</button>
+              <button type="button" class="btn btn-outline btn-sm" id="editCamRetakeBtn" style="display:none"><i class="fas fa-redo"></i> Refazer</button>
+              <button type="button" class="btn btn-outline btn-sm" id="editFaceRemoveBtn"><i class="fas fa-trash"></i> Remover Foto</button>
+            </div>
+            <canvas id="editCamCanvas" style="display:none"></canvas>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeEditModal()"><i class="fas fa-times"></i> Cancelar</button>
+            <button type="submit" class="btn btn-solid btn-sm" id="editSaveBtn"><i class="fas fa-save"></i> Salvar</button>
+          </div>
+          <div class="alert-msg alert-err" id="editErr"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+    if (!token) window.location.href = '/medico/login';
+    if (doctorData.name) document.getElementById('sidebarName').textContent = doctorData.name;
+
+    // Recepção só pode gerar o link de auto-cadastro — quem digita os dados
+    // e define a senha é o próprio paciente. O cadastro manual completo
+    // (com senha definida por outra pessoa) continua exclusivo do médico.
+    if (isReceptionSession) {
+      document.getElementById('manualPatientFormFields').style.display = 'none';
+      document.getElementById('patientSubmitBtn').style.display = 'none';
+      document.getElementById('receptionCreateNote').style.display = 'flex';
+      document.getElementById('receptionCreateNote').style.alignItems = 'center';
+      document.getElementById('receptionCreateNote').style.gap = '8px';
+      document.getElementById('paneNewTitle').innerHTML = '<i class="fas fa-link"></i> Cadastro de Paciente';
+      const patientForm = document.getElementById('patientForm');
+      if (patientForm) patientForm.addEventListener('submit', (e) => e.preventDefault());
+    }
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('doctorToken'); localStorage.removeItem('doctorData');
+        localStorage.removeItem('receptionToken'); localStorage.removeItem('receptionData');
+        window.location.href = isReceptionSession ? '/recepcao/login' : '/medico/login';
+    });
+
+    const h = { 'Content-Type':'application/json','Authorization':'Bearer '+token };
+
+    async function syncAdminNav() {
+      try {
+        const res = await fetch('/api/auth/me', { headers: h });
+        if (!res.ok) return;
+        const me = await res.json();
+        const isAdmin = me?.role === 'ADMIN' || doctorData?.isAdmin === true;
+        if (isAdmin) {
+          const navTeam = document.getElementById('navTeamItem');
+          if (navTeam) navTeam.style.display = '';
+        }
+      } catch {}
+    }
+
+    let allPatients = [], editingId = null;
+    let camStream = null, faceBase64 = null;
+    let editCamStream = null, editFaceBase64 = null, editFaceTouched = false;
+
+    const selfRegModal = document.getElementById('selfRegModal');
+    const selfRegForm = document.getElementById('selfRegForm');
+    const selfRegEmail = document.getElementById('selfRegEmail');
+    const selfRegHours = document.getElementById('selfRegHours');
+    const selfRegLink = document.getElementById('selfRegLink');
+    const selfRegOk = document.getElementById('selfRegOk');
+    const selfRegErr = document.getElementById('selfRegErr');
+
+    function openSelfRegModal() {
+      selfRegOk.style.display = 'none';
+      selfRegErr.style.display = 'none';
+      selfRegLink.value = '';
+      selfRegModal.style.display = 'flex';
+    }
+
+    function closeSelfRegModal() {
+      selfRegModal.style.display = 'none';
+    }
+
+    document.getElementById('openSelfRegLinkBtn').addEventListener('click', openSelfRegModal);
+    document.getElementById('closeSelfRegModal').addEventListener('click', closeSelfRegModal);
+
+    document.getElementById('selfRegCopyBtn').addEventListener('click', async () => {
+      selfRegOk.style.display = 'none';
+      selfRegErr.style.display = 'none';
+      if (!selfRegLink.value) {
+        selfRegErr.textContent = 'Gere um link antes de copiar.';
+        selfRegErr.style.display = 'block';
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(selfRegLink.value);
+        selfRegOk.textContent = 'Link copiado para a área de transferência.';
+        selfRegOk.style.display = 'block';
+      } catch {
+        selfRegErr.textContent = 'Não foi possível copiar automaticamente. Copie manualmente o campo de link.';
+        selfRegErr.style.display = 'block';
+      }
+    });
+
+    selfRegForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      selfRegOk.style.display = 'none';
+      selfRegErr.style.display = 'none';
+
+      const btn = document.getElementById('selfRegGenerateBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+
+      try {
+        const res = await fetch('/api/patients/self-registration-links', {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify({
+            email: selfRegEmail.value.trim(),
+            expiresInHours: Number(selfRegHours.value || 72),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Não foi possível gerar o link.');
+        }
+
+        selfRegLink.value = data.registrationUrl || '';
+        if (data.emailResult?.sent) {
+          selfRegOk.textContent = `Link gerado e enviado por e-mail para ${selfRegEmail.value.trim()}.`;
+        } else if (selfRegEmail.value.trim()) {
+          selfRegOk.textContent = 'Link gerado, mas o e-mail não foi enviado (SMTP não configurado).';
+        } else {
+          selfRegOk.textContent = 'Link gerado com sucesso. Agora copie e envie ao paciente.';
+        }
+        selfRegOk.style.display = 'block';
+      } catch (error) {
+        selfRegErr.textContent = error.message || 'Erro ao gerar link.';
+        selfRegErr.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-magic"></i> Gerar Link';
+      }
+    });
+
+    function showTab(t) {
+      document.getElementById('paneNew').style.display = t==='new' ? '' : 'none';
+      document.getElementById('paneHistory').style.display = t==='history' ? '' : 'none';
+      document.getElementById('tabNew').classList.toggle('active', t==='new');
+      document.getElementById('tabHistory').classList.toggle('active', t==='history');
+      if (t==='history') renderList();
+    }
+
+    function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+
+    async function load() {
+      const res = await fetch('/api/patients',{headers:h});
+      allPatients = res.ok ? await res.json() : [];
+      renderList();
+    }
+
+    function renderList() {
+      const q = (document.getElementById('searchPat').value||'').toLowerCase();
+      let list = allPatients;
+      if (q) list = list.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q));
+      const tbody = document.getElementById('patientsList');
+      if (!list.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted);font-size:12px"><i class="fas fa-user-injured" style="font-size:20px;display:block;margin-bottom:8px;opacity:.5;"></i>Nenhum paciente cadastrado</td></tr>'; return; }
+      tbody.innerHTML = list.map(p=>`<tr>
+        <td><strong>${p.name}</strong></td>
+        <td style="color:var(--muted)">${p.email}<br><small>${p.phone||'—'}</small></td>
+        <td>${p.reference_face_path?`<img src="${p.reference_face_path}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)">` : '<span style="color:var(--muted);font-size:10px">Sem foto</span>'}</td>
+        <td style="color:var(--muted)">${fmtDate(p.created_at)}</td>
+        <td><button type="button" class="btn btn-outline btn-sm" onclick="toggleDetails('${p.id}')"><i class="fas fa-eye"></i> Ver dados</button></td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap;"><a class="btn btn-outline btn-sm" href="/medico/pacientes/${p.id}"><i class="fas fa-id-card"></i> Perfil Completo</a><button class="btn btn-outline btn-sm" onclick="openEdit('${p.id}')"><i class="fas fa-edit"></i> Editar</button></div></td>
+      </tr>
+      <tr id="details-${p.id}" style="display:none;background:var(--bg-2,#f7fafc)">
+        <td colspan="6" style="padding:14px 16px;font-size:11px;color:var(--text-md)">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 20px;">
+            <div><strong>CPF/RG:</strong> ${p.document_id||'Não informado'}</div>
+            <div><strong>Nascimento:</strong> ${p.birth_date ? new Date(p.birth_date).toLocaleDateString('pt-BR') : 'Não informado'}</div>
+            <div><strong>Endereço:</strong> ${p.address||'Não informado'}</div>
+            <div><strong>Contato de emergência:</strong> ${p.emergency_contact_name||'—'} ${p.emergency_contact_phone?('· '+p.emergency_contact_phone):''}</div>
+            <div><strong>LGPD:</strong> ${p.lgpd_consent_version ? `<span class="badge badge-green">Versão ${p.lgpd_consent_version}${p.lgpd_consent_at? ' em '+fmtDate(p.lgpd_consent_at):''}</span>` : '<span class="badge badge-gray">Pendente</span>'}</div>
+            <div style="grid-column:1/-1"><strong>Histórico médico inicial:</strong> ${p.medical_history||'Não informado'}</div>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    function toggleDetails(id) {
+      const row = document.getElementById(`details-${id}`);
+      if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
+    }
+
+
+    document.getElementById('searchPat').addEventListener('input', renderList);
+
+    // CÂMERA
+    document.getElementById('camStartBtn').addEventListener('click', async () => {
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:240}});
+        const video = document.getElementById('camVideo');
+        video.srcObject = camStream; video.style.display='block';
+        document.getElementById('camPreview').style.display='none';
+        document.getElementById('camStartBtn').style.display='none';
+        document.getElementById('camCaptureBtn').style.display='';
+        document.getElementById('camStatus').textContent='Câmera ativa — clique em Capturar';
+      } catch { document.getElementById('camStatus').textContent='Câmera não disponível'; }
+    });
+
+    document.getElementById('camCaptureBtn').addEventListener('click', () => {
+      const video = document.getElementById('camVideo');
+      const canvas = document.getElementById('camCanvas');
+      canvas.width=video.videoWidth||320; canvas.height=video.videoHeight||240;
+      canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+      faceBase64 = canvas.toDataURL('image/jpeg',0.75);
+      const preview = document.getElementById('camPreview');
+      preview.src=faceBase64; preview.style.display='block';
+      document.getElementById('camVideo').style.display='none';
+      document.getElementById('camCaptureBtn').style.display='none';
+      document.getElementById('camRetakeBtn').style.display='';
+      document.getElementById('camStatus').textContent='✓ Foto capturada com sucesso';
+      if (camStream) { camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+    });
+
+    document.getElementById('camRetakeBtn').addEventListener('click', () => {
+      faceBase64=null;
+      document.getElementById('camPreview').style.display='none';
+      document.getElementById('camRetakeBtn').style.display='none';
+      document.getElementById('camStartBtn').style.display='';
+      document.getElementById('camStatus').textContent='Sem foto capturada';
+      document.getElementById('camVideo').style.display='none';
+    });
+
+    // CADASTRO
+    document.getElementById('patientForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('patientSubmitBtn');
+      const ok = document.getElementById('patientOk');
+      const err = document.getElementById('patientErr');
+      ok.style.display='none'; err.style.display='none';
+      btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Salvando...';
+      try {
+        const res = await fetch('/api/patients',{method:'POST',headers:h,body:JSON.stringify({
+          name: document.getElementById('pName').value.trim(),
+          email: document.getElementById('pEmail').value.trim(),
+          phone: document.getElementById('pPhone').value.trim(),
+          birthDate: document.getElementById('pBirthDate').value,
+          documentId: document.getElementById('pDocumentId').value.trim(),
+          address: document.getElementById('pAddress').value.trim(),
+          emergencyContactName: document.getElementById('pEmergencyName').value.trim(),
+          emergencyContactPhone: document.getElementById('pEmergencyPhone').value.trim(),
+          medicalHistory: document.getElementById('pMedicalHistory').value.trim(),
+          lgpdConsentVersion: document.getElementById('pLgpdVersion').value.trim(),
+          lgpdConsentAt: document.getElementById('pLgpdAt').value || null,
+          password: document.getElementById('pPassword').value,
+          faceImage: faceBase64||null,
+        })});
+        const data = await res.json();
+        if (res.ok) {
+          ok.textContent=`Paciente "${data.patient.name}" cadastrado!${faceBase64?' (com foto biométrica)':''}`;
+          ok.style.display='block';
+          e.target.reset();
+          faceBase64=null;
+          document.getElementById('camPreview').style.display='none';
+          document.getElementById('camRetakeBtn').style.display='none';
+          document.getElementById('camStartBtn').style.display='';
+          document.getElementById('camStatus').textContent='Sem foto capturada';
+          await load();
+        } else { err.textContent=data.error||'Erro ao cadastrar.'; err.style.display='block'; }
+      } catch { err.textContent='Erro de conexão.'; err.style.display='block'; }
+      btn.disabled=false; btn.innerHTML='<i class="fas fa-user-plus"></i> Cadastrar Paciente';
+    });
+
+    // EDITAR
+    function openEdit(id) {
+      const p = allPatients.find(x=>String(x.id)===id);
+      if (!p) return;
+      editingId=id;
+      document.getElementById('eName').value=p.name||'';
+      document.getElementById('eEmail').value=p.email||'';
+      document.getElementById('ePhone').value=p.phone||'';
+      document.getElementById('eBirthDate').value=p.birth_date?String(p.birth_date).slice(0,10):'';
+      document.getElementById('eDocumentId').value=p.document_id||'';
+      document.getElementById('eAddress').value=p.address||'';
+      document.getElementById('eEmergencyName').value=p.emergency_contact_name||'';
+      document.getElementById('eEmergencyPhone').value=p.emergency_contact_phone||'';
+      document.getElementById('eMedicalHistory').value=p.medical_history||'';
+      document.getElementById('eLgpdVersion').value=p.lgpd_consent_version||'';
+      document.getElementById('eLgpdAt').value=p.lgpd_consent_at?String(p.lgpd_consent_at).slice(0,16):'';
+      editFaceBase64 = p.reference_face_path || null;
+      editFaceTouched = false;
+      stopEditCamera();
+      renderEditFacePreview();
+      document.getElementById('editErr').style.display='none';
+      document.getElementById('editModal').style.display='flex';
+    }
+    function closeEditModal() {
+      stopEditCamera();
+      document.getElementById('editModal').style.display='none';
+      editingId=null;
+    }
+
+    function stopEditCamera() {
+      if (editCamStream) {
+        editCamStream.getTracks().forEach(t=>t.stop());
+        editCamStream = null;
+      }
+    }
+
+    function renderEditFacePreview() {
+      const preview = document.getElementById('editFacePreview');
+      const empty = document.getElementById('editFaceEmpty');
+      const video = document.getElementById('editCamVideo');
+      const status = document.getElementById('editCamStatus');
+
+      video.style.display = 'none';
+      document.getElementById('editCamCaptureBtn').style.display = 'none';
+      document.getElementById('editCamStartBtn').style.display = '';
+
+      if (editFaceBase64) {
+        preview.src = editFaceBase64;
+        preview.style.display = '';
+        empty.style.display = 'none';
+        status.textContent = editFaceTouched ? 'Foto alterada e pronta para salvar' : 'Foto atual do paciente';
+      } else {
+        preview.style.display = 'none';
+        empty.style.display = '';
+        status.textContent = editFaceTouched ? 'Foto removida. Salve para confirmar.' : 'Sem foto cadastrada';
+      }
+
+      document.getElementById('editCamRetakeBtn').style.display = editFaceBase64 ? '' : 'none';
+    }
+
+    document.getElementById('editCamStartBtn').addEventListener('click', async () => {
+      try {
+        editCamStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:240}});
+        const video = document.getElementById('editCamVideo');
+        video.srcObject = editCamStream;
+        video.style.display = 'block';
+        document.getElementById('editFacePreview').style.display = 'none';
+        document.getElementById('editFaceEmpty').style.display = 'none';
+        document.getElementById('editCamStartBtn').style.display = 'none';
+        document.getElementById('editCamCaptureBtn').style.display = '';
+        document.getElementById('editCamRetakeBtn').style.display = 'none';
+        document.getElementById('editCamStatus').textContent = 'Câmera ativa — clique em Capturar';
+      } catch {
+        document.getElementById('editCamStatus').textContent = 'Câmera não disponível';
+      }
+    });
+
+    document.getElementById('editCamCaptureBtn').addEventListener('click', () => {
+      const video = document.getElementById('editCamVideo');
+      const canvas = document.getElementById('editCamCanvas');
+      canvas.width = video.videoWidth || 320;
+      canvas.height = video.videoHeight || 240;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      editFaceBase64 = canvas.toDataURL('image/jpeg',0.75);
+      editFaceTouched = true;
+      stopEditCamera();
+      renderEditFacePreview();
+    });
+
+    document.getElementById('editCamRetakeBtn').addEventListener('click', () => {
+      editFaceTouched = true;
+      document.getElementById('editCamStartBtn').click();
+    });
+
+    document.getElementById('editFaceRemoveBtn').addEventListener('click', () => {
+      editFaceBase64 = null;
+      editFaceTouched = true;
+      stopEditCamera();
+      renderEditFacePreview();
+    });
+
+    document.getElementById('editForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!editingId) return;
+      const btn=document.getElementById('editSaveBtn');
+      const err=document.getElementById('editErr');
+      err.style.display='none'; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Salvando...';
+      try {
+        const res = await fetch(`/api/patients/${editingId}`,{method:'PUT',headers:h,body:JSON.stringify({
+          name: document.getElementById('eName').value.trim(),
+          email: document.getElementById('eEmail').value.trim(),
+          phone: document.getElementById('ePhone').value.trim(),
+          birthDate: document.getElementById('eBirthDate').value,
+          documentId: document.getElementById('eDocumentId').value.trim(),
+          address: document.getElementById('eAddress').value.trim(),
+          emergencyContactName: document.getElementById('eEmergencyName').value.trim(),
+          emergencyContactPhone: document.getElementById('eEmergencyPhone').value.trim(),
+          medicalHistory: document.getElementById('eMedicalHistory').value.trim(),
+          lgpdConsentVersion: document.getElementById('eLgpdVersion').value.trim(),
+          lgpdConsentAt: document.getElementById('eLgpdAt').value || null,
+          ...(editFaceTouched ? { faceImage: editFaceBase64 } : {}),
+        })});
+        const data = await res.json();
+        if (res.ok) { closeEditModal(); await load(); }
+        else { err.textContent=data.error||'Erro ao salvar.'; err.style.display='block'; }
+      } catch { err.textContent='Erro de conexão.'; err.style.display='block'; }
+      btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Salvar';
+    });
+
+    const urlTab = new URLSearchParams(location.search).get('tab');
+    if (urlTab==='history') showTab('history');
+    syncAdminNav();
+    load();
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function(){
+      const _d = JSON.parse(localStorage.getItem('doctorData')||'{}');
+      if (!_d.id) return;
+      const _sock = io({ transports: ['websocket','polling'] });
+      _sock.on('connect', () => _sock.emit('join_doctor', _d.id));
+      _sock.on('patient_created', () => { if(typeof load==='function') load(); });
+      _sock.on('patient_updated', () => { if(typeof load==='function') load(); });
+    })();
+  </script>
+</body>
+</html>

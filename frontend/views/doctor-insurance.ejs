@@ -1,0 +1,3426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Clinic Chek · Convênios</title>
+        <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+                <style>
+    /* ============================================================
+TEMA ÚNICO — EXATAMENTE O MESMO DA SIDEBAR ORIGINAL
+       ============================================================ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* ----- TEMA CLARO (padrão) ----- */
+      --sb-bg: #f8fafc;
+      --sb-surface: #ffffff;
+      --sb-elevated: #f1f5f9;
+      --sb-border: #e2e8f0;
+      --sb-text: #1e293b;
+      --sb-text-secondary: #334155;
+      --sb-text-muted: #64748b;
+      --sb-accent: #2563eb;
+      --sb-accent-dim: #eff6ff;
+      --sb-accent-hover: #dbeafe;
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+      --sb-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.10);
+      --sb-radius: 12px;
+      --sb-font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sb-sidebar-width: 280px;
+      --sb-sidebar-collapsed: 72px;
+      --sb-transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* TEMA ESCURO (exatamente igual ao da sidebar) */ [data-theme="dark"] {
+      --sb-bg: #0b1120;
+      --sb-surface: #111c2e;
+      --sb-elevated: #1e2d45;
+      --sb-border: rgba(255, 255, 255, 0.06);
+      --sb-text: #f0f4ff;
+      --sb-text-secondary: #b0c4e8;
+      --sb-text-muted: #7a8aa8;
+      --sb-accent: #3b82f6;
+      --sb-accent-dim: rgba(59, 130, 246, 0.15);
+      --sb-accent-hover: rgba(59, 130, 246, 0.25);
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      --sb-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+        SIDEBAR — ESTRUTURA PRINCIPAL (mesmo código)
+       ============================================================ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sb-sidebar-width);
+      background: var(--sb-surface);
+      border-right: 1px solid var(--sb-border);
+      color: var(--sb-text);
+      font-family: var(--sb-font);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: width var(--sb-transition), transform var(--sb-transition), background var(--sb-transition);
+      box-shadow: var(--sb-shadow);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sb-sidebar-collapsed);
+    }
+    .sidebar.collapsed .sb-brand-title,
+    .sidebar.collapsed .sidebar-user,
+    .sidebar.collapsed .sb-group-btn span:not(.caret),
+    .sidebar.collapsed .nav-item span,
+    .sidebar.collapsed .sidebar-footer .btn-logout span,
+    .sidebar.collapsed .sb-toggle-label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sidebar.collapsed .sb-brand-icon {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .nav-item i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+    .sidebar.collapsed .sb-group-btn {
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .sidebar.collapsed .sb-group-btn .caret {
+      display: none;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout i {
+      margin-right: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--sb-border);
+      flex-shrink: 0;
+    }
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .sb-brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--sb-accent), #06b6d4);
+      border-radius: var(--sb-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .sb-brand-icon:hover {
+      transform: rotate(-8deg) scale(1.05);
+    }
+    .sb-brand-title {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sb-brand-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--sb-text);
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--sb-text) 60%, var(--sb-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sb-brand-title small {
+      font-size: 10px;
+      color: var(--sb-text-muted);
+      font-weight: 400;
+      -webkit-text-fill-color: var(--sb-text-muted);
+    }
+
+    .sb-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--sb-text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn:hover {
+      background: var(--sb-elevated);
+      color: var(--sb-text);
+    }
+    .sb-toggle-btn:active {
+      transform: scale(0.9);
+    }
+
+    .sidebar-user {
+      margin: 12px 16px 8px;
+      padding: 14px 16px;
+      background: var(--sb-elevated);
+      border-radius: var(--sb-radius);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .sidebar-user .role {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-user .clinic {
+      font-size: 11px;
+      color: var(--sb-accent);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-user .clinic i {
+      font-size: 10px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 12px 8px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--sb-border) transparent;
+    }
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--sb-border);
+      border-radius: 10px;
+    }
+
+    .sb-group {
+      margin-top: 4px;
+    }
+    .sb-group + .sb-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--sb-border);
+    }
+
+    .sb-group-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      border: 0;
+      color: var(--sb-text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--sb-font);
+      border-radius: 6px;
+      transition: color 0.25s, background 0.25s;
+    }
+    .sb-group-btn:hover {
+      color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+    }
+    .sb-group-btn .caret {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 9px;
+    }
+    .sb-group.open .sb-group-btn .caret {
+      transform: rotate(90deg);
+      color: var(--sb-accent);
+    }
+
+    .sb-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+    }
+    .sb-group.open .sb-group-list {
+      max-height: 600px;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sb-text-secondary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, transform 0.15s, padding 0.2s;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sb-font);
+      overflow: hidden;
+    }
+    .nav-item i {
+      width: 20px;
+      font-size: 15px;
+      color: var(--sb-text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--sb-accent);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .nav-item:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      transform: translateX(3px);
+    }
+    .nav-item:hover i {
+      color: var(--sb-accent);
+      transform: scale(1.1) rotate(-4deg);
+    }
+    .nav-item:hover::before {
+      transform: scaleY(0.5);
+    }
+    .nav-item.active {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--sb-accent);
+    }
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    .nav-item.active i {
+      color: var(--sb-accent);
+    }
+    .nav-item:active {
+      transform: scale(0.97);
+    }
+    .nav-item[hidden] {
+      display: none !important;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--sb-border);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--sb-elevated);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s;
+    }
+    .theme-toggle .sb-toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sb-text-muted);
+      transition: opacity 0.2s;
+    }
+    .theme-toggle .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--sb-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .theme-toggle .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    } [data-theme="dark"] .theme-toggle .toggle-switch {
+      background: var(--sb-accent);
+    } [data-theme="dark"] .theme-toggle .toggle-switch .slider {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--sb-font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-logout i {
+      font-size: 15px;
+    }
+    .btn-logout span {
+      transition: opacity 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+    .btn-logout:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sb-sidebar-width);
+        border-right: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .sidebar.collapsed {
+        width: var(--sb-sidebar-width);
+      }
+      .sidebar.collapsed .sb-brand-title,
+      .sidebar.collapsed .sidebar-user,
+      .sidebar.collapsed .sb-group-btn span:not(.caret),
+      .sidebar.collapsed .nav-item span,
+      .sidebar.collapsed .sidebar-footer .btn-logout span,
+      .sidebar.collapsed .sb-toggle-label {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        overflow: visible;
+      }
+      .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 9px 12px !important;
+      }
+      .sidebar.collapsed .nav-item i {
+        font-size: 15px;
+        margin-right: 0;
+      }
+      .sidebar.collapsed .sb-group-btn {
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .sidebar.collapsed .sb-group-btn .caret {
+        display: inline;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout {
+        justify-content: flex-start;
+        padding: 10px 14px !important;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout i {
+        margin-right: 0;
+      }
+    }
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 320px;
+      }
+      .sb-brand-title h2 {
+        font-size: 15px;
+      }
+    }
+
+    /* ============================================================
+       MAIN — CONTEÚDO PRINCIPAL (usa as mesmas variáveis)
+       ============================================================ */
+    .main {
+      margin-left: var(--sb-sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--sb-bg);
+      transition: background var(--sb-transition), margin-left var(--sb-transition);
+    }
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--sb-surface);
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--sb-text);
+      transition: color var(--sb-transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--sb-text-muted);
+      margin-top: 2px;
+      transition: color var(--sb-transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--sb-text-secondary);
+      background: var(--sb-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--sb-border);
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--sb-accent);
+      font-size: 10px;
+      transition: color var(--sb-transition);
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+      animation: fadeUp 0.35s ease;
+    }
+
+    /* ============================================================
+       CARDS E GRIDS (com as variáveis da sidebar)
+       ============================================================ */
+    .card {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      border: 1px solid var(--sb-border);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--sb-shadow);
+      transition: background var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--sb-shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--sb-accent);
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--sb-transition), background var(--sb-transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--sb-transition);
+    }
+    .card-header h3 i {
+      color: var(--sb-accent);
+      font-size: 16px;
+      transition: color var(--sb-transition);
+    }
+    .card-body {
+      padding: 18px 20px;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      padding: 16px 20px;
+      border: 1px solid var(--sb-border);
+      box-shadow: var(--sb-shadow);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.25s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--sb-shadow-hover);
+      border-color: var(--sb-accent);
+    }
+    .stat-card .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--sb-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+      color: #fff;
+      transition: transform 0.3s ease;
+    }
+    .stat-card:hover .icon {
+      transform: scale(1.08) rotate(-2deg);
+    }
+    .stat-card .icon.blue {
+      background: linear-gradient(135deg, var(--sb-accent), #3b82f6);
+    }
+    .stat-card .icon.green {
+      background: linear-gradient(135deg, #10b981, #34d399);
+    }
+    .stat-card .icon.purple {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+    }
+    .stat-card .icon.amber {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+    }
+    .stat-card .info {
+      flex: 1;
+    }
+    .stat-card .stat-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--sb-text);
+      line-height: 1.2;
+      transition: color var(--sb-transition);
+    }
+    .stat-card .stat-label {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+      transition: color var(--sb-transition);
+    }
+
+    @media (max-width: 768px) {
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toolbar input,
+    .toolbar select {
+      padding: 7px 12px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      font-size: 12px;
+      font-family: var(--sb-font);
+      background: var(--sb-surface);
+      color: var(--sb-text);
+      outline: none;
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition);
+    }
+    .toolbar input:focus,
+    .toolbar select:focus {
+      border-color: var(--sb-accent);
+    }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--sb-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--sb-border);
+      background: var(--sb-elevated);
+      transition: color var(--sb-transition), border-color var(--sb-transition), background var(--sb-transition);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--sb-border);
+      transition: background 0.2s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--sb-accent-dim);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--sb-text-secondary);
+      vertical-align: middle;
+      transition: color var(--sb-transition);
+    }
+    tbody td .td-name {
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .td-desc {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-blue {
+      background: var(--sb-accent-dim);
+      color: var(--sb-accent);
+    }
+    .badge-green {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+    }
+    .badge-yellow {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+    }
+    .badge-red {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+    }
+    .badge-gray {
+      background: var(--sb-elevated);
+      color: var(--sb-text-muted);
+    }
+    .badge-purple {
+      background: rgba(124, 58, 237, 0.12);
+      color: #7c3aed;
+    }
+    .badge-teal {
+      background: rgba(6, 182, 212, 0.12);
+      color: #06b6d4;
+    }
+    .badge-sig {
+      background: rgba(124, 58, 237, 0.12);
+      color: #7c3aed;
+      font-size: 9px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--sb-text-muted);
+    }
+    .empty-state i {
+      font-size: 48px;
+      color: var(--sb-border);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .empty-state h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+      margin-bottom: 4px;
+    }
+    .empty-state p {
+      font-size: 12px;
+    }
+
+    /* ============================================================
+       FORMULÁRIOS (padrão da sidebar)
+       ============================================================ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group.span3 {
+      grid-column: span 3;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sb-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--sb-transition);
+    }
+    .form-group label .req {
+      color: #ef4444;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      font-size: 13px;
+      font-family: var(--sb-font);
+      color: var(--sb-text);
+      background: var(--sb-surface);
+      outline: none;
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition), box-shadow var(--sb-transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--sb-accent);
+      box-shadow: 0 0 0 3px var(--sb-accent-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--sb-text-muted);
+      font-weight: 300;
+      transition: color var(--sb-transition);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      background: var(--sb-surface);
+      cursor: pointer;
+      transition: border-color 0.2s, background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .checkbox-row:hover {
+      border-color: var(--sb-accent);
+    }
+    .checkbox-row input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--sb-accent);
+    }
+    .checkbox-row label {
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--sb-text);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid, .form-grid.cols3 {
+        grid-template-columns: 1fr;
+      }
+      .form-group.span2, .form-group.span3 {
+        grid-column: span 1;
+      }
+    }
+
+    /* ============================================================
+       BOTÕES (padrão da sidebar)
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--sb-radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--sb-font);
+      cursor: pointer;
+      transition: background var(--sb-transition), color var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--sb-accent);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+    }
+    .btn-solid:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(37, 99, 235, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--sb-text-secondary);
+      border: 1px solid var(--sb-border);
+    }
+    .btn-outline:hover {
+      border-color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-teal {
+      background: #06b6d4;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+    }
+    .btn-teal:hover {
+      background: #0891b2;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(6, 182, 212, 0.4);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-xs {
+      padding: 3px 10px;
+      font-size: 10px;
+    }
+    .btn-red {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(239, 68, 68, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-green {
+      background: rgba(16, 185, 129, 0.08);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+    .btn-green:hover {
+      background: rgba(16, 185, 129, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .info-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--sb-radius);
+      background: var(--sb-accent-dim);
+      border-left: 3px solid var(--sb-accent);
+      font-size: 12.5px;
+      color: var(--sb-text-secondary);
+      margin-bottom: 16px;
+    }
+    .info-banner i {
+      color: var(--sb-accent);
+      margin-top: 1px;
+    }
+
+    /* ============================================================
+       ALERTAS
+       ============================================================ */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--sb-radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--sb-transition), color var(--sb-transition), border-color var(--sb-transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      border-left: 3px solid #10b981;
+    }
+    .alert-err {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      border-left: 3px solid #ef4444;
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       MODAIS
+       ============================================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--sb-shadow-hover);
+      border: 1px solid var(--sb-border);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--sb-elevated);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      transition: border-color var(--sb-transition), background var(--sb-transition);
+    }
+    .modal-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--sb-text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+    }
+    .modal-body {
+      padding: 20px;
+    }
+    .modal-foot {
+      padding: 12px 20px;
+      border-top: 1px solid var(--sb-border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      transition: border-color var(--sb-transition);
+    }
+
+    /* CATEGORIA LIST */
+    .cat-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cat-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--sb-border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .cat-item .cat-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sb-text-secondary);
+    }
+    .cat-item .cat-name.default {
+      color: #166534;
+    }
+    .cat-item .cat-name.inactive {
+      color: var(--sb-text-muted);
+    }
+
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 1100px) { .charts-grid { grid-template-columns: 1fr; } }
+    .report-tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+      border-bottom: 1px solid var(--sb-border); padding-bottom: 12px;
+    }
+    .report-tab {
+      padding: 8px 16px; border-radius: 20px; border: 1px solid var(--sb-border);
+      background: var(--sb-surface); color: var(--sb-text-secondary); font-size: 12.5px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+    }
+    .report-tab:hover { border-color: var(--sb-accent); color: var(--sb-text); }
+    .report-tab.active { background: var(--sb-accent); color: #fff; border-color: var(--sb-accent); }
+    .report-panel { display: none; }
+    .report-panel.active { display: block; }
+    .pill-select {
+      display: inline-block; padding: 8px 12px; border-radius: var(--sb-radius); border: 1px solid var(--sb-border);
+      background: var(--sb-surface); cursor: pointer; font-size: 12.5px; margin: 0 8px 8px 0;
+    }
+    .pill-select.selected { border-color: var(--sb-accent); background: var(--sb-accent-dim); color: var(--sb-accent); font-weight:600; }
+                </style>
+              </head>
+              <body>
+
+                <!-- ============================================================
+  SIDEBAR (exatamente igual à primeira tela)
+  ============================================================ -->
+                <aside class="sidebar" id="appSidebar">
+                  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+                  <div class="sidebar-header">
+                    <div class="sb-brand">
+                      <div class="sb-brand-icon">
+                        <i class="fas fa-heartbeat"></i>
+                      </div>
+                      <div class="sb-brand-title">
+                        <h2>Clinic Chek</h2>
+                        <small>Gestão inteligente</small>
+                      </div>
+                    </div>
+                    <button class="sb-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+                      <i class="fas fa-bars"></i>
+                    </button>
+                  </div>
+
+                  <div class="sidebar-user">
+                    <div class="name" id="sidebarName">Carregando...</div>
+                    <div class="role" id="sidebarRole">Profissional</div>
+                    <div class="clinic">
+                      <i class="fas fa-hospital"></i>
+                      <span id="sidebarClinic">Clínica: --</span>
+                    </div>
+                  </div>
+
+                  <nav class="sidebar-nav" id="sidebarNav">
+                    <!-- PRINCIPAL -->
+                    <div class="sb-group open" data-group="principal">
+                      <button class="sb-group-btn" type="button">
+                        <span>Principal</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item" hidden data-page="dashboard" data-page-codes="dashboard,dashboard.insights" href="/medico">
+                          <i class="fas fa-th-large"></i>
+                          <span>Dashboard</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="agenda" data-page-codes="agenda,agenda.consultations" href="/medico/agenda">
+                          <i class="fas fa-calendar-check"></i>
+                          <span>Agenda</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="agenda.teleconsulta" data-page-codes="agenda,agenda.consultations" href="/medico/agenda">
+                          <i class="fas fa-video"></i>
+                          <span>Teleconsulta</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- CADASTROS -->
+                    <div class="sb-group open" data-group="cadastro">
+                      <button class="sb-group-btn" type="button">
+                        <span>Cadastros</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item" hidden data-page="patients" data-page-codes="patients,patients.profile" href="/medico/pacientes">
+                          <i class="fas fa-user-injured"></i>
+                          <span>Pacientes</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="patients.records" data-page-codes="patients.records,patients.followups" href="/medico/prontuarios">
+                          <i class="fas fa-notes-medical"></i>
+                          <span>Prontuários</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="procedures" data-page-codes="procedures,procedures.register,procedures.types" href="/medico/procedimentos">
+                          <i class="fas fa-procedures"></i>
+                          <span>Procedimentos</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="prescriptions" data-page-codes="prescriptions,prescriptions.certificates" href="/medico/receita">
+                          <i class="fas fa-prescription"></i>
+                          <span>Receita / Atestado</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- FINANCEIRO -->
+                    <div class="sb-group open" data-group="financeiro">
+                      <button class="sb-group-btn" type="button">
+                        <span>Financeiro</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/dashboard">
+                          <i class="fas fa-chart-line"></i>
+                          <span>Dashboard Financeiro</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="financeiro.caixa" data-page-codes="financeiro.caixa" href="/medico/caixa">
+                          <i class="fas fa-cash-register"></i>
+                          <span>Caixa</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="financeiro.despesas" data-page-codes="financeiro.despesas" href="/medico/financeiro/despesas">
+                          <i class="fas fa-file-invoice-dollar"></i>
+                          <span>Contas a Pagar</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/relatorios">
+                          <i class="fas fa-chart-pie"></i>
+                          <span>Relatórios</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- CONVÊNIOS -->
+                    <div class="sb-group open" data-group="convenios">
+                      <button class="sb-group-btn" type="button">
+                        <span>Convênios</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item active" hidden data-page="convenios" data-page-codes="convenios,convenios.guias" href="/medico/convenios">
+                          <i class="fas fa-handshake"></i>
+                          <span>Convênios</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- MINHA CONTA -->
+                    <div class="sb-group open" data-group="minha-conta">
+                      <button class="sb-group-btn" type="button">
+                        <span>Minha Conta</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item" hidden data-page="perfil" href="/medico/perfil">
+                          <i class="fas fa-id-badge"></i>
+                          <span>Meu Perfil</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="portfolio" data-page-codes="portfolio" href="/medico/portfolio">
+                          <i class="fas fa-globe"></i>
+                          <span>Portfólio</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- DOCUMENTOS -->
+                    <div class="sb-group open" data-group="documentos">
+                      <button class="sb-group-btn" type="button">
+                        <span>Documentos</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item" hidden data-page="templates" data-page-codes="templates,templates.editor" href="/medico/templates">
+                          <i class="fas fa-file-alt"></i>
+                          <span>Modelos</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="documents" data-page-codes="documents,documents.signature" href="/medico/documentos">
+                          <i class="fas fa-file-signature"></i>
+                          <span>Documentos</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- ADMINISTRAÇÃO -->
+                    <div class="sb-group open" data-group="administracao">
+                      <button class="sb-group-btn" type="button">
+                        <span>Administração</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item" hidden data-page="team" data-page-codes="team,team.doctors,team.receptionists" id="navTeamItem" href="/admin">
+                          <i class="fas fa-user-md"></i>
+                          <span>Equipe (Admin)</span>
+                        </a>
+                        <a class="nav-item" hidden data-page="clinic" data-page-codes="clinic,clinic.members,clinic.permissions" href="/medico/clinica">
+                          <i class="fas fa-hospital-alt"></i>
+                          <span>Minha Clínica</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- ACESSO EXTRA -->
+                    <div class="sb-group open" data-group="acesso-extra">
+                      <button class="sb-group-btn" type="button">
+                        <span>Acesso Extra</span>
+                        <span class="caret">▶</span>
+                      </button>
+                      <div class="sb-group-list">
+                        <a class="nav-item" hidden data-page="reception" data-page-codes="reception,reception.dashboard,reception.patients,reception.agenda" href="/recepcao">
+                          <i class="fas fa-concierge-bell"></i>
+                          <span>Painel de Recepção</span>
+                        </a>
+                      </div>
+                    </div>
+                  </nav>
+
+                  <div class="sidebar-footer">
+                    <div class="theme-toggle">
+                      <span class="sb-toggle-label">
+                        <i class="fas fa-moon"></i> Tema</span>
+                      <div class="toggle-switch" id="themeToggle" role="button" tabindex="0" aria-label="Alternar tema">
+                        <div class="slider"></div>
+                      </div>
+                    </div>
+                    <button class="btn-logout" id="logoutBtn">
+                      <i class="fas fa-sign-out-alt"></i>
+                      <span>Sair</span>
+                    </button>
+                  </div>
+                </aside>
+
+                <!-- ============================================================
+  MAIN — CONVÊNIOS / GLOSAS
+  ============================================================ -->
+                <main class="main">
+                  <header class="topbar">
+                    <div>
+                      <h1>Convênios</h1>
+                      <div class="meta">Operadoras, contratos, carteirinhas, guias e glosas</div>
+                    </div>
+                    <div class="topbar-actions">
+                      <a href="/medico" class="btn btn-outline btn-sm">Dashboard</a>
+                    </div>
+                  </header>
+
+                  <div class="content">
+
+                    <div class="report-tabs" id="insTabs">
+                      <button class="report-tab active" data-tab="operators">Operadoras &amp; Planos</button>
+                      <button class="report-tab" data-tab="contracts">Contratos</button>
+                      <button class="report-tab" data-tab="cards">Carteirinhas</button>
+                      <button class="report-tab" data-tab="claims">Guias</button>
+                      <button class="report-tab" data-tab="batches">Lotes &amp; Conciliação</button>
+                      <button class="report-tab" data-tab="appeals">Glosas</button>
+                      <button class="report-tab" data-tab="billing">Faturamento por Convênio</button>
+                      <button class="report-tab" data-tab="projection">Projeção de Recebíveis</button>
+                    </div>
+
+                    <!-- ═══ OPERADORAS & PLANOS ═══ -->
+                    <div class="report-panel active" id="panel-operators">
+                      <div class="card">
+                        <div class="card-header">
+                          <span>
+                            <i class="fas fa-building"></i> Operadoras</span>
+                          <button class="btn btn-solid btn-sm" id="openNewOperatorBtn">
+                            <i class="fas fa-plus"></i> Nova Operadora</button>
+                        </div>
+                        <div class="card-body">
+                          <div class="table-wrap">
+                            <table>
+                              <thead>
+                                <tr>
+                                  <th>Nome</th>
+                                  <th>CNPJ</th>
+                                  <th>Registro ANS</th>
+                                  <th>Contato</th>
+                                  <th title="Usado no relatório de Projeção de Recebíveis">Prazo médio (dias)</th>
+                                  <th>Status</th>
+                                  <th>Ações</th>
+                                </tr>
+                              </thead>
+                              <tbody id="operatorsTbody">
+                                <tr>
+                                  <td colspan="7" class="empty-state">Carregando...</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card">
+                        <div class="card-header">
+                          <span>
+                            <i class="fas fa-file-medical"></i> Planos</span>
+                        </div>
+                        <div class="card-body">
+                          <div class="form-grid" style="margin-bottom:16px;">
+                            <div class="form-group span2">
+                              <label>Operadora</label>
+                              <select id="planOperatorSelect">
+                                <option value="">Selecione uma operadora...</option>
+                              </select>
+                            </div>
+                          </div>
+                          <button class="btn btn-solid btn-sm" id="openNewPlanBtn" style="margin-bottom:14px;" disabled><i class="fas fa-plus"></i> Novo Plano</button>
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Nome</th>
+                                <th>Segmentação</th>
+                                <th>Abrangência</th>
+                              </tr>
+                            </thead>
+                            <tbody id="plansTbody">
+                              <tr>
+                                <td colspan="3" class="empty-state">Selecione uma operadora.</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ═══ CONTRATOS ═══ -->
+                  <div class="report-panel" id="panel-contracts">
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-file-signature"></i> Contratos da Clínica</span>
+                        <button class="btn btn-solid btn-sm" id="openNewContractBtn">
+                          <i class="fas fa-plus"></i> Novo Contrato</button>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Operadora</th>
+                                <th>% CBHPM</th>
+                                <th>Autorização Padrão</th>
+                                <th>Coparticipação</th>
+                                <th>Dia Fechamento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                              </tr>
+                            </thead>
+                            <tbody id="contractsTbody">
+                              <tr>
+                                <td colspan="7" class="empty-state">Carregando...</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-list-ol"></i> Tabela de Procedimentos</span>
+                      </div>
+                      <div class="card-body">
+                        <div class="form-grid" style="margin-bottom:16px;">
+                          <div class="form-group span2">
+                            <label>Contrato</label>
+                            <select id="procContractSelect">
+                              <option value="">Selecione um contrato...</option>
+                            </select>
+                          </div>
+                        </div>
+                        <button class="btn btn-solid btn-sm" id="openNewProcBtn" style="margin-bottom:14px;" disabled><i class="fas fa-plus"></i> Novo Procedimento</button>
+                      <div class="table-wrap">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>TUSS</th>
+                              <th>Descrição</th>
+                              <th>Valor Negociado</th>
+                              <th>Autorização</th>
+                              <th>Carência (dias)</th>
+                              <th>Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody id="procTableTbody">
+                            <tr>
+                              <td colspan="6" class="empty-state">Selecione um contrato.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ═══ CARTEIRINHAS ═══ -->
+                <div class="report-panel" id="panel-cards">
+                  <div class="card">
+                    <div class="card-header">
+                      <span>
+                        <i class="fas fa-id-card"></i> Carteirinhas de Pacientes</span>
+                      <button class="btn btn-solid btn-sm" id="openNewCardBtn">
+                        <i class="fas fa-plus"></i> Nova Carteirinha</button>
+                    </div>
+                    <div class="card-body">
+                      <div class="toolbar" style="margin-bottom:14px;">
+                        <input type="text" id="cardSearchInput" placeholder="Buscar paciente...">
+                          <button class="btn btn-outline btn-sm" id="refreshCardsBtn">
+                            <i class="fas fa-sync"></i>
+                          </button>
+                        </div>
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Paciente</th>
+                                <th>Operadora</th>
+                                <th>Plano</th>
+                                <th>Carteirinha</th>
+                                <th>Início Cobertura</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                              </tr>
+                            </thead>
+                            <tbody id="cardsTbody">
+                              <tr>
+                                <td colspan="7" class="empty-state">Carregando...</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ═══ GUIAS ═══ -->
+                  <div class="report-panel" id="panel-claims">
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-file-medical-alt"></i> Guias</span>
+                        <button class="btn btn-solid btn-sm" id="openNewClaimBtn">
+                          <i class="fas fa-plus"></i> Nova Guia</button>
+                      </div>
+                      <div class="card-body">
+                        <div class="toolbar" style="margin-bottom:14px;">
+                          <select id="claimsStatusFilter">
+                            <option value="ALL">Todos os status</option>
+                            <option value="RASCUNHO">Rascunho</option>
+                            <option value="EMITIDA">Emitida</option>
+                            <option value="ENVIADA">Enviada</option>
+                            <option value="PAGA">Paga</option>
+                            <option value="GLOSADA_PARCIAL">Glosada parcial</option>
+                            <option value="GLOSADA_TOTAL">Glosada total</option>
+                            <option value="EM_RECURSO">Em recurso</option>
+                            <option value="FINALIZADA">Finalizada</option>
+                          </select>
+                          <button class="btn btn-outline btn-sm" id="refreshClaimsBtn">
+                            <i class="fas fa-sync"></i>
+                          </button>
+                        </div>
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Paciente</th>
+                                <th>Operadora</th>
+                                <th>Carteirinha</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Criada em</th>
+                                <th>Ações</th>
+                              </tr>
+                            </thead>
+                            <tbody id="claimsTbody">
+                              <tr>
+                                <td colspan="8" class="empty-state">Carregando...</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ═══ LOTES & CONCILIAÇÃO ═══ -->
+                  <div class="report-panel" id="panel-batches">
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-boxes-stacked"></i> Lotes de Faturamento</span>
+                        <button class="btn btn-solid btn-sm" id="openNewBatchBtn">
+                          <i class="fas fa-plus"></i> Novo Lote</button>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Operadora</th>
+                                <th>Competência</th>
+                                <th>Status</th>
+                                <th>Faturado</th>
+                                <th>Pago</th>
+                                <th>Glosado</th>
+                                <th>Ações</th>
+                              </tr>
+                            </thead>
+                            <tbody id="batchesTbody">
+                              <tr>
+                                <td colspan="7" class="empty-state">Carregando...</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-scale-balanced"></i> Relatório de Conciliação</span>
+                        <button class="btn btn-outline btn-sm" id="downloadConciliacaoBtn">
+                          <i class="fas fa-download"></i> Baixar CSV</button>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Operadora</th>
+                                <th>Competência</th>
+                                <th>Status</th>
+                                <th>Faturado</th>
+                                <th>Pago</th>
+                                <th>Glosado</th>
+                                <th>% Glosa</th>
+                              </tr>
+                            </thead>
+                            <tbody id="conciliacaoTbody">
+                              <tr>
+                                <td colspan="7" class="empty-state">Carregando...</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ═══ GLOSAS ═══ -->
+                  <div class="report-panel" id="panel-appeals">
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-chart-column"></i> Glosas por Operadora</span>
+                        <button class="btn btn-outline btn-sm" id="downloadGlosasBtn">
+                          <i class="fas fa-download"></i> Baixar CSV</button>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Operadora</th>
+                                <th>Status da Guia</th>
+                                <th>Qtd.</th>
+                                <th>Total Glosado</th>
+                              </tr>
+                            </thead>
+                            <tbody id="glosasReportTbody">
+                              <tr>
+                                <td colspan="4" class="empty-state">Carregando...</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-gavel"></i> Recursos de Glosa</span>
+                        <select id="appealsStatusFilter" style="padding:6px 10px;border-radius:8px;border:1px solid var(--sb-border);background:var(--sb-surface);color:var(--sb-text);font-size:12px;">
+                          <option value="ALL">Todos</option>
+                          <option value="PENDENTE">Pendente</option>
+                          <option value="ACEITO">Aceito</option>
+                          <option value="NEGADO">Negado</option>
+                        </select>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-wrap">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Paciente</th>
+                                <th>Operadora</th>
+                                <th>Glosado</th>
+                                <th>Protocolo</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                              </tr>
+                            </thead>
+                            <tbody id="appealsTbody">
+                              <tr>
+                                <td colspan="6" class="empty-state">Carregando...</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ═══ FATURAMENTO POR CONVÊNIO ═══ -->
+                  <div class="report-panel" id="panel-billing">
+                    <div class="card">
+                      <div class="card-header">
+                        <span>
+                          <i class="fas fa-file-invoice-dollar"></i> Faturamento por Operadora e Profissional</span>
+                        <div class="toolbar" style="margin:0;">
+                          <input type="date" id="billingFrom">
+                            <input type="date" id="billingTo">
+                              <button class="btn btn-outline btn-sm" id="billingRefreshBtn">
+                                <i class="fas fa-sync"></i>
+                              </button>
+                              <button class="btn btn-outline btn-sm" id="downloadBillingOpDocBtn">
+                                <i class="fas fa-download"></i> Baixar CSV</button>
+                            </div>
+                          </div>
+                          <div class="card-body">
+                            <div class="table-wrap">
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>Operadora</th>
+                                    <th>Profissional</th>
+                                    <th>Guias</th>
+                                    <th>Faturado</th>
+                                    <th>Pago</th>
+                                    <th>Glosado</th>
+                                    <th>% Glosa</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="billingOpDocTbody">
+                                  <tr>
+                                    <td colspan="7" class="empty-state">Carregando...</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card">
+                          <div class="card-header">
+                            <span>
+                              <i class="fas fa-list"></i> Faturamento por Procedimento (TUSS)</span>
+                            <button class="btn btn-outline btn-sm" id="downloadBillingProcBtn">
+                              <i class="fas fa-download"></i> Baixar CSV</button>
+                          </div>
+                          <div class="card-body">
+                            <div class="table-wrap">
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>Operadora</th>
+                                    <th>Procedimento</th>
+                                    <th>TUSS</th>
+                                    <th>Qtd.</th>
+                                    <th>Faturado</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="billingProcTbody">
+                                  <tr>
+                                    <td colspan="5" class="empty-state">Carregando...</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- ═══ PROJEÇÃO DE RECEBÍVEIS ═══ -->
+                      <div class="report-panel" id="panel-projection">
+                        <div class="card">
+                          <div class="card-header">
+                            <span>
+                              <i class="fas fa-chart-line"></i> Projeção de Recebíveis de Convênio</span>
+                            <button class="btn btn-outline btn-sm" id="downloadProjectionBtn">
+                              <i class="fas fa-download"></i> Baixar CSV</button>
+                          </div>
+                          <div class="card-body">
+                            <div class="info-banner">
+                              <i class="fas fa-circle-info"></i>
+                              <span>Estimativa com base no prazo médio de recebimento cadastrado em cada operadora (aba Operadoras &amp; Planos), a partir da data de envio (ou emissão, se ainda não enviada) de cada guia pendente.</span>
+                            </div>
+                            <div id="projectionKpis" class="stats-row" style="margin:16px 0;"></div>
+                            <div class="table-wrap">
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>Operadora</th>
+                                    <th>Prazo médio</th>
+                                    <th>Guias pendentes</th>
+                                    <th>Total pendente</th>
+                                    <th>Até 30 dias</th>
+                                    <th>31–60 dias</th>
+                                    <th>61–90 dias</th>
+                                    <th>90+ dias</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="projectionTbody">
+                                  <tr>
+                                    <td colspan="8" class="empty-state">Carregando...</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </main>
+
+                  <!-- MODAL: nova operadora -->
+                  <div class="modal-overlay" id="operatorModal">
+                    <div class="modal">
+                      <div class="modal-header">
+                        <h3>Nova Operadora</h3>
+                        <button class="modal-close" onclick="closeModal('operatorModal')">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="form-grid">
+                          <div class="form-group span2">
+                            <label>Nome *</label>
+                            <input type="text" id="opName" placeholder="Ex: Unimed Recife"></div>
+                            <div class="form-group">
+                              <label>CNPJ</label>
+                              <input type="text" id="opCnpj"></div>
+                              <div class="form-group">
+                                <label>Registro ANS</label>
+                                <input type="text" id="opAns"></div>
+                                <div class="form-group">
+                                  <label>Telefone</label>
+                                  <input type="text" id="opPhone"></div>
+                                  <div class="form-group">
+                                    <label>E-mail</label>
+                                    <input type="email" id="opEmail"></div>
+                                    <div class="form-group">
+                                      <label>Prazo médio de recebimento (dias)</label>
+                                      <input type="number" id="opAvgDays" min="1" step="1" placeholder="45" value="45"></div>
+                                    </div>
+                                    <div class="alert-err" id="operatorModalErr"></div>
+                                  </div>
+                                  <div class="modal-foot">
+                                    <button class="btn btn-outline" onclick="closeModal('operatorModal')">Cancelar</button>
+                                    <button class="btn btn-solid" id="confirmOperatorBtn">Salvar</button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- MODAL: novo plano -->
+                              <div class="modal-overlay" id="planModal">
+                                <div class="modal">
+                                  <div class="modal-header">
+                                    <h3>Novo Plano</h3>
+                                    <button class="modal-close" onclick="closeModal('planModal')">&times;</button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div class="form-grid">
+                                      <div class="form-group span2">
+                                        <label>Nome *</label>
+                                        <input type="text" id="plName" placeholder="Ex: Unimed Básico Enfermaria"></div>
+                                        <div class="form-group">
+                                          <label>Segmentação</label>
+                                          <select id="plSegmentation">
+                                            <option value="AMBULATORIAL">Ambulatorial</option>
+                                            <option value="HOSPITALAR">Hospitalar</option>
+                                            <option value="AMBULATORIAL_HOSPITALAR">Ambulatorial + Hospitalar</option>
+                                            <option value="REFERENCIA">Referência</option>
+                                          </select>
+                                        </div>
+                                        <div class="form-group">
+                                          <label>Abrangência</label>
+                                          <select id="plCoverage">
+                                            <option value="MUNICIPAL">Municipal</option>
+                                            <option value="ESTADUAL">Estadual</option>
+                                            <option value="NACIONAL">Nacional</option>
+                                            <option value="GRUPO_MUNICIPIOS">Grupo de municípios</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      <div class="alert-err" id="planModalErr"></div>
+                                    </div>
+                                    <div class="modal-foot">
+                                      <button class="btn btn-outline" onclick="closeModal('planModal')">Cancelar</button>
+                                      <button class="btn btn-solid" id="confirmPlanBtn">Salvar</button>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <!-- MODAL: novo contrato -->
+                                <div class="modal-overlay" id="contractModal">
+                                  <div class="modal">
+                                    <div class="modal-header">
+                                      <h3>Novo Contrato</h3>
+                                      <button class="modal-close" onclick="closeModal('contractModal')">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <div class="form-grid">
+                                        <div class="form-group span2">
+                                          <label>Operadora *</label>
+                                          <select id="ctOperator"></select>
+                                        </div>
+                                        <div class="form-group">
+                                          <label>% CBHPM</label>
+                                          <input type="number" id="ctCbhpm" step="0.01" placeholder="Ex: 180"></div>
+                                          <div class="form-group">
+                                            <label>Dia do Fechamento</label>
+                                            <input type="number" id="ctClosingDay" min="1" max="31"></div>
+                                            <div class="form-group span2">
+                                              <div class="checkbox-row" onclick="document.getElementById('ctAuth').click()">
+                                                <input type="checkbox" id="ctAuth">
+                                                  <label onclick="event.stopPropagation()">Exige autorização prévia por padrão</label>
+                                                </div>
+                                              </div>
+                                              <div class="form-group span2">
+                                                <div class="checkbox-row" onclick="document.getElementById('ctCopart').click()">
+                                                  <input type="checkbox" id="ctCopart">
+                                                    <label onclick="event.stopPropagation()">Tem coparticipação</label>
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                  <label>% Coparticipação</label>
+                                                  <input type="number" id="ctCopartPct" step="0.01"></div>
+                                                  <div class="form-group">
+                                                    <label>Prazo p/ recurso de glosa (dias)</label>
+                                                    <input type="number" id="ctGlosaDeadline" value="30"></div>
+                                                    <div class="form-group span2">
+                                                      <label>Observações</label>
+                                                      <textarea id="ctNotes" rows="2"></textarea>
+                                                    </div>
+                                                  </div>
+                                                  <div class="alert-err" id="contractModalErr"></div>
+                                                </div>
+                                                <div class="modal-foot">
+                                                  <button class="btn btn-outline" onclick="closeModal('contractModal')">Cancelar</button>
+                                                  <button class="btn btn-solid" id="confirmContractBtn">Salvar</button>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            <!-- MODAL: novo procedimento na tabela -->
+                                            <div class="modal-overlay" id="procModal">
+                                              <div class="modal">
+                                                <div class="modal-header">
+                                                  <h3>Novo Procedimento</h3>
+                                                  <button class="modal-close" onclick="closeModal('procModal')">&times;</button>
+                                                </div>
+                                                <div class="modal-body">
+                                                  <div class="form-grid">
+                                                    <div class="form-group">
+                                                      <label>Código TUSS</label>
+                                                      <input type="text" id="prTuss"></div>
+                                                      <div class="form-group">
+                                                        <label>Código CBHPM</label>
+                                                        <input type="text" id="prCbhpm"></div>
+                                                        <div class="form-group span2">
+                                                          <label>Descrição *</label>
+                                                          <input type="text" id="prDescription"></div>
+                                                          <div class="form-group">
+                                                            <label>Valor Negociado (R$) *</label>
+                                                            <input type="number" id="prValue" step="0.01"></div>
+                                                            <div class="form-group">
+                                                              <label>Carência (dias)</label>
+                                                              <input type="number" id="prWaitingDays" value="0"></div>
+                                                              <div class="form-group span2">
+                                                                <div class="checkbox-row" onclick="document.getElementById('prAuth').click()">
+                                                                  <input type="checkbox" id="prAuth">
+                                                                    <label onclick="event.stopPropagation()">Exige autorização prévia (sobrescreve o padrão do contrato)</label>
+                                                                  </div>
+                                                                </div>
+                                                              </div>
+                                                              <div class="alert-err" id="procModalErr"></div>
+                                                            </div>
+                                                            <div class="modal-foot">
+                                                              <button class="btn btn-outline" onclick="closeModal('procModal')">Cancelar</button>
+                                                              <button class="btn btn-solid" id="confirmProcBtn">Salvar</button>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+
+                                                        <!-- MODAL: nova carteirinha -->
+                                                        <div class="modal-overlay" id="cardModal">
+                                                          <div class="modal">
+                                                            <div class="modal-header">
+                                                              <h3>Nova Carteirinha</h3>
+                                                              <button class="modal-close" onclick="closeModal('cardModal')">&times;</button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                              <div class="form-grid">
+                                                                <div class="form-group span2" style="position:relative;">
+                                                                  <label>Paciente *</label>
+                                                                  <input type="text" id="cardPatientSearch" placeholder="Digite para buscar..." autocomplete="off">
+                                                                    <input type="hidden" id="cardPatientId">
+                                                                      <div id="cardPatientResults" style="display:none;position:absolute;top:64px;left:0;right:0;background:var(--sb-surface);border:1px solid var(--sb-border);border-radius:var(--sb-radius);box-shadow:var(--sb-shadow-hover);max-height:220px;overflow-y:auto;z-index:20;"></div>
+                                                                    </div>
+                                                                    <div class="form-group span2">
+                                                                      <label>Contrato (Operadora) *</label>
+                                                                      <select id="cardContract"></select>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                      <label>Plano</label>
+                                                                      <select id="cardPlan">
+                                                                        <option value="">— Nenhum —</option>
+                                                                      </select>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                      <label>Número da Carteirinha *</label>
+                                                                      <input type="text" id="cardNumber"></div>
+                                                                      <div class="form-group">
+                                                                        <label>Validade</label>
+                                                                        <input type="date" id="cardValidity"></div>
+                                                                        <div class="form-group">
+                                                                          <label>Início da Cobertura *</label>
+                                                                          <input type="date" id="cardCoverageStart"></div>
+                                                                        </div>
+                                                                        <div class="alert-err" id="cardModalErr"></div>
+                                                                      </div>
+                                                                      <div class="modal-foot">
+                                                                        <button class="btn btn-outline" onclick="closeModal('cardModal')">Cancelar</button>
+                                                                        <button class="btn btn-solid" id="confirmCardBtn">Salvar</button>
+                                                                      </div>
+                                                                    </div>
+                                                                  </div>
+
+                                                                  <!-- MODAL: nova guia -->
+                                                                  <div class="modal-overlay" id="claimModal">
+                                                                    <div class="modal" style="max-width:640px;">
+                                                                      <div class="modal-header">
+                                                                        <h3>Nova Guia</h3>
+                                                                        <button class="modal-close" onclick="closeModal('claimModal')">&times;</button>
+                                                                      </div>
+                                                                      <div class="modal-body">
+                                                                        <div class="form-grid">
+                                                                          <div class="form-group span2">
+                                                                            <label>Carteirinha do Paciente *</label>
+                                                                            <select id="claimPatientInsurance"></select>
+                                                                          </div>
+                                                                          <div class="form-group">
+                                                                            <label>Tipo</label>
+                                                                            <select id="claimType">
+                                                                              <option value="CONSULTA">Consulta</option>
+                                                                              <option value="SADT">SADT (exame/procedimento)</option>
+                                                                              <option value="INTERNACAO">Internação</option>
+                                                                              <option value="HONORARIO">Honorário Individual</option>
+                                                                            </select>
+                                                                          </div>
+                                                                          <div class="form-group">
+                                                                            <label>Nº Autorização</label>
+                                                                            <input type="text" id="claimAuthNumber"></div>
+                                                                          </div>
+                                                                          <div style="margin-top:10px;padding-top:14px;border-top:1px dashed var(--sb-border);">
+                                                                            <div class="flex items-center justify-between" style="margin-bottom:10px;">
+                                                                              <label style="font-size:12px;font-weight:600;color:var(--sb-text-muted);text-transform:uppercase;">Itens da Guia</label>
+                                                                              <button class="btn btn-outline btn-xs" type="button" id="addClaimItemBtn">
+                                                                                <i class="fas fa-plus"></i> Adicionar Item</button>
+                                                                            </div>
+                                                                            <div id="claimItemsList"></div>
+                                                                            <div style="text-align:right;margin-top:10px;font-size:14px;font-weight:700;">Total: <span id="claimTotalDisplay">R$ 0,00</span>
+                                                                            </div>
+                                                                          </div>
+                                                                          <div class="alert-err" id="claimModalErr"></div>
+                                                                        </div>
+                                                                        <div class="modal-foot">
+                                                                          <button class="btn btn-outline" onclick="closeModal('claimModal')">Cancelar</button>
+                                                                          <button class="btn btn-solid" id="confirmClaimBtn">Salvar Rascunho</button>
+                                                                        </div>
+                                                                      </div>
+                                                                    </div>
+
+                                                                    <!-- MODAL: novo lote -->
+                                                                    <div class="modal-overlay" id="batchModal">
+                                                                      <div class="modal">
+                                                                        <div class="modal-header">
+                                                                          <h3>Novo Lote de Faturamento</h3>
+                                                                          <button class="modal-close" onclick="closeModal('batchModal')">&times;</button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                          <div class="form-grid">
+                                                                            <div class="form-group span2">
+                                                                              <label>Contrato (Operadora) *</label>
+                                                                              <select id="batchContract"></select>
+                                                                            </div>
+                                                                            <div class="form-group span2">
+                                                                              <label>Mês de Competência *</label>
+                                                                              <input type="month" id="batchMonth"></div>
+                                                                            </div>
+                                                                            <div class="alert-err" id="batchModalErr"></div>
+                                                                          </div>
+                                                                          <div class="modal-foot">
+                                                                            <button class="btn btn-outline" onclick="closeModal('batchModal')">Cancelar</button>
+                                                                            <button class="btn btn-solid" id="confirmBatchBtn">Criar Lote</button>
+                                                                          </div>
+                                                                        </div>
+                                                                      </div>
+
+                                                                      <!-- MODAL: adicionar guias ao lote -->
+                                                                      <div class="modal-overlay" id="addClaimsModal">
+                                                                        <div class="modal">
+                                                                          <div class="modal-header">
+                                                                            <h3>Adicionar Guias ao Lote</h3>
+                                                                            <button class="modal-close" onclick="closeModal('addClaimsModal')">&times;</button>
+                                                                          </div>
+                                                                          <div class="modal-body">
+                                                                            <div id="availableClaimsList" style="max-height:320px;overflow-y:auto;"></div>
+                                                                            <div class="alert-err" id="addClaimsModalErr"></div>
+                                                                          </div>
+                                                                          <div class="modal-foot">
+                                                                            <button class="btn btn-outline" onclick="closeModal('addClaimsModal')">Cancelar</button>
+                                                                            <button class="btn btn-solid" id="confirmAddClaimsBtn">Adicionar Selecionadas</button>
+                                                                          </div>
+                                                                        </div>
+                                                                      </div>
+
+                                                                      <!-- MODAL: registrar retorno do lote -->
+                                                                      <div class="modal-overlay" id="batchReturnModal">
+                                                                        <div class="modal" style="max-width:680px;">
+                                                                          <div class="modal-header">
+                                                                            <h3>Registrar Retorno da Operadora</h3>
+                                                                            <button class="modal-close" onclick="closeModal('batchReturnModal')">&times;</button>
+                                                                          </div>
+                                                                          <div class="modal-body">
+                                                                            <p style="font-size:12.5px;color:var(--sb-text-secondary);margin-bottom:14px;">Informe quanto foi pago e quanto foi glosado em cada guia deste lote.</p>
+                                                                            <div id="batchReturnItemsList"></div>
+                                                                            <div class="alert-err" id="batchReturnModalErr"></div>
+                                                                          </div>
+                                                                          <div class="modal-foot">
+                                                                            <button class="btn btn-outline" onclick="closeModal('batchReturnModal')">Cancelar</button>
+                                                                            <button class="btn btn-solid" id="confirmBatchReturnBtn">Confirmar Conciliação</button>
+                                                                          </div>
+                                                                        </div>
+                                                                      </div>
+
+                                                                      <!-- MODAL: recurso de glosa -->
+                                                                      <div class="modal-overlay" id="appealModal">
+                                                                        <div class="modal">
+                                                                          <div class="modal-header">
+                                                                            <h3>Recorrer da Glosa</h3>
+                                                                            <button class="modal-close" onclick="closeModal('appealModal')">&times;</button>
+                                                                          </div>
+                                                                          <div class="modal-body">
+                                                                            <div class="form-grid">
+                                                                              <div class="form-group span2">
+                                                                                <label>Justificativa *</label>
+                                                                                <textarea id="appealJustification" rows="3" placeholder="Ex: Código TUSS correto conforme tabela vigente..."></textarea>
+                                                                              </div>
+                                                                            </div>
+                                                                            <div class="alert-err" id="appealModalErr"></div>
+                                                                          </div>
+                                                                          <div class="modal-foot">
+                                                                            <button class="btn btn-outline" onclick="closeModal('appealModal')">Cancelar</button>
+                                                                            <button class="btn btn-solid" id="confirmAppealBtn">Enviar Recurso</button>
+                                                                          </div>
+                                                                        </div>
+                                                                      </div>
+
+                                                                      <!-- MODAL: resolver recurso -->
+                                                                      <div class="modal-overlay" id="resolveAppealModal">
+                                                                        <div class="modal">
+                                                                          <div class="modal-header">
+                                                                            <h3>Resolver Recurso</h3>
+                                                                            <button class="modal-close" onclick="closeModal('resolveAppealModal')">&times;</button>
+                                                                          </div>
+                                                                          <div class="modal-body">
+                                                                            <div class="form-grid">
+                                                                              <div class="form-group span2">
+                                                                                <label>Resultado *</label>
+                                                                                <select id="resolveAppealStatus">
+                                                                                  <option value="ACEITO">Aceito pela operadora</option>
+                                                                                  <option value="NEGADO">Negado pela operadora</option>
+                                                                                </select>
+                                                                              </div>
+                                                                              <div class="form-group span2" id="resolveAppealValueWrap">
+                                                                                <label>Valor adicional pago (R$)</label>
+                                                                                <input type="number" id="resolveAppealValue" step="0.01"></div>
+                                                                                <div class="form-group span2">
+                                                                                  <label>Observações</label>
+                                                                                  <textarea id="resolveAppealNotes" rows="2"></textarea>
+                                                                                </div>
+                                                                              </div>
+                                                                              <div class="alert-err" id="resolveAppealModalErr"></div>
+                                                                            </div>
+                                                                            <div class="modal-foot">
+                                                                              <button class="btn btn-outline" onclick="closeModal('resolveAppealModal')">Cancelar</button>
+                                                                              <button class="btn btn-solid" id="confirmResolveAppealBtn">Confirmar</button>
+                                                                            </div>
+                                                                          </div>
+                                                                        </div>
+                                                                        <script>
+    // ============================================================
+    // SIDEBAR (mesmo da primeira tela)
+    // ============================================================
+    (function initSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      if (isCollapsed) sidebar.classList.add('collapsed');
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.innerWidth <= 992) {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+          document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        } else {
+          isCollapsed = !isCollapsed;
+          sidebar.classList.toggle('collapsed', isCollapsed);
+          localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      // Tema
+      const themeToggle = document.getElementById('themeToggle');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      // Grupos colapsáveis
+      document.querySelectorAll('.sb-group-btn').forEach((btn) => {
+        btn.addEventListener('click', function() {
+          const group = this.closest('.sb-group');
+          if (group) group.classList.toggle('open');
+        });
+      });
+
+      // Dados do usuário
+      const doctorToken = localStorage.getItem('doctorToken');
+      const receptionToken = localStorage.getItem('receptionToken');
+      const token = doctorToken || receptionToken;
+      const isReceptionSession = !doctorToken && !!receptionToken;
+      const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+      const nameEl = document.getElementById('sidebarName');
+      const roleEl = document.getElementById('sidebarRole');
+      const clinicEl = document.getElementById('sidebarClinic');
+      if (nameEl) nameEl.textContent = doctorData.name || 'Profissional';
+      if (roleEl) roleEl.textContent = isReceptionSession ? 'Recepcionista' : (doctorData.isClinicOwner ? 'Owner da Clinica' : 'Profissional');
+      if (clinicEl) clinicEl.textContent = 'Clinica: ' + (doctorData.clinicName || '--');
+
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('doctorToken'); localStorage.removeItem('doctorData');
+        localStorage.removeItem('receptionToken'); localStorage.removeItem('receptionData');
+        window.location.href = isReceptionSession ? '/recepcao/login' : '/medico/login';
+      });
+
+      // Permissões (opcional)
+      if (token) {
+        fetch(isReceptionSession ? '/api/auth/permissions-receptionist' : '/api/auth/permissions', { headers: { Authorization: 'Bearer ' + token } })
+          .then((r) => r.ok ? r.json() : null)
+          .then((data) => {
+            if (!data || !Array.isArray(data.pages)) return;
+            const allowed = new Set((data.pages || []).filter((p) => p.can_view).map((p) => p.code));
+            document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+              const rawCodes = item.getAttribute('data-page-codes') || item.getAttribute('data-page') || '';
+              const pageCodes = rawCodes.split(',').map((code) => code.trim()).filter(Boolean);
+              const canSee = pageCodes.some((code) => allowed.has(code));
+              item.hidden = !canSee;
+            });
+            document.querySelectorAll('.sb-group').forEach((g) => {
+              const hasVisible = Array.from(g.querySelectorAll('.nav-item')).some((i) => !i.hidden);
+              g.style.display = hasVisible ? '' : 'none';
+            });
+          })
+          .catch(() => {});
+      }
+    })();
+
+    // ============================================================
+    // CONVÊNIOS / GLOSAS
+    // ============================================================
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    if (!token) window.location.href = '/medico/login';
+    const H = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+    const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+
+    const CLAIM_STATUS_LABELS = {
+      RASCUNHO: 'Rascunho', EMITIDA: 'Emitida', ENVIADA: 'Enviada', PAGA: 'Paga',
+      GLOSADA_PARCIAL: 'Glosada parcial', GLOSADA_TOTAL: 'Glosada total', EM_RECURSO: 'Em recurso', FINALIZADA: 'Finalizada',
+    };
+    const CLAIM_STATUS_BADGE = {
+      RASCUNHO: 'badge-gray', EMITIDA: 'badge-blue', ENVIADA: 'badge-purple', PAGA: 'badge-green',
+      GLOSADA_PARCIAL: 'badge-yellow', GLOSADA_TOTAL: 'badge-red', EM_RECURSO: 'badge-yellow', FINALIZADA: 'badge-green',
+    };
+
+    function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function fmtMoney(v){ return Number(v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }); }
+    function fmtDate(v){ if(!v) return '—'; return new Date(v).toLocaleDateString('pt-BR', { timeZone: 'UTC' }); }
+    function fmtDateTime(v){ if(!v) return '—'; return new Date(v).toLocaleString('pt-BR'); }
+
+    // ── EXPORTAÇÃO — todo relatório desta tela pode ser baixado, não só visualizado ──
+    function downloadCSV(filename, headers, rows){
+      const cell = (v) => {
+        const s = v == null ? '' : String(v);
+        return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      };
+      const lines = [headers.map(cell).join(';')].concat(rows.map(r => r.map(cell).join(';')));
+      const csv = '\uFEFF' + lines.join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function apiGet(url){
+      const res = await fetch(url, { headers: H });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'Falha na requisição.');
+      return data;
+    }
+    async function apiSend(url, method, body){
+      const res = await fetch(url, { method, headers: H, body: body != null ? JSON.stringify(body) : undefined });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'Falha na requisição.');
+      return data;
+    }
+    function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+    function openModal(id){ document.getElementById(id).classList.add('show'); }
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+    });
+
+    // ── TABS ──
+    const loadedTabs = new Set();
+    const tabLoaders = {
+      operators: loadOperators,
+      contracts: loadContracts,
+      cards: loadCards,
+      claims: loadClaims,
+      batches: () => { loadBatches(); loadConciliacao(); },
+      appeals: () => { loadGlosasReport(); loadAppeals(); },
+      billing: loadBilling,
+      projection: loadReceivablesProjection,
+    };
+    document.querySelectorAll('.report-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        document.querySelectorAll('.report-tab').forEach((b) => b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.report-panel').forEach((p) => p.classList.toggle('active', p.id === `panel-${tab}`));
+        if (!loadedTabs.has(tab)) { loadedTabs.add(tab); tabLoaders[tab]?.(); }
+      });
+    });
+
+    // ── OPERADORAS ──
+    let allOperators = [];
+    async function loadOperators(){
+      const tbody = document.getElementById('operatorsTbody');
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Carregando...</td></tr>';
+      try {
+        allOperators = await apiGet('/api/insurance/operators');
+        tbody.innerHTML = allOperators.map(o => `
+                                                                        <tr>
+                                                                          <td>${esc(o.name)}</td>
+                                                                          <td>${esc(o.cnpj || '—')}</td>
+                                                                          <td>${esc(o.ans_registry || '—')}</td>
+                                                                          <td>${esc(o.contact_phone || o.contact_email || '—')}</td>
+                                                                          <td>
+                                                                            <input type="number" min="1" step="1" value="${o.average_payment_days || 45}" style="width:64px;padding:6px 8px;border:1px solid var(--sb-border);border-radius:6px;background:var(--sb-surface);color:var(--sb-text);font-size:12px;" onchange="updateOperatorAvgDays('${o.id}', this.value)"></td>
+                                                                            <td>
+                                                                              <span class="badge ${o.active ? 'badge-green' : 'badge-gray'}">${o.active ? 'Ativa' : 'Inativa'}</span>
+                                                                            </td>
+                                                                            <td>
+                                                                              <button class="btn btn-outline btn-xs" onclick="toggleOperatorActive('${o.id}', ${!o.active})">${o.active ? 'Desativar' : 'Ativar'}</button>
+                                                                            </td>
+                                                                          </tr>
+        `).join('') || `<tr>
+                                                                          <td colspan="7" class="empty-state">Nenhuma operadora cadastrada.</td>
+                                                                        </tr>`;
+
+        const sel = document.getElementById('planOperatorSelect');
+        sel.innerHTML = '<option value="">Selecione uma operadora...</option>' + allOperators.map(o => `<option value="${o.id}">${esc(o.name)}</option>`).join('');
+        document.getElementById('ctOperator').innerHTML = allOperators.map(o => `<option value="${o.id}">${esc(o.name)}</option>`).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr>
+                                                                        <td colspan="6" class="empty-state">${esc(e.message)}</td>
+                                                                      </tr>`;
+      }
+    }
+    async function toggleOperatorActive(id, newActive){
+      try { await apiSend(`/api/insurance/operators/${id}`, 'PUT', { active: newActive }); loadOperators(); }
+      catch (e) { alert(e.message); }
+    }
+
+    document.getElementById('openNewOperatorBtn').addEventListener('click', () => {
+      ['opName','opCnpj','opAns','opPhone','opEmail'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('opAvgDays').value = '45';
+      document.getElementById('operatorModalErr').style.display = 'none';
+      openModal('operatorModal');
+    });
+    document.getElementById('confirmOperatorBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('operatorModalErr');
+      errEl.style.display = 'none';
+      const name = document.getElementById('opName').value.trim();
+      if (!name) { errEl.textContent = 'Informe o nome.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend('/api/insurance/operators', 'POST', {
+          name, cnpj: document.getElementById('opCnpj').value.trim() || null,
+          ansRegistry: document.getElementById('opAns').value.trim() || null,
+          contactPhone: document.getElementById('opPhone').value.trim() || null,
+          contactEmail: document.getElementById('opEmail').value.trim() || null,
+          averagePaymentDays: document.getElementById('opAvgDays').value || 45,
+        });
+        closeModal('operatorModal'); loadOperators();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+    async function updateOperatorAvgDays(id, value){
+      const days = Math.max(1, parseInt(value, 10) || 45);
+      try { await apiSend(`/api/insurance/operators/${id}`, 'PUT', { averagePaymentDays: days }); }
+      catch (e) { alert(e.message); }
+    }
+
+    // ── PLANOS ──
+    async function loadPlans(operatorId){
+      const tbody = document.getElementById('plansTbody');
+      if (!operatorId) { tbody.innerHTML = `<tr>
+                                                                      <td colspan="3" class="empty-state">Selecione uma operadora.</td>
+                                                                    </tr>`; return; }
+      tbody.innerHTML = `<tr>
+                                                                    <td colspan="3" class="empty-state">Carregando...</td>
+                                                                  </tr>`;
+      try {
+        const rows = await apiGet(`/api/insurance/operators/${operatorId}/plans`);
+        tbody.innerHTML = rows.map(p => `<tr>
+                                                                  <td>${esc(p.name)}</td>
+                                                                  <td>${esc(p.segmentation || '—')}</td>
+                                                                  <td>${esc(p.coverage_area || '—')}</td>
+                                                                </tr>`).join('')
+          || `<tr>
+                                                                  <td colspan="3" class="empty-state">Nenhum plano cadastrado.</td>
+                                                                </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                                                                <td colspan="3" class="empty-state">${esc(e.message)}</td>
+                                                              </tr>`; }
+    }
+    document.getElementById('planOperatorSelect').addEventListener('change', (e) => {
+      document.getElementById('openNewPlanBtn').disabled = !e.target.value;
+      loadPlans(e.target.value);
+    });
+    document.getElementById('openNewPlanBtn').addEventListener('click', () => {
+      document.getElementById('plName').value = '';
+      document.getElementById('planModalErr').style.display = 'none';
+      openModal('planModal');
+    });
+    document.getElementById('confirmPlanBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('planModalErr');
+      errEl.style.display = 'none';
+      const operatorId = document.getElementById('planOperatorSelect').value;
+      const name = document.getElementById('plName').value.trim();
+      if (!name) { errEl.textContent = 'Informe o nome do plano.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend(`/api/insurance/operators/${operatorId}/plans`, 'POST', {
+          name, segmentation: document.getElementById('plSegmentation').value, coverageArea: document.getElementById('plCoverage').value,
+        });
+        closeModal('planModal'); loadPlans(operatorId);
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    // ── CONTRATOS ──
+    let allContracts = [];
+    async function loadContracts(){
+      const tbody = document.getElementById('contractsTbody');
+      tbody.innerHTML = `<tr>
+                                                              <td colspan="7" class="empty-state">Carregando...</td>
+                                                            </tr>`;
+      try {
+        allContracts = await apiGet('/api/insurance/contracts');
+        tbody.innerHTML = allContracts.map(c => `
+                                                            <tr>
+                                                              <td>${esc(c.operator_name)}</td>
+                                                              <td>${c.cbhpm_percentage != null ? c.cbhpm_percentage + '%' : '—'}</td>
+                                                              <td>${c.requires_authorization_default ? 'Sim' : 'Não'}</td>
+                                                              <td>${c.has_coparticipation ? (c.coparticipation_percentage != null ? c.coparticipation_percentage + '%' : 'Sim') : 'Não'}</td>
+                                                              <td>${c.closing_day || '—'}</td>
+                                                              <td>
+                                                                <span class="badge ${c.active ? 'badge-green' : 'badge-gray'}">${c.active ? 'Ativo' : 'Inativo'}</span>
+                                                              </td>
+                                                              <td>
+                                                                <button class="btn btn-outline btn-xs" onclick="toggleContractActive('${c.id}', ${!c.active})">${c.active ? 'Desativar' : 'Ativar'}</button>
+                                                              </td>
+                                                            </tr>
+        `).join('') || `<tr>
+                                                            <td colspan="7" class="empty-state">Nenhum contrato cadastrado.</td>
+                                                          </tr>`;
+
+        const sel = document.getElementById('procContractSelect');
+        sel.innerHTML = '<option value="">Selecione um contrato...</option>' + allContracts.map(c => `<option value="${c.id}">${esc(c.operator_name)}</option>`).join('');
+        document.getElementById('cardContract').innerHTML = '<option value="">Selecione...</option>' + allContracts.map(c => `<option value="${c.id}">${esc(c.operator_name)}</option>`).join('');
+        document.getElementById('batchContract').innerHTML = '<option value="">Selecione...</option>' + allContracts.map(c => `<option value="${c.id}">${esc(c.operator_name)}</option>`).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr>
+                                                          <td colspan="7" class="empty-state">${esc(e.message)}</td>
+                                                        </tr>`;
+      }
+    }
+    async function toggleContractActive(id, newActive){
+      try { await apiSend(`/api/insurance/contracts/${id}`, 'PUT', { active: newActive }); loadContracts(); }
+      catch (e) { alert(e.message); }
+    }
+    document.getElementById('openNewContractBtn').addEventListener('click', async () => {
+      if (allOperators.length === 0) await loadOperators();
+      document.getElementById('ctOperator').innerHTML = allOperators.map(o => `<option value="${o.id}">${esc(o.name)}</option>`).join('');
+      ['ctCbhpm','ctClosingDay','ctCopartPct','ctNotes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('ctAuth').checked = false;
+      document.getElementById('ctCopart').checked = false;
+      document.getElementById('ctGlosaDeadline').value = '30';
+      document.getElementById('contractModalErr').style.display = 'none';
+      openModal('contractModal');
+    });
+    document.getElementById('confirmContractBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('contractModalErr');
+      errEl.style.display = 'none';
+      const operatorId = document.getElementById('ctOperator').value;
+      if (!operatorId) { errEl.textContent = 'Selecione a operadora.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend('/api/insurance/contracts', 'POST', {
+          operatorId,
+          cbhpmPercentage: document.getElementById('ctCbhpm').value ? Number(document.getElementById('ctCbhpm').value) : null,
+          requiresAuthorizationDefault: document.getElementById('ctAuth').checked,
+          hasCoparticipation: document.getElementById('ctCopart').checked,
+          coparticipationPercentage: document.getElementById('ctCopartPct').value ? Number(document.getElementById('ctCopartPct').value) : null,
+          closingDay: document.getElementById('ctClosingDay').value ? Number(document.getElementById('ctClosingDay').value) : null,
+          glosaAppealDeadlineDays: Number(document.getElementById('ctGlosaDeadline').value) || 30,
+          notes: document.getElementById('ctNotes').value.trim() || null,
+        });
+        closeModal('contractModal'); loadContracts();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    // ── TABELA DE PROCEDIMENTOS ──
+    async function loadProcTable(contractId){
+      const tbody = document.getElementById('procTableTbody');
+      if (!contractId) { tbody.innerHTML = `<tr>
+                                                        <td colspan="6" class="empty-state">Selecione um contrato.</td>
+                                                      </tr>`; return; }
+      tbody.innerHTML = `<tr>
+                                                      <td colspan="6" class="empty-state">Carregando...</td>
+                                                    </tr>`;
+      try {
+        const rows = await apiGet(`/api/insurance/contracts/${contractId}/procedures`);
+        tbody.innerHTML = rows.map(p => `
+                                                    <tr>
+                                                      <td>${esc(p.tuss_code || '—')}</td>
+                                                      <td>${esc(p.description)}</td>
+                                                      <td>${fmtMoney(p.negotiated_value)}</td>
+                                                      <td>${p.requires_authorization == null ? 'Padrão do contrato' : (p.requires_authorization ? 'Sim' : 'Não')}</td>
+                                                      <td>${p.waiting_period_days || 0}</td>
+                                                      <td>
+                                                        <button class="btn btn-outline btn-xs" onclick="deleteProcTableItem('${p.id}', '${contractId}')">
+                                                          <i class="fas fa-trash"></i>
+                                                        </button>
+                                                      </td>
+                                                    </tr>
+        `).join('') || `<tr>
+                                                    <td colspan="6" class="empty-state">Nenhum procedimento cadastrado.</td>
+                                                  </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                                                  <td colspan="6" class="empty-state">${esc(e.message)}</td>
+                                                </tr>`; }
+    }
+    async function deleteProcTableItem(id, contractId){
+      if (!confirm('Remover este procedimento da tabela?')) return;
+      try { await apiSend(`/api/insurance/procedures/${id}`, 'DELETE', null); loadProcTable(contractId); }
+      catch (e) { alert(e.message); }
+    }
+    document.getElementById('procContractSelect').addEventListener('change', (e) => {
+      document.getElementById('openNewProcBtn').disabled = !e.target.value;
+      loadProcTable(e.target.value);
+    });
+    document.getElementById('openNewProcBtn').addEventListener('click', () => {
+      ['prTuss','prCbhpm','prDescription','prValue'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('prWaitingDays').value = '0';
+      document.getElementById('prAuth').checked = false;
+      document.getElementById('procModalErr').style.display = 'none';
+      openModal('procModal');
+    });
+    document.getElementById('confirmProcBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('procModalErr');
+      errEl.style.display = 'none';
+      const contractId = document.getElementById('procContractSelect').value;
+      const description = document.getElementById('prDescription').value.trim();
+      const value = document.getElementById('prValue').value;
+      if (!description || !value) { errEl.textContent = 'Informe descrição e valor.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend(`/api/insurance/contracts/${contractId}/procedures`, 'POST', {
+          tussCode: document.getElementById('prTuss').value.trim() || null,
+          cbhpmCode: document.getElementById('prCbhpm').value.trim() || null,
+          description, negotiatedValue: Number(value),
+          waitingPeriodDays: Number(document.getElementById('prWaitingDays').value) || 0,
+          requiresAuthorization: document.getElementById('prAuth').checked ? true : null,
+        });
+        closeModal('procModal'); loadProcTable(contractId);
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    // ── CARTEIRINHAS ──
+    async function loadCards(){
+      const tbody = document.getElementById('cardsTbody');
+      tbody.innerHTML = `<tr>
+                                                <td colspan="7" class="empty-state">Carregando...</td>
+                                              </tr>`;
+      try {
+        const search = document.getElementById('cardSearchInput').value.trim();
+        const url = '/api/insurance/patient-insurance' + (search ? `?search=${encodeURIComponent(search)}` : '');
+        const rows = await apiGet(url);
+        tbody.innerHTML = rows.map(c => `
+                                              <tr>
+                                                <td>${esc(c.patient_name)}</td>
+                                                <td>${esc(c.operator_name)}</td>
+                                                <td>${esc(c.plan_name || '—')}</td>
+                                                <td>${esc(c.card_number)}</td>
+                                                <td>${fmtDate(c.coverage_start_date)}</td>
+                                                <td>
+                                                  <span class="badge ${c.status === 'ACTIVE' ? 'badge-green' : 'badge-gray'}">${c.status === 'ACTIVE' ? 'Ativa' : (c.status === 'SUSPENDED' ? 'Suspensa' : 'Cancelada')}</span>
+                                                </td>
+                                                <td>
+                                                  <button class="btn btn-outline btn-xs" onclick='checkWaitingPeriod(${JSON.stringify(c.id)})'>Checar Carência</button>
+                                                </td>
+                                              </tr>
+        `).join('') || `<tr>
+                                              <td colspan="7" class="empty-state">Nenhuma carteirinha cadastrada.</td>
+                                            </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                                            <td colspan="7" class="empty-state">${esc(e.message)}</td>
+                                          </tr>`; }
+    }
+    async function checkWaitingPeriod(id){
+      try {
+        const data = await apiGet(`/api/insurance/patient-insurance/${id}/waiting-period-check`);
+        alert(data.stillInWaitingPeriod
+          ? `Ainda em carência até ${fmtDate(data.waitingUntil)}.`
+          : `Sem carência pendente (cobertura desde ${fmtDate(data.coverageStartDate)}).`);
+      } catch (e) { alert(e.message); }
+    }
+    document.getElementById('refreshCardsBtn').addEventListener('click', loadCards);
+    let cardSearchTimer = null;
+    document.getElementById('cardSearchInput').addEventListener('input', () => {
+      clearTimeout(cardSearchTimer); cardSearchTimer = setTimeout(loadCards, 350);
+    });
+
+    let cardPatientSearchTimer = null;
+    document.getElementById('cardPatientSearch').addEventListener('input', (e) => {
+      document.getElementById('cardPatientId').value = '';
+      const q = e.target.value.trim();
+      clearTimeout(cardPatientSearchTimer);
+      const resultsEl = document.getElementById('cardPatientResults');
+      if (q.length < 2) { resultsEl.style.display = 'none'; return; }
+      cardPatientSearchTimer = setTimeout(async () => {
+        try {
+          const rows = await apiGet(`/api/reception/patients?search=${encodeURIComponent(q)}`);
+          resultsEl.innerHTML = rows.length === 0
+            ? '<div class="patient-result-item">Nenhum paciente encontrado.</div>'
+            : rows.map(p => `<div class="patient-result-item" onclick='selectCardPatient(${JSON.stringify(p.id)}, ${JSON.stringify(p.name)})'>${esc(p.name)}</div>`).join('');
+          resultsEl.style.display = 'block';
+        } catch (_e) {}
+      }, 300);
+    });
+    function selectCardPatient(id, name){
+      document.getElementById('cardPatientId').value = id;
+      document.getElementById('cardPatientSearch').value = name;
+      document.getElementById('cardPatientResults').style.display = 'none';
+    }
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#cardPatientSearch') && !e.target.closest('#cardPatientResults')) {
+        document.getElementById('cardPatientResults').style.display = 'none';
+      }
+    });
+    document.getElementById('cardContract').addEventListener('change', async (e) => {
+      const sel = document.getElementById('cardPlan');
+      sel.innerHTML = '<option value="">— Nenhum —</option>';
+      if (!e.target.value) return;
+      const contract = allContracts.find(c => c.id === e.target.value);
+      if (!contract) return;
+      try {
+        const plans = await apiGet(`/api/insurance/operators/${contract.operator_id}/plans`);
+        sel.innerHTML += plans.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+      } catch (_e) {}
+    });
+    document.getElementById('openNewCardBtn').addEventListener('click', async () => {
+      if (allContracts.length === 0) await loadContracts();
+      document.getElementById('cardContract').innerHTML = '<option value="">Selecione...</option>' + allContracts.map(c => `<option value="${c.id}">${esc(c.operator_name)}</option>`).join('');
+      document.getElementById('cardPlan').innerHTML = '<option value="">— Nenhum —</option>';
+      document.getElementById('cardPatientSearch').value = '';
+      document.getElementById('cardPatientId').value = '';
+      document.getElementById('cardNumber').value = '';
+      document.getElementById('cardValidity').value = '';
+      document.getElementById('cardCoverageStart').value = new Date().toISOString().slice(0,10);
+      document.getElementById('cardModalErr').style.display = 'none';
+      openModal('cardModal');
+    });
+    document.getElementById('confirmCardBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('cardModalErr');
+      errEl.style.display = 'none';
+      const patientId = document.getElementById('cardPatientId').value;
+      const contractId = document.getElementById('cardContract').value;
+      const cardNumber = document.getElementById('cardNumber').value.trim();
+      if (!patientId || !contractId || !cardNumber) { errEl.textContent = 'Preencha paciente, contrato e número da carteirinha.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend('/api/insurance/patient-insurance', 'POST', {
+          patientId, contractId, planId: document.getElementById('cardPlan').value || null,
+          cardNumber, cardValidity: document.getElementById('cardValidity').value || null,
+          coverageStartDate: document.getElementById('cardCoverageStart').value,
+        });
+        closeModal('cardModal'); loadCards();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    // ── GUIAS ──
+    let claimItemCounter = 0;
+    let allPatientInsuranceForClaim = [];
+    function addClaimItemRow(prefill){
+      const itemId = `ci_${claimItemCounter++}`;
+      const wrap = document.createElement('div');
+      wrap.className = 'form-grid';
+      wrap.id = itemId;
+      wrap.style.cssText = 'border:1px solid var(--sb-border);border-radius:var(--sb-radius);padding:12px;margin-bottom:10px;';
+      wrap.innerHTML = `
+                                          <div class="form-group span2">
+                                            <label>Descrição *</label>
+                                            <input type="text" class="ci-desc" value="${esc(prefill?.description || '')}"></div>
+                                            <div class="form-group">
+                                              <label>Qtd.</label>
+                                              <input type="number" class="ci-qty" value="${prefill?.quantity || 1}" min="1"></div>
+                                              <div class="form-group">
+                                                <label>Valor Unitário (R$) *</label>
+                                                <input type="number" class="ci-value" step="0.01" value="${prefill?.unitValue || ''}"></div>
+                                                <div class="form-group span2" style="text-align:right;">
+                                                  <button class="btn btn-outline btn-xs" type="button" onclick="document.getElementById('${itemId}').remove(); recalcClaimTotal();">Remover item</button>
+                                                </div>
+      `;
+      document.getElementById('claimItemsList').appendChild(wrap);
+      wrap.querySelectorAll('.ci-qty, .ci-value').forEach(el => el.addEventListener('input', recalcClaimTotal));
+    }
+    function recalcClaimTotal(){
+      let total = 0;
+      document.querySelectorAll('#claimItemsList > div').forEach(row => {
+        const qty = Number(row.querySelector('.ci-qty')?.value || 0);
+        const val = Number(row.querySelector('.ci-value')?.value || 0);
+        total += qty * val;
+      });
+      document.getElementById('claimTotalDisplay').textContent = fmtMoney(total);
+    }
+    document.getElementById('addClaimItemBtn').addEventListener('click', () => addClaimItemRow());
+
+    async function loadClaims(){
+      const tbody = document.getElementById('claimsTbody');
+      tbody.innerHTML = `<tr>
+                                                <td colspan="8" class="empty-state">Carregando...</td>
+                                              </tr>`;
+      try {
+        const status = document.getElementById('claimsStatusFilter').value;
+        const rows = await apiGet(`/api/insurance/claims?status=${status}`);
+        tbody.innerHTML = rows.map(c => `
+                                              <tr>
+                                                <td>${esc(c.patient_name)}</td>
+                                                <td>${esc(c.operator_name)}</td>
+                                                <td>${esc(c.card_number)}</td>
+                                                <td>${esc(c.type)}</td>
+                                                <td>${fmtMoney(c.total_value)}</td>
+                                                <td>
+                                                  <span class="badge ${CLAIM_STATUS_BADGE[c.status] || 'badge-gray'}">${CLAIM_STATUS_LABELS[c.status] || c.status}</span>
+                                                </td>
+                                                <td>${fmtDate(c.created_at)}</td>
+                                                <td>
+              ${c.status === 'RASCUNHO' ? `<button class="btn btn-teal btn-xs" onclick="emitClaim('${c.id}')">Emitir</button>
+                                                  <button class="btn btn-outline btn-xs" onclick="cancelClaim('${c.id}')">
+                                                    <i class="fas fa-times"></i>
+                                                  </button>` : ''}
+              ${['GLOSADA_PARCIAL','GLOSADA_TOTAL'].includes(c.status) ? `<button class="btn btn-outline btn-xs" onclick='openAppealModal(${JSON.stringify(c.id)})'>Recorrer</button>` : ''}
+              ${c.status === 'EMITIDA' ? '<span style="color:var(--sb-text-muted);font-size:11px;">Aguardando lote</span>' : ''}
+                                                </td>
+                                              </tr>
+        `).join('') || `<tr>
+                                              <td colspan="8" class="empty-state">Nenhuma guia encontrada.</td>
+                                            </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                                            <td colspan="8" class="empty-state">${esc(e.message)}</td>
+                                          </tr>`; }
+    }
+    document.getElementById('claimsStatusFilter').addEventListener('change', loadClaims);
+    document.getElementById('refreshClaimsBtn').addEventListener('click', loadClaims);
+
+    async function emitClaim(id){
+      try { await apiSend(`/api/insurance/claims/${id}/emit`, 'POST', {}); loadClaims(); }
+      catch (e) { alert(e.message); }
+    }
+    async function cancelClaim(id){
+      if (!confirm('Cancelar esta guia?')) return;
+      try { await apiSend(`/api/insurance/claims/${id}/cancel`, 'POST', {}); loadClaims(); }
+      catch (e) { alert(e.message); }
+    }
+
+    document.getElementById('openNewClaimBtn').addEventListener('click', async () => {
+      try { allPatientInsuranceForClaim = await apiGet('/api/insurance/patient-insurance'); } catch (_e) { allPatientInsuranceForClaim = []; }
+      document.getElementById('claimPatientInsurance').innerHTML = allPatientInsuranceForClaim.map(pi =>
+        `                                          <option value="${pi.id}">${esc(pi.patient_name)} — ${esc(pi.operator_name)} (${esc(pi.card_number)})</option>`
+      ).join('') || '<option value="">Nenhuma carteirinha cadastrada — cadastre uma na aba Carteirinhas.</option>';
+      document.getElementById('claimAuthNumber').value = '';
+      document.getElementById('claimItemsList').innerHTML = '';
+      claimItemCounter = 0;
+      addClaimItemRow();
+      recalcClaimTotal();
+      document.getElementById('claimModalErr').style.display = 'none';
+      openModal('claimModal');
+    });
+
+    document.getElementById('confirmClaimBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('claimModalErr');
+      errEl.style.display = 'none';
+      const patientInsuranceId = document.getElementById('claimPatientInsurance').value;
+      if (!patientInsuranceId) { errEl.textContent = 'Selecione a carteirinha do paciente.'; errEl.style.display = 'block'; return; }
+
+      const items = [];
+      let hasInvalid = false;
+      document.querySelectorAll('#claimItemsList > div').forEach(row => {
+        const description = row.querySelector('.ci-desc').value.trim();
+        const quantity = Number(row.querySelector('.ci-qty').value || 1);
+        const unitValue = Number(row.querySelector('.ci-value').value || 0);
+        if (!description || !unitValue) hasInvalid = true;
+        items.push({ description, quantity, unitValue });
+      });
+      if (items.length === 0 || hasInvalid) { errEl.textContent = 'Preencha descrição e valor de todos os itens.'; errEl.style.display = 'block'; return; }
+
+      try {
+        await apiSend('/api/insurance/claims', 'POST', {
+          patientInsuranceId, type: document.getElementById('claimType').value,
+          authorizationNumber: document.getElementById('claimAuthNumber').value.trim() || null, items,
+        });
+        closeModal('claimModal'); loadClaims();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    // ── LOTES DE FATURAMENTO ──
+    let currentBatchIdForModals = null;
+    async function loadBatches(){
+      const tbody = document.getElementById('batchesTbody');
+      tbody.innerHTML = `<tr>
+                                          <td colspan="7" class="empty-state">Carregando...</td>
+                                        </tr>`;
+      try {
+        const rows = await apiGet('/api/insurance/batches');
+        tbody.innerHTML = rows.map(b => `
+                                        <tr>
+                                          <td>${esc(b.operator_name)}</td>
+                                          <td>${new Date(b.competence_month).toLocaleDateString('pt-BR', { month:'2-digit', year:'numeric', timeZone:'UTC' })}</td>
+                                          <td>
+                                            <span class="badge ${b.status === 'CONCILIADO' ? 'badge-green' : (b.status === 'ENVIADO' ? 'badge-purple' : 'badge-gray')}">${b.status === 'ABERTO' ? 'Aberto' : (b.status === 'ENVIADO' ? 'Enviado' : 'Conciliado')}</span>
+                                          </td>
+                                          <td>${fmtMoney(b.total_billed)}</td>
+                                          <td>${fmtMoney(b.total_paid)}</td>
+                                          <td>${fmtMoney(b.total_glossed)}</td>
+                                          <td>
+              ${b.status === 'ABERTO' ? `<button class="btn btn-outline btn-xs" onclick='openAddClaimsModal(${JSON.stringify(b.id)}, ${JSON.stringify(b.contract_id)})'>+ Guias</button>
+                                            <button class="btn btn-teal btn-xs" onclick="closeBatch('${b.id}')">Enviar</button>` : ''}
+              ${b.status === 'ENVIADO' ? `<button class="btn btn-solid btn-xs" onclick='openBatchReturnModal(${JSON.stringify(b.id)})'>Registrar Retorno</button>` : ''}
+              ${b.status === 'CONCILIADO' ? '<span style="color:var(--sb-text-muted);font-size:11px;">Concluído</span>' : ''}
+                                          </td>
+                                        </tr>
+        `).join('') || `<tr>
+                                        <td colspan="7" class="empty-state">Nenhum lote criado.</td>
+                                      </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                                      <td colspan="7" class="empty-state">${esc(e.message)}</td>
+                                    </tr>`; }
+    }
+
+    document.getElementById('openNewBatchBtn').addEventListener('click', async () => {
+      if (allContracts.length === 0) await loadContracts();
+      document.getElementById('batchContract').innerHTML = '<option value="">Selecione...</option>' + allContracts.map(c => `<option value="${c.id}">${esc(c.operator_name)}</option>`).join('');
+      document.getElementById('batchMonth').value = new Date().toISOString().slice(0,7);
+      document.getElementById('batchModalErr').style.display = 'none';
+      openModal('batchModal');
+    });
+    document.getElementById('confirmBatchBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('batchModalErr');
+      errEl.style.display = 'none';
+      const contractId = document.getElementById('batchContract').value;
+      const month = document.getElementById('batchMonth').value;
+      if (!contractId || !month) { errEl.textContent = 'Selecione o contrato e o mês.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend('/api/insurance/batches', 'POST', { contractId, competenceMonth: month });
+        closeModal('batchModal'); loadBatches();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    async function openAddClaimsModal(batchId, contractId){
+      currentBatchIdForModals = batchId;
+      const listEl = document.getElementById('availableClaimsList');
+      listEl.innerHTML = '<div class="empty-state">Carregando...</div>';
+      document.getElementById('addClaimsModalErr').style.display = 'none';
+      openModal('addClaimsModal');
+      try {
+        const claims = await apiGet(`/api/insurance/claims?status=EMITIDA&contractId=${contractId}`);
+        listEl.innerHTML = claims.length === 0 ? '<div class="empty-state">Nenhuma guia emitida disponível para este contrato.</div>' :
+          claims.map(c => `
+                                    <label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sb-border);font-size:13px;">
+                                      <input type="checkbox" class="add-claim-cb" value="${c.id}">
+              ${esc(c.patient_name)} — ${fmtMoney(c.total_value)} <span style="color:var(--sb-text-muted);">(${fmtDate(c.created_at)})</span>
+                                      </label>
+          `).join('');
+      } catch (e) { listEl.innerHTML = `<div class="empty-state">${esc(e.message)}</div>`; }
+    }
+    document.getElementById('confirmAddClaimsBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('addClaimsModalErr');
+      errEl.style.display = 'none';
+      const claimIds = Array.from(document.querySelectorAll('.add-claim-cb:checked')).map(cb => cb.value);
+      if (claimIds.length === 0) { errEl.textContent = 'Selecione ao menos uma guia.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend(`/api/insurance/batches/${currentBatchIdForModals}/add-claims`, 'POST', { claimIds });
+        closeModal('addClaimsModal'); loadBatches();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    async function closeBatch(id){
+      if (!confirm('Marcar este lote como enviado à operadora?')) return;
+      try { await apiSend(`/api/insurance/batches/${id}/close`, 'POST', {}); loadBatches(); }
+      catch (e) { alert(e.message); }
+    }
+
+    async function openBatchReturnModal(batchId){
+      currentBatchIdForModals = batchId;
+      const listEl = document.getElementById('batchReturnItemsList');
+      listEl.innerHTML = '<div class="empty-state">Carregando...</div>';
+      document.getElementById('batchReturnModalErr').style.display = 'none';
+      openModal('batchReturnModal');
+      try {
+        const claims = await apiGet(`/api/insurance/claims?batchId=${batchId}`);
+        listEl.innerHTML = claims.map(c => `
+                                      <div class="form-grid" style="border:1px solid var(--sb-border);border-radius:var(--sb-radius);padding:10px;margin-bottom:8px;" data-claim-id="${c.id}">
+                                        <div class="form-group span2" style="margin-bottom:0;">
+                                          <label style="font-weight:600;">${esc(c.patient_name)} — Faturado: ${fmtMoney(c.total_value)}</label>
+                                        </div>
+                                        <div class="form-group">
+                                          <label>Valor Pago (R$)</label>
+                                          <input type="number" class="br-paid" step="0.01" value="${c.total_value}"></div>
+                                          <div class="form-group">
+                                            <label>Valor Glosado (R$)</label>
+                                            <input type="number" class="br-glossed" step="0.01" value="0"></div>
+                                            <div class="form-group span2">
+                                              <label>Motivo da Glosa (se houver)</label>
+                                              <input type="text" class="br-reason"></div>
+                                            </div>
+        `).join('') || '<div class="empty-state">Nenhuma guia neste lote.</div>';
+      } catch (e) { listEl.innerHTML = `<div class="empty-state">${esc(e.message)}</div>`; }
+    }
+    document.getElementById('confirmBatchReturnBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('batchReturnModalErr');
+      errEl.style.display = 'none';
+      const items = Array.from(document.querySelectorAll('#batchReturnItemsList > div')).map(row => ({
+        claimId: row.getAttribute('data-claim-id'),
+        paidValue: Number(row.querySelector('.br-paid').value || 0),
+        glossedValue: Number(row.querySelector('.br-glossed').value || 0),
+        glosaReason: row.querySelector('.br-reason').value.trim() || null,
+      }));
+      if (items.length === 0) { errEl.textContent = 'Nenhuma guia para conciliar.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend(`/api/insurance/batches/${currentBatchIdForModals}/return`, 'POST', { items });
+        closeModal('batchReturnModal'); loadBatches(); loadConciliacao();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    let lastConciliacaoRows = [];
+    async function loadConciliacao(){
+      const tbody = document.getElementById('conciliacaoTbody');
+      tbody.innerHTML = `<tr>
+                                            <td colspan="7" class="empty-state">Carregando...</td>
+                                          </tr>`;
+      try {
+        const rows = await apiGet('/api/insurance/reports/conciliacao');
+        lastConciliacaoRows = rows;
+        tbody.innerHTML = rows.map(r => {
+          const glosaPct = r.total_billed > 0 ? Math.round((r.total_glossed / r.total_billed) * 10000) / 100 : 0;
+          return `
+                                          <tr>
+                                            <td>${esc(r.operator_name)}</td>
+                                            <td>${new Date(r.competence_month).toLocaleDateString('pt-BR', { month:'2-digit', year:'numeric', timeZone:'UTC' })}</td>
+                                            <td>
+                                              <span class="badge ${r.status === 'CONCILIADO' ? 'badge-green' : (r.status === 'ENVIADO' ? 'badge-purple' : 'badge-gray')}">${r.status}</span>
+                                            </td>
+                                            <td>${fmtMoney(r.total_billed)}</td>
+                                            <td>${fmtMoney(r.total_paid)}</td>
+                                            <td>${fmtMoney(r.total_glossed)}</td>
+                                            <td>${glosaPct}%</td>
+                                          </tr>`;
+        }).join('') || `<tr>
+                                          <td colspan="7" class="empty-state">Nenhum lote conciliado ainda.</td>
+                                        </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                                        <td colspan="7" class="empty-state">${esc(e.message)}</td>
+                                      </tr>`; }
+    }
+    document.getElementById('downloadConciliacaoBtn').addEventListener('click', () => {
+      downloadCSV('conciliacao.csv', ['Operadora','Competência','Status','Faturado','Pago','Glosado','% Glosa'], lastConciliacaoRows.map(r => {
+        const glosaPct = r.total_billed > 0 ? Math.round((r.total_glossed / r.total_billed) * 10000) / 100 : 0;
+        return [r.operator_name, new Date(r.competence_month).toLocaleDateString('pt-BR', { month:'2-digit', year:'numeric', timeZone:'UTC' }), r.status, r.total_billed, r.total_paid, r.total_glossed, glosaPct + '%'];
+      }));
+    });
+
+    // ── GLOSAS ──
+    let lastGlosasRows = [];
+    async function loadGlosasReport(){
+      const tbody = document.getElementById('glosasReportTbody');
+      tbody.innerHTML = `<tr>
+                                      <td colspan="4" class="empty-state">Carregando...</td>
+                                    </tr>`;
+      try {
+        const rows = await apiGet('/api/insurance/reports/glosas');
+        lastGlosasRows = rows;
+        tbody.innerHTML = rows.map(r => `
+                                    <tr>
+                                      <td>${esc(r.operator_name)}</td>
+                                      <td>
+                                        <span class="badge ${CLAIM_STATUS_BADGE[r.status] || 'badge-gray'}">${CLAIM_STATUS_LABELS[r.status] || r.status}</span>
+                                      </td>
+                                      <td>${r.count}</td>
+                                      <td>${fmtMoney(r.total_glossed)}</td>
+                                    </tr>
+        `).join('') || `<tr>
+                                    <td colspan="4" class="empty-state">Nenhuma glosa registrada.</td>
+                                  </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                                  <td colspan="4" class="empty-state">${esc(e.message)}</td>
+                                </tr>`; }
+    }
+    document.getElementById('downloadGlosasBtn').addEventListener('click', () => {
+      downloadCSV('glosas-por-operadora.csv', ['Operadora','Status da Guia','Qtd.','Total Glosado'], lastGlosasRows.map(r => [r.operator_name, CLAIM_STATUS_LABELS[r.status] || r.status, r.count, r.total_glossed]));
+    });
+
+    // ── FATURAMENTO POR CONVÊNIO ──
+    let lastBillingData = { byOperatorDoctor: [], byProcedure: [] };
+    async function loadBilling(){
+      const opTbody = document.getElementById('billingOpDocTbody');
+      const procTbody = document.getElementById('billingProcTbody');
+      opTbody.innerHTML = `<tr>
+                                <td colspan="7" class="empty-state">Carregando...</td>
+                              </tr>`;
+      procTbody.innerHTML = `<tr>
+                              <td colspan="5" class="empty-state">Carregando...</td>
+                            </tr>`;
+      try {
+        const from = document.getElementById('billingFrom').value;
+        const to = document.getElementById('billingTo').value;
+        const data = await apiGet(`/api/insurance/reports/billing?from=${from}&to=${to}`);
+        lastBillingData = data;
+        opTbody.innerHTML = data.byOperatorDoctor.map(r => `
+                            <tr>
+                              <td>${esc(r.operatorName)}</td>
+                              <td>${esc(r.doctorName)}</td>
+                              <td>${r.claims}</td>
+                              <td>${fmtMoney(r.billed)}</td>
+                              <td>${fmtMoney(r.paid)}</td>
+                              <td>${fmtMoney(r.glossed)}</td>
+                              <td>${r.glosaPct}%</td>
+                            </tr>
+        `).join('') || `<tr>
+                            <td colspan="7" class="empty-state">Nenhuma guia emitida no período.</td>
+                          </tr>`;
+        procTbody.innerHTML = data.byProcedure.map(r => `
+                          <tr>
+                            <td>${esc(r.operatorName)}</td>
+                            <td>${esc(r.procedureName)}</td>
+                            <td>${esc(r.tussCode || '—')}</td>
+                            <td>${r.quantity}</td>
+                            <td>${fmtMoney(r.billed)}</td>
+                          </tr>
+        `).join('') || `<tr>
+                          <td colspan="5" class="empty-state">Nenhum item faturado no período.</td>
+                        </tr>`;
+      } catch (e) {
+        opTbody.innerHTML = `<tr>
+                        <td colspan="7" class="empty-state">${esc(e.message)}</td>
+                      </tr>`;
+        procTbody.innerHTML = '';
+      }
+    }
+    document.getElementById('billingRefreshBtn').addEventListener('click', loadBilling);
+    document.getElementById('downloadBillingOpDocBtn').addEventListener('click', () => {
+      downloadCSV('faturamento-por-operadora-profissional.csv', ['Operadora','Profissional','Guias','Faturado','Pago','Glosado','% Glosa'],
+        lastBillingData.byOperatorDoctor.map(r => [r.operatorName, r.doctorName, r.claims, r.billed, r.paid, r.glossed, r.glosaPct + '%']));
+    });
+    document.getElementById('downloadBillingProcBtn').addEventListener('click', () => {
+      downloadCSV('faturamento-por-procedimento.csv', ['Operadora','Procedimento','TUSS','Quantidade','Faturado'],
+        lastBillingData.byProcedure.map(r => [r.operatorName, r.procedureName, r.tussCode || '', r.quantity, r.billed]));
+    });
+
+    // ── PROJEÇÃO DE RECEBÍVEIS ──
+    let lastProjectionRows = [];
+    async function loadReceivablesProjection(){
+      const tbody = document.getElementById('projectionTbody');
+      tbody.innerHTML = `<tr>
+                      <td colspan="8" class="empty-state">Carregando...</td>
+                    </tr>`;
+      try {
+        const data = await apiGet('/api/insurance/reports/receivables-projection');
+        lastProjectionRows = data.operators;
+        document.getElementById('projectionKpis').innerHTML = `
+                    <div class="stat-card">
+                      <div class="icon blue">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                      </div>
+                      <div class="info">
+                        <div class="stat-val">${fmtMoney(data.totals.pendingTotal)}</div>
+                        <div class="stat-label">Total pendente de convênios</div>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="icon green">
+                        <i class="fas fa-calendar-check"></i>
+                      </div>
+                      <div class="info">
+                        <div class="stat-val">${fmtMoney(data.totals.bucket30)}</div>
+                        <div class="stat-label">Previsto p/ 30 dias</div>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="icon purple">
+                        <i class="fas fa-calendar"></i>
+                      </div>
+                      <div class="info">
+                        <div class="stat-val">${fmtMoney(data.totals.bucket60 + data.totals.bucket90)}</div>
+                        <div class="stat-label">Previsto p/ 31–90 dias</div>
+                      </div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="icon amber">
+                        <i class="fas fa-triangle-exclamation"></i>
+                      </div>
+                      <div class="info">
+                        <div class="stat-val">${fmtMoney(data.totals.bucket90Plus)}</div>
+                        <div class="stat-label">Acima de 90 dias</div>
+                      </div>
+                    </div>
+        `;
+        tbody.innerHTML = data.operators.map(o => `
+                    <tr>
+                      <td>${esc(o.operatorName)}</td>
+                      <td>${o.averagePaymentDays} dias</td>
+                      <td>${o.claims}</td>
+                      <td>${fmtMoney(o.pendingTotal)}</td>
+                      <td>${fmtMoney(o.bucket30)}</td>
+                      <td>${fmtMoney(o.bucket60)}</td>
+                      <td>${fmtMoney(o.bucket90)}</td>
+                      <td>${fmtMoney(o.bucket90Plus)}</td>
+                    </tr>
+        `).join('') || `<tr>
+                    <td colspan="8" class="empty-state">Nenhuma guia pendente de recebimento.</td>
+                  </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+                  <td colspan="8" class="empty-state">${esc(e.message)}</td>
+                </tr>`; }
+    }
+    document.getElementById('downloadProjectionBtn').addEventListener('click', () => {
+      downloadCSV('projecao-recebiveis-convenio.csv', ['Operadora','Prazo médio (dias)','Guias pendentes','Total pendente','Até 30 dias','31–60 dias','61–90 dias','90+ dias'],
+        lastProjectionRows.map(o => [o.operatorName, o.averagePaymentDays, o.claims, o.pendingTotal, o.bucket30, o.bucket60, o.bucket90, o.bucket90Plus]));
+    });
+
+    async function loadAppeals(){
+      const tbody = document.getElementById('appealsTbody');
+      tbody.innerHTML = `<tr>
+                <td colspan="6" class="empty-state">Carregando...</td>
+              </tr>`;
+      try {
+        const status = document.getElementById('appealsStatusFilter').value;
+        const rows = await apiGet(`/api/insurance/appeals?status=${status}`);
+        tbody.innerHTML = rows.map(a => `
+              <tr>
+                <td>${esc(a.patient_name)}</td>
+                <td>${esc(a.operator_name)}</td>
+                <td>${fmtMoney(a.total_glossed)}</td>
+                <td>${fmtDate(a.protocol_date)}</td>
+                <td>
+                  <span class="badge ${a.status === 'ACEITO' ? 'badge-green' : (a.status === 'NEGADO' ? 'badge-red' : 'badge-yellow')}">${a.status === 'PENDENTE' ? 'Pendente' : (a.status === 'ACEITO' ? 'Aceito' : 'Negado')}</span>
+                </td>
+                <td>${a.status === 'PENDENTE' ? `<button class="btn btn-outline btn-xs" onclick='openResolveAppealModal(${JSON.stringify(a.id)})'>Resolver</button>` : '—'}
+                </td>
+              </tr>
+        `).join('') || `<tr>
+              <td colspan="6" class="empty-state">Nenhum recurso encontrado.</td>
+            </tr>`;
+      } catch (e) { tbody.innerHTML = `<tr>
+            <td colspan="6" class="empty-state">${esc(e.message)}</td>
+          </tr>`; }
+    }
+    document.getElementById('appealsStatusFilter').addEventListener('change', loadAppeals);
+
+    let currentClaimIdForAppeal = null;
+    function openAppealModal(claimId){
+      currentClaimIdForAppeal = claimId;
+      document.getElementById('appealJustification').value = '';
+      document.getElementById('appealModalErr').style.display = 'none';
+      openModal('appealModal');
+    }
+    document.getElementById('confirmAppealBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('appealModalErr');
+      errEl.style.display = 'none';
+      const justification = document.getElementById('appealJustification').value.trim();
+      if (!justification) { errEl.textContent = 'Informe a justificativa.'; errEl.style.display = 'block'; return; }
+      try {
+        await apiSend(`/api/insurance/claims/${currentClaimIdForAppeal}/appeal`, 'POST', { justification });
+        closeModal('appealModal'); loadClaims(); loadAppeals();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    let currentAppealIdForResolve = null;
+    function openResolveAppealModal(appealId){
+      currentAppealIdForResolve = appealId;
+      document.getElementById('resolveAppealStatus').value = 'ACEITO';
+      document.getElementById('resolveAppealValue').value = '';
+      document.getElementById('resolveAppealNotes').value = '';
+      document.getElementById('resolveAppealModalErr').style.display = 'none';
+      openModal('resolveAppealModal');
+    }
+    document.getElementById('resolveAppealStatus').addEventListener('change', (e) => {
+      document.getElementById('resolveAppealValueWrap').style.display = e.target.value === 'ACEITO' ? 'block' : 'none';
+    });
+    document.getElementById('confirmResolveAppealBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('resolveAppealModalErr');
+      errEl.style.display = 'none';
+      try {
+        await apiSend(`/api/insurance/appeals/${currentAppealIdForResolve}/resolve`, 'POST', {
+          status: document.getElementById('resolveAppealStatus').value,
+          additionalPaidValue: document.getElementById('resolveAppealValue').value ? Number(document.getElementById('resolveAppealValue').value) : 0,
+          responseNotes: document.getElementById('resolveAppealNotes').value.trim() || null,
+        });
+        closeModal('resolveAppealModal'); loadAppeals(); loadGlosasReport();
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    });
+
+    // ── INIT ──
+    (function initBillingDefaults(){
+      const to = new Date();
+      const from = new Date(); from.setDate(from.getDate() - 89);
+      document.getElementById('billingTo').value = to.toISOString().slice(0, 10);
+      document.getElementById('billingFrom').value = from.toISOString().slice(0, 10);
+    })();
+    loadOperators();
+
+    // Socket.io — atualiza guias e lotes quando houver mudanças (outra aba/usuário)
+    (function() {
+      const _d = JSON.parse(localStorage.getItem('doctorData') || '{}');
+      if (!_d.id) return;
+      const _sock = io({ transports: ['websocket', 'polling'] });
+      _sock.on('connect', () => {
+        _sock.emit('join_doctor', _d.id);
+        if (_d.clinicId) _sock.emit('join_clinic', _d.clinicId);
+      });
+      ['insurance_claim_created', 'insurance_claim_updated', 'insurance_batch_reconciled'].forEach((evt) => {
+        _sock.on(evt, () => { loadedTabs.forEach((tab) => tabLoaders[tab]?.()); });
+      });
+    })();
+        </script>
+
+        <script src="/socket.io/socket.io.js"></script>
+      </body>
+    </html>

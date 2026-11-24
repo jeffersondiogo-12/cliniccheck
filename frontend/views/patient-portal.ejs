@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek - Portal do Paciente</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --green:#00c853;--green-dark:#2e7d32;--green-mid:#43a047;
+      --yellow:#ffd740;--yellow-dark:#f9a825;--yellow-light:#fff9c4;
+      --white:#fff;--bg:#f0fff4;--border:#b9f0c8;
+      --text:#1a202c;--muted:#4a7c59;--danger:#dc2626;
+      --card-bg:#ffffff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+    /* TOPBAR */
+    .topbar{position:sticky;top:0;z-index:20;background:white;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;padding:12px 22px;box-shadow:0 2px 12px rgba(0,200,83,.08);}
+    .brand-wrap{display:flex;align-items:center;gap:12px;}
+    .brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--green-dark),var(--green));border-radius:10px;display:flex;align-items:center;justify-content:center;}
+    .brand-icon svg{width:20px;height:20px;fill:white;}
+    .brand h1{font-size:16px;font-weight:700;color:var(--green-dark);}
+    .brand p{font-size:10px;color:var(--muted);}
+    .user-info{display:flex;align-items:center;gap:10px;}
+    .user-avatar{width:34px;height:34px;background:linear-gradient(135deg,var(--green),var(--yellow));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;}
+    .user-name{font-size:12px;font-weight:600;color:var(--text);}
+    .btn-logout{padding:7px 14px;background:var(--bg);color:var(--green-dark);border:1.5px solid var(--border);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .2s;}
+    .btn-logout:hover{background:var(--green);color:white;border-color:var(--green);}
+
+    /* HERO */
+    .hero{background:linear-gradient(135deg,#1b5e20 0%,#2e7d32 40%,#43a047 75%,#ffd740 100%);padding:28px 24px;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-60px;right:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05);}
+    .hero::after{content:'';position:absolute;bottom:-40px;left:20%;width:160px;height:160px;border-radius:50%;background:rgba(255,215,64,.08);}
+    .hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:1;}
+    .hero h2{font-size:24px;font-weight:700;color:white;animation:slideDown .6s ease;}
+    .hero p{font-size:12px;color:rgba(255,255,255,.75);margin-top:6px;animation:slideDown .7s ease;}
+    .hero-stats{display:flex;gap:16px;margin-top:18px;flex-wrap:wrap;}
+    .hero-stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;min-width:120px;animation:slideUp .8s ease both;}
+    .hero-stat .hs-val{font-size:22px;font-weight:700;color:white;}
+    .hero-stat .hs-lbl{font-size:10px;color:rgba(255,255,255,.7);margin-top:2px;}
+
+    /* CONTENT */
+    .content{max-width:1100px;margin:0 auto;padding:20px 22px;}
+
+    /* TABS */
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+    .tab{padding:9px 18px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:6px;}
+    .tab svg{width:14px;height:14px;fill:currentColor;opacity:.6;}
+    .tab:hover{border-color:var(--green);color:var(--green-dark);}
+    .tab.active{background:linear-gradient(135deg,var(--green-dark),var(--green));color:white;border-color:var(--green);box-shadow:0 2px 10px rgba(0,200,83,.25);}
+    .tab.active svg{opacity:1;}
+    .panel{display:none;animation:fadeUp .3s ease;}
+    .panel.active{display:block;}
+
+    /* KPI */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+    .kpi{background:white;border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+    .kpi:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,200,83,.12);}
+    .kpi.green{border-top:3px solid var(--green);}
+    .kpi.yellow{border-top:3px solid var(--yellow-dark);}
+    .kpi.teal{border-top:3px solid #00bfa5;}
+    .kpi.orange{border-top:3px solid #ff7043;}
+    .kpi .k-icon{position:absolute;right:14px;top:14px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+    .kpi.green .k-icon{background:#f0fff4;}
+    .kpi.yellow .k-icon{background:var(--yellow-light);}
+    .kpi.teal .k-icon{background:#e0f2f1;}
+    .kpi.orange .k-icon{background:#fff3e0;}
+    .kpi .k-icon svg{width:16px;height:16px;}
+    .kpi.green .k-icon svg{fill:var(--green);}
+    .kpi.yellow .k-icon svg{fill:var(--yellow-dark);}
+    .kpi.teal .k-icon svg{fill:#00897b;}
+    .kpi.orange .k-icon svg{fill:#e64a19;}
+    .kpi .k-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+    .kpi .k-val{font-size:26px;font-weight:700;color:var(--text);margin-top:6px;line-height:1;}
+    .kpi .k-sub{font-size:10px;color:var(--muted);margin-top:4px;}
+
+    /* CARD */
+    .card{background:white;border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+    .card-h{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--green-dark);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#f0fff4,white);}
+    .card-h svg{width:15px;height:15px;fill:var(--green);margin-right:6px;vertical-align:middle;}
+    .card-b{padding:14px 16px;}
+
+    /* ITEMS */
+    .item{padding:12px 0;border-bottom:1px solid #c8f0d4;display:flex;gap:12px;align-items:flex-start;}
+    .item:last-child{border-bottom:none;}
+    .item-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+    .item-dot.green{background:var(--green);}
+    .item-dot.yellow{background:var(--yellow-dark);}
+    .item-dot.red{background:var(--danger);}
+    .item-dot.gray{background:#cbd5e0;}
+    .item-body{flex:1;}
+    .item-title{font-size:13px;font-weight:600;color:var(--text);}
+    .meta{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5;}
+    .empty{color:var(--muted);font-size:12px;padding:12px 0;text-align:center;}
+
+    /* STATUS */
+    .status{font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;display:inline-block;}
+    .st-ok{background:#f0fff4;color:var(--green-dark);}
+    .st-warn{background:var(--yellow-light);color:#92610a;}
+    .st-danger{background:#fef2f2;color:var(--danger);}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;transition:all .2s;}
+    .btn svg{width:13px;height:13px;fill:currentColor;}
+    .btn-green{background:linear-gradient(135deg,var(--green-dark),var(--green));color:white;box-shadow:0 2px 8px rgba(0,200,83,.2);}
+    .btn-green:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,200,83,.3);}
+    .btn-yellow{background:linear-gradient(135deg,var(--yellow-dark),var(--yellow));color:#3d2800;box-shadow:0 2px 8px rgba(249,168,37,.2);}
+    .btn-yellow:hover{transform:translateY(-1px);}
+    .btn-outline{background:white;color:var(--green-dark);border:1.5px solid var(--border);}
+    .btn-outline:hover{border-color:var(--green);background:var(--bg);}
+    .doc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+
+    .gcal-mini{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .gcal-mini .txt{font-size:11px;color:var(--muted);}
+    .gcal-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;display:inline-block;}
+    .gcal-on{background:#f0fff4;color:var(--green-dark);}
+    .gcal-off{background:#f5f7fa;color:#556070;}
+    .gcal-msg{font-size:11px;padding:8px 10px;border-radius:8px;display:none;}
+    .gcal-msg.ok{display:block;background:#f0fff4;color:var(--green-dark);}
+    .gcal-msg.err{display:block;background:#fef2f2;color:var(--danger);}
+
+    .pulse-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:14px;}
+    .pulse-card{background:linear-gradient(135deg,#f6fff8,#ffffff);border:1px solid var(--border);border-radius:12px;padding:14px;}
+    .pulse-title{font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px;}
+    .pulse-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);}
+    .pulse-progress{height:8px;background:#e9f8ee;border-radius:999px;overflow:hidden;margin-top:10px;}
+    .pulse-progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green-mid),var(--green));transition:width .35s ease;}
+    .pulse-kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+    .pulse-kv div{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;}
+    .pulse-kv .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;}
+    .pulse-kv .v{font-size:16px;font-weight:700;color:var(--text);margin-top:4px;}
+
+    /* ROW */
+    .row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+
+    @keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);} .pulse-grid{grid-template-columns:1fr;}}
+    @media(max-width:560px){.kpi-grid{grid-template-columns:1fr}.hero h2{font-size:19px}.hero-stats{gap:10px}}
+  </style>
+  <link rel="stylesheet" href="/public/css/global-palette.css">
+  <link rel="stylesheet" href="/public/css/clinic-refresh.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="brand-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
+      <div class="brand">
+        <h1>Clinic Chek</h1>
+        <p>Portal do Paciente</p>
+      </div>
+    </div>
+    <div class="user-info">
+      <div class="user-avatar" id="userInitial">?</div>
+      <div class="user-name" id="userName">Carregando...</div>
+      <button id="logoutBtn" class="btn-logout">Sair</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h2 id="helloTitle">Bem-vindo!</h2>
+      <p>Acompanhe suas consultas, historico medico e documentos em um unico lugar.</p>
+      <div class="hero-stats">
+        <div class="hero-stat" style="animation-delay:.1s"><div class="hs-val" id="kpiConsultas">0</div><div class="hs-lbl">Consultas</div></div>
+        <div class="hero-stat" style="animation-delay:.2s"><div class="hs-val" id="kpiAgendadas">0</div><div class="hs-lbl">Agendadas</div></div>
+        <div class="hero-stat" style="animation-delay:.3s"><div class="hs-val" id="kpiProcedimentos">0</div><div class="hs-lbl">Procedimentos</div></div>
+        <div class="hero-stat" style="animation-delay:.4s"><div class="hs-val" id="kpiPendentes">0</div><div class="hs-lbl">Docs Pendentes</div></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="content">
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        Dashboard
+      </button>
+      <button class="tab" data-tab="consultas">
+        <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 15H5V9h14v10z"/></svg>
+        Agenda
+      </button>
+      <button class="tab" data-tab="historico">
+        <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 1 0 0 18A9 9 0 0 0 13 3zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z"/></svg>
+        Historico Medico
+      </button>
+      <button class="tab" data-tab="documentos">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15h8v2H8zm0-4h8v2H8z"/></svg>
+        Documentos
+      </button>
+    </div>
+
+    <section id="panel-dashboard" class="panel active">
+      <div class="pulse-grid">
+        <div class="pulse-card">
+          <div class="pulse-title">Painel Interativo</div>
+          <div class="pulse-row"><span>Progresso de pendencias desta semana</span><strong id="pulsePct">0%</strong></div>
+          <div class="pulse-progress"><i id="pulseBar"></i></div>
+          <div class="pulse-row" style="margin-top:10px;"><span>Proxima consulta</span><strong id="pulseNext">Sem agenda</strong></div>
+        </div>
+        <div class="pulse-card">
+          <div class="pulse-title">Resumo Rapido</div>
+          <div class="pulse-kv">
+            <div><div class="k">Pendentes</div><div class="v" id="pulsePending">0</div></div>
+            <div><div class="k">Assinados</div><div class="v" id="pulseSigned">0</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi green"><div class="k-icon"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg></div><div class="k-label">Consultas Totais</div><div class="k-val" id="kpiConsultasCard">0</div><div class="k-sub">realizadas</div></div>
+        <div class="kpi yellow"><div class="k-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg></div><div class="k-label">Agendadas</div><div class="k-val" id="kpiAgendadasCard">0</div><div class="k-sub">proximas</div></div>
+        <div class="kpi teal"><div class="k-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div><div class="k-label">Procedimentos</div><div class="k-val" id="kpiProcedimentosCard">0</div><div class="k-sub">registrados</div></div>
+        <div class="kpi orange"><div class="k-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z"/></svg></div><div class="k-label">Docs Pendentes</div><div class="k-val" id="kpiPendentesCard">0</div><div class="k-sub">aguardando assinatura</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2z"/></svg>Proximas Consultas</span></div>
+        <div class="card-b" id="upcomingList"></div>
+      </div>
+    </section>
+
+    <section id="panel-consultas" class="panel">
+      <div class="gcal-mini">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <strong style="font-size:12px;color:var(--text)">Google Calendar</strong>
+            <span id="gcalPatientBadge" class="gcal-badge gcal-off">Desconectado</span>
+          </div>
+          <div class="txt" id="gcalPatientText">Conecte para sincronizar automaticamente sua agenda ao abrir esta aba.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="gcalPatientConnectBtn" class="btn btn-green" type="button" onclick="connectPatientGoogle()">Conectar Google</button>
+          <button id="gcalPatientDisconnectBtn" class="btn btn-outline" type="button" onclick="disconnectPatientGoogle()" style="display:none;">Desconectar</button>
+        </div>
+      </div>
+      <div id="gcalPatientMsg" class="gcal-msg"></div>
+      <div class="card">
+        <div class="card-h"><span><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg>Historico de Consultas</span></div>
+        <div class="card-b" id="consultasList"></div>
+      </div>
+    </section>
+
+    <section id="panel-historico" class="panel">
+      <div class="card">
+        <div class="card-h"><span><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 1 0 0 18A9 9 0 0 0 13 3z"/></svg>Historico Medico Completo</span></div>
+        <div class="card-b" id="historicoList"></div>
+      </div>
+    </section>
+
+    <section id="panel-documentos" class="panel">
+      <div class="card">
+        <div class="card-h"><span><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z"/></svg>Documentos Pendentes de Assinatura</span></div>
+        <div class="card-b" id="docsPendentes"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Documentos Assinados</span></div>
+        <div class="card-b" id="docsAssinados"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)'));
+      return match ? decodeURIComponent(match[1]) : null;
+    };
+
+    const token = localStorage.getItem('patientToken') || getCookie('patientToken');
+    const patientData = JSON.parse(localStorage.getItem('patientData') || '{}');
+    if (!token) window.location.href = '/paciente/login';
+
+    function esc(v){ return String(v||'').replace(/[&<>"']/g,(s)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+    function setKpi(ids, val){ ids.forEach(id=>{const el=document.getElementById(id); if(el) el.textContent=val;}); }
+
+    if(patientData.name){
+      const fn=patientData.name.split(' ')[0];
+      document.getElementById('helloTitle').textContent=`Ola, ${fn}!`;
+      document.getElementById('userName').textContent=patientData.name;
+      document.getElementById('userInitial').textContent=fn.charAt(0).toUpperCase();
+    }
+
+    function esc_UNUSED_remove(v){ return v; } // cleanup
+    function dt(v){ if(!v) return '-'; return new Date(v).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}); }
+        function updatePatientPulse(consultations, pendingDocs, signedDocs) {
+          const pending = pendingDocs.length;
+          const signed = signedDocs.length;
+          const totalDocs = pending + signed;
+          const pct = totalDocs ? Math.round((signed / totalDocs) * 100) : 0;
+          const upcoming = consultations
+            .filter((c) => c.consultation_date && new Date(c.consultation_date) >= new Date())
+            .sort((a,b) => new Date(a.consultation_date) - new Date(b.consultation_date))[0];
+
+          const nextText = upcoming ? dt(upcoming.consultation_date) : 'Sem agenda';
+          document.getElementById('pulsePct').textContent = pct + '%';
+          document.getElementById('pulseBar').style.width = pct + '%';
+          document.getElementById('pulseNext').textContent = nextText;
+          document.getElementById('pulsePending').textContent = String(pending);
+          document.getElementById('pulseSigned').textContent = String(signed);
+        }
+
+    function st(s){
+      const x = String(s || '').toLowerCase();
+      if (x === 'signed' || x === 'completed') return `<span class="status st-ok">${esc(s)}</span>`;
+      if (x === 'cancelled') return `<span class="status st-danger">${esc(s)}</span>`;
+      return `<span class="status st-warn">${esc(s || 'PENDING')}</span>`;
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click',()=>{
+      localStorage.removeItem('patientToken');
+      localStorage.removeItem('patientData');
+      document.cookie = 'patientToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+      window.location.href='/paciente/login';
+    });
+
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+        if (tab.dataset.tab === 'consultas') {
+          maybeAutoConnectGoogleOnConsultas();
+        }
+      });
+    });
+
+    const gcalPromptKey = 'patientGcalPromptedSession';
+    let patientGcalConnected = false;
+
+    function setGcalMessage(kind, text) {
+      const el = document.getElementById('gcalPatientMsg');
+      if (!el) return;
+      if (!text) {
+        el.className = 'gcal-msg';
+        el.textContent = '';
+        return;
+      }
+      el.className = 'gcal-msg ' + (kind === 'ok' ? 'ok' : 'err');
+      el.textContent = text;
+    }
+
+    function renderPatientGcalStatus(connected) {
+      patientGcalConnected = !!connected;
+      const badge = document.getElementById('gcalPatientBadge');
+      const text = document.getElementById('gcalPatientText');
+      const btnConnect = document.getElementById('gcalPatientConnectBtn');
+      const btnDisconnect = document.getElementById('gcalPatientDisconnectBtn');
+      if (!badge || !text || !btnConnect || !btnDisconnect) return;
+      if (patientGcalConnected) {
+        badge.className = 'gcal-badge gcal-on';
+        badge.textContent = 'Conectado';
+        text.textContent = 'Conta conectada. Convites e sincronizacao de consultas ativos.';
+        btnConnect.style.display = 'none';
+        btnDisconnect.style.display = '';
+      } else {
+        badge.className = 'gcal-badge gcal-off';
+        badge.textContent = 'Desconectado';
+        text.textContent = 'Conecte para sincronizar automaticamente sua agenda ao abrir esta aba.';
+        btnConnect.style.display = '';
+        btnDisconnect.style.display = 'none';
+      }
+    }
+
+    async function checkPatientGcalStatus() {
+      try {
+        const res = await fetch('/api/patient-auth/google/status', { headers: { Authorization: 'Bearer ' + token } });
+        if (!res.ok) {
+          renderPatientGcalStatus(false);
+          return false;
+        }
+        const data = await res.json();
+        renderPatientGcalStatus(!!data.connected);
+        if (data.setupRequired) {
+          setGcalMessage('err', data.error || 'Google Calendar ainda nao esta pronto no servidor.');
+        }
+        return !!data.connected;
+      } catch (_e) {
+        renderPatientGcalStatus(false);
+        return false;
+      }
+    }
+
+    async function connectPatientGoogle() {
+      try {
+        const res = await fetch('/api/patient-auth/google/authorize', { headers: { Authorization: 'Bearer ' + token } });
+        if (!res.ok) {
+          let msg = 'Nao foi possivel iniciar o login com Google Calendar.';
+          try {
+            const err = await res.json();
+            if (err && err.error) msg = err.error;
+          } catch {}
+          setGcalMessage('err', msg);
+          return;
+        }
+        const data = await res.json();
+        if (data && data.url) {
+          window.location.href = data.url;
+        }
+      } catch (_e) {
+        setGcalMessage('err', 'Erro de conexao ao iniciar login Google.');
+      }
+    }
+
+    async function disconnectPatientGoogle() {
+      try {
+        const res = await fetch('/api/patient-auth/google/disconnect', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token },
+        });
+        if (!res.ok) {
+          let msg = 'Nao foi possivel desconectar Google Calendar.';
+          try {
+            const err = await res.json();
+            if (err && err.error) msg = err.error;
+          } catch {}
+          setGcalMessage('err', msg);
+          return;
+        }
+        renderPatientGcalStatus(false);
+        setGcalMessage('ok', 'Google Calendar desconectado.');
+      } catch (_e) {
+        setGcalMessage('err', 'Erro de conexao ao desconectar Google Calendar.');
+      }
+    }
+
+    function maybeAutoConnectGoogleOnConsultas() {
+      if (patientGcalConnected) return;
+      if (sessionStorage.getItem(gcalPromptKey) === '1') return;
+      sessionStorage.setItem(gcalPromptKey, '1');
+      setGcalMessage('ok', 'Vamos conectar sua conta Google para sincronizar as consultas.');
+      connectPatientGoogle();
+    }
+
+    function handleGoogleCallbackParams() {
+      const params = new URLSearchParams(window.location.search);
+      const gcal = params.get('gcal');
+      if (!gcal) return;
+
+      if (gcal === 'connected') {
+        setGcalMessage('ok', 'Google Calendar conectado com sucesso.');
+      } else if (gcal === 'denied') {
+        setGcalMessage('err', 'Autorizacao do Google negada.');
+      } else if (gcal === 'invalid-grant') {
+        setGcalMessage('err', 'Google retornou invalid_grant. Tente conectar novamente.');
+      } else if (gcal === 'schema') {
+        setGcalMessage('err', 'Servidor sem schema do Google Calendar para paciente.');
+      } else {
+        setGcalMessage('err', 'Falha ao conectar Google Calendar.');
+      }
+
+      history.replaceState({}, '', '/paciente/portal');
+    }
+
+    window.connectPatientGoogle = connectPatientGoogle;
+    window.disconnectPatientGoogle = disconnectPatientGoogle;
+
+    async function loadPortal() {
+      const res = await fetch('/api/patient-auth/me/records', { headers: { Authorization: 'Bearer ' + token } });
+      if (res.status === 401) {
+        window.location.href = '/paciente/login';
+        return;
+      }
+      const data = await res.json();
+      const consultations = data.consultations || [];
+      const surgeries = data.surgeries || [];
+      const docs = surgeries.filter((s) => s.document_id || s.access_token);
+      const activeDocs = docs.filter((d) => {
+        const isSigned = String(d.document_status || '').toUpperCase() === 'SIGNED';
+        return isSigned || d.status !== 'cancelled';
+      });
+      const pendingDocs = activeDocs.filter((d) => String(d.document_status || '').toUpperCase() !== 'SIGNED');
+      const signedDocs = activeDocs.filter((d) => String(d.document_status || '').toUpperCase() === 'SIGNED');
+      const upcoming = consultations
+        .filter((c) => c.consultation_date && new Date(c.consultation_date) >= new Date())
+        .sort((a,b) => new Date(a.consultation_date) - new Date(b.consultation_date));
+
+      setKpi(['kpiConsultas','kpiConsultasCard'],consultations.length);
+      setKpi(['kpiAgendadas','kpiAgendadasCard'],upcoming.length);
+      setKpi(['kpiProcedimentos','kpiProcedimentosCard'],surgeries.length);
+      setKpi(['kpiPendentes','kpiPendentesCard'],pendingDocs.length);
+      updatePatientPulse(consultations, pendingDocs, signedDocs);
+
+      function itemCons(c,extra){
+        const past=new Date(c.consultation_date)<new Date();
+        const isTele = c.modality === 'TELECONSULTA' && c.teleconsultation_token;
+        const teleBadge = isTele ? ' <span class="status st-ok" style="background:#e0f2fe;color:#075985;">Teleconsulta</span>' : '';
+        const teleAction = isTele
+          ? (c.teleconsultation_status === 'FINALIZADA'
+              ? '<div class="meta">Teleconsulta encerrada</div>'
+              : `<div class="meta" style="margin-top:6px;"><a class="btn btn-green" href="/paciente/teleconsulta/${c.teleconsultation_token}">🎥 Entrar na Teleconsulta</a></div>`)
+          : '';
+        return `<div class="item"><div class="item-dot ${past?'gray':'green'}"></div><div class="item-body"><div class="row"><span class="item-title">${dt(c.consultation_date)}</span>${st(past?'completed':'agendada')}${teleBadge}</div><div class="meta">Profissional: ${esc(c.doctor_name||'Nao informado')}</div><div class="meta">Resumo: ${esc(c.notes||'Sem resumo')}</div>${extra&&c.diagnosis?`<div class="meta">Diagnostico: ${esc(c.diagnosis)}</div>`:''} ${extra&&c.prescription?`<div class="meta">Prescricao: ${esc(c.prescription)}</div>`:''}${teleAction}</div></div>`;
+      }
+      document.getElementById('upcomingList').innerHTML=upcoming.length?upcoming.slice(0,5).map(c=>itemCons(c,false)).join(''):'<div class="empty">Sem consultas futuras agendadas.</div>';
+      document.getElementById('consultasList').innerHTML=consultations.length?consultations.map(c=>itemCons(c,true)).join(''):'<div class="empty">Nenhuma consulta encontrada.</div>';
+      document.getElementById('historicoList').innerHTML=surgeries.length?surgeries.map(s=>`<div class="item"><div class="item-dot" style="background:#00897b"></div><div class="item-body"><div class="row"><span class="item-title">${esc(s.procedure_name||'Procedimento')}</span>${st(s.status)}</div><div class="meta">Data: ${dt(s.surgery_date)}</div><div class="meta">Hospital: ${esc(s.hospital||'Nao informado')}</div>${s.procedure_details?`<div class="meta">Detalhes: ${esc(s.procedure_details)}</div>`:''}${s.notes?`<div class="meta">Obs: ${esc(s.notes)}</div>`:''}<div class="meta">Profissional: ${esc(s.doctor_name||'N/A')}${s.crm?' ('+esc(s.crm)+')':''}</div></div></div>`).join(''):'<div class="empty">Nenhum historico medico.</div>';
+      document.getElementById('docsPendentes').innerHTML=pendingDocs.length?pendingDocs.map(d=>`<div class="item"><div class="item-dot yellow"></div><div class="item-body"><div class="row"><span class="item-title">${esc(d.procedure_name||'Documento')}</span>${st(d.document_status||'PENDENTE')}</div><div class="meta">Data: ${dt(d.surgery_date)}</div><div class="doc-actions">${d.access_token?`<a class="btn btn-yellow" href="/paciente/assinar/${esc(d.access_token)}">Assinar Documento</a>`:''}</div></div></div>`).join(''):'<div class="empty">Sem documentos pendentes. Tudo em dia!</div>';
+      document.getElementById('docsAssinados').innerHTML=signedDocs.length?signedDocs.map(d=>`<div class="item"><div class="item-dot green"></div><div class="item-body"><div class="row"><span class="item-title">${esc(d.procedure_name||'Documento')}</span>${st('SIGNED')}</div><div class="meta">Data: ${dt(d.signed_at||d.surgery_date)}</div><div class="doc-actions">${d.access_token?`<a class="btn btn-outline" href="/api/patient/download/${esc(d.access_token)}/pdf" target="_blank">? PDF</a> <a class="btn btn-outline" href="/api/patient/download/${esc(d.access_token)}/docx" target="_blank">? DOCX</a>`:''}</div></div></div>`).join(''):'<div class="empty">Nenhum documento assinado ainda.</div>';
+    }
+
+    handleGoogleCallbackParams();
+    checkPatientGcalStatus();
+
+    loadPortal().catch(() => {
+      document.getElementById('upcomingList').innerHTML = '<div class="empty">Erro ao carregar dados do portal.</div>';
+    });
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function(){
+      const _pd = JSON.parse(localStorage.getItem('patientData')||'{}');
+      if (!_pd.id) return;
+      const _sock = io({ transports: ['websocket','polling'] });
+      _sock.on('connect', () => _sock.emit('join_patient', _pd.id));
+      _sock.on('document_signed', () => { if(typeof loadPortal==='function') loadPortal(); });
+      _sock.on('procedure_created', () => { if(typeof loadPortal==='function') loadPortal(); });
+      _sock.on('procedure_updated', () => { if(typeof loadPortal==='function') loadPortal(); });
+      _sock.on('consultation_created', () => { if(typeof loadPortal==='function') loadPortal(); });
+    })();
+  </script>
+</body>
+</html>
+
+

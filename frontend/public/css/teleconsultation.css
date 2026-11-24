@@ -1,0 +1,188 @@
+/* teleconsultation.css — telas de teleconsulta (médico e paciente).
+   Reaproveita a mesma paleta/variáveis já usadas em patient-sign.ejs para
+   manter a identidade visual do Clinic Chek nas páginas públicas. */
+
+:root {
+  --accent: #2e7d32;
+  --accent-bg: #f1f8e9;
+  --accent-dark: #1b5e20;
+  --primary: #f9a825;
+  --text: #1a202c;
+  --text-md: #4a5568;
+  --muted: #718096;
+  --border: #e2e8f0;
+  --bg: #f0f4f8;
+  --white: #fff;
+  --red: #e53e3e;
+  --green: #2e7d32;
+  --yellow: #f9a825;
+}
+
+* { box-sizing: border-box; }
+
+body.tc-body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+}
+
+.tc-topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 58px;
+}
+.tc-brand { display: flex; align-items: center; gap: 9px; }
+.tc-brand-dot {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), #66bb6a);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.tc-brand-dot svg { width: 16px; height: 16px; fill: #fff; }
+.tc-brand-text h2 { font-size: 13px; font-weight: 700; margin: 0; }
+.tc-brand-text p { font-size: 10px; color: var(--muted); margin: 0; }
+.tc-badge {
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+  background: var(--accent-bg); color: var(--accent-dark);
+}
+.tc-badge.tc-badge-live { background: #fdecea; color: var(--red); }
+.tc-badge.tc-badge-wait { background: #fff8e1; color: #8a6100; }
+
+.tc-wrap { max-width: 760px; margin: 0 auto; padding: 26px 20px; }
+.tc-wrap.tc-wrap-wide { max-width: 1080px; }
+
+.tc-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.tc-panel-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.tc-panel-header h3 { font-size: 14px; font-weight: 600; margin: 0; }
+.tc-panel-body { padding: 20px; }
+
+.tc-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px 20px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.tc-btn:focus-visible {
+  outline: 3px solid #90caf9;
+  outline-offset: 2px;
+}
+.tc-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.tc-btn-primary { background: var(--accent); color: #fff; }
+.tc-btn-primary:hover:not(:disabled) { box-shadow: 0 6px 16px rgba(46, 125, 50, 0.28); }
+.tc-btn-danger { background: var(--red); color: #fff; }
+.tc-btn-ghost { background: var(--white); color: var(--text-md); border: 1px solid var(--border); }
+.tc-btn-block { width: 100%; justify-content: center; }
+
+.tc-consent-text {
+  white-space: pre-line;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-md);
+  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 16px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.tc-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-md);
+  margin-bottom: 18px;
+}
+.tc-checkbox-row input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); }
+
+.tc-waiting {
+  text-align: center;
+  padding: 40px 20px;
+}
+.tc-waiting-spinner {
+  width: 46px; height: 46px; margin: 0 auto 18px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  animation: tc-spin 1s linear infinite;
+}
+@keyframes tc-spin { to { transform: rotate(360deg); } }
+.tc-waiting h3 { font-size: 15px; margin: 0 0 6px; }
+.tc-waiting p { font-size: 13px; color: var(--muted); margin: 0; }
+
+.tc-info-row { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.tc-info-row:last-child { border-bottom: none; }
+.tc-info-row span:first-child { color: var(--muted); }
+.tc-info-row span:last-child { font-weight: 600; color: var(--text); }
+
+.tc-video-shell {
+  background: #10151a;
+  border-radius: 13px;
+  overflow: hidden;
+  min-height: 520px;
+  position: relative;
+}
+.tc-video-frame-host { width: 100%; height: 72vh; min-height: 480px; }
+
+.tc-controls-bar {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 14px;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+}
+
+.tc-alert {
+  border-radius: 9px;
+  padding: 14px 16px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.tc-alert-error { background: #fdecea; color: #a02419; border: 1px solid #f3c3bd; }
+.tc-alert-warn { background: #fff8e1; color: #8a6100; border: 1px solid #ffe6a3; }
+.tc-alert-info { background: #eef6ff; color: #1a4971; border: 1px solid #cfe4fb; }
+
+.tc-footnote { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+.tc-waitlist-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border: 1px solid var(--border); border-radius: 9px;
+  margin-bottom: 8px; font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .tc-wrap { padding: 16px 12px; }
+  .tc-panel-body { padding: 16px; }
+  .tc-video-frame-host { height: 60vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tc-waiting-spinner { animation: none; border-top-color: var(--border); }
+  .tc-btn { transition: none; }
+}

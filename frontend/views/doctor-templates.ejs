@@ -1,0 +1,1526 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek · Modelos de Documento</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ============================================================
+       SISTEMA DE TEMAS — CLARO EQUILIBRADO / ESCURO
+       (mesmo da dashboard de referência)
+       ============================================================ */
+    :root {
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sidebar-width: 260px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       RESET E BASE
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ============================================================
+       SIDEBAR (idêntica à da dashboard)
+       ============================================================ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: var(--font);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition), transform var(--transition), background var(--transition);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar.collapsed {
+      width: 72px;
+    }
+    .sidebar.collapsed .sb-brand-title,
+    .sidebar.collapsed .sidebar-user,
+    .sidebar.collapsed .sb-group-btn span:not(.caret),
+    .sidebar.collapsed .nav-item span,
+    .sidebar.collapsed .sidebar-footer .btn-logout span,
+    .sidebar.collapsed .sb-toggle-label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sidebar.collapsed .sb-brand-icon {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .nav-item i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+    .sidebar.collapsed .sb-group-btn {
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .sidebar.collapsed .sb-group-btn .caret {
+      display: none;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout i {
+      margin-right: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .sb-brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--accent-1), #06b6d4);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .sb-brand-icon:hover {
+      transform: rotate(-8deg) scale(1.05);
+    }
+    .sb-brand-title {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sb-brand-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--text-primary) 60%, var(--accent-1));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sb-brand-title small {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 400;
+      -webkit-text-fill-color: var(--text-muted);
+    }
+
+    .sb-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+    .sb-toggle-btn:active {
+      transform: scale(0.9);
+    }
+
+    .sidebar-user {
+      margin: 12px 16px 8px;
+      padding: 14px 16px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      transition: background 0.3s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .sidebar-user .role {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-user .clinic {
+      font-size: 11px;
+      color: var(--accent-1);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-user .clinic i {
+      font-size: 10px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 12px 8px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-subtle) transparent;
+    }
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 10px;
+    }
+
+    .sb-group {
+      margin-top: 4px;
+    }
+    .sb-group + .sb-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .sb-group-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      border: 0;
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--font);
+      border-radius: 6px;
+      transition: color 0.25s, background 0.25s;
+    }
+    .sb-group-btn:hover {
+      color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .sb-group-btn .caret {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 9px;
+    }
+    .sb-group.open .sb-group-btn .caret {
+      transform: rotate(90deg);
+      color: var(--accent-1);
+    }
+
+    .sb-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+    }
+    .sb-group.open .sb-group-list {
+      max-height: 600px;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, transform 0.15s, padding 0.2s;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font);
+      overflow: hidden;
+    }
+    .nav-item i {
+      width: 20px;
+      font-size: 15px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--accent-1);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .nav-item:hover {
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateX(3px);
+    }
+    .nav-item:hover i {
+      color: var(--accent-1);
+      transform: scale(1.1) rotate(-4deg);
+    }
+    .nav-item:hover::before {
+      transform: scaleY(0.5);
+    }
+    .nav-item.active {
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--accent-1);
+    }
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    .nav-item.active i {
+      color: var(--accent-1);
+    }
+    .nav-item:active {
+      transform: scale(0.97);
+    }
+    .nav-item[hidden] {
+      display: none !important;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      transition: background 0.3s;
+    }
+    .theme-toggle .sb-toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: opacity 0.2s;
+    }
+    .theme-toggle .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--border-subtle);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .theme-toggle .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch {
+      background: var(--accent-1);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch .slider {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-logout i {
+      font-size: 15px;
+    }
+    .btn-logout span {
+      transition: opacity 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+    .btn-logout:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        border-right: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .sidebar.collapsed {
+        width: var(--sidebar-width);
+      }
+      .sidebar.collapsed .sb-brand-title,
+      .sidebar.collapsed .sidebar-user,
+      .sidebar.collapsed .sb-group-btn span:not(.caret),
+      .sidebar.collapsed .nav-item span,
+      .sidebar.collapsed .sidebar-footer .btn-logout span,
+      .sidebar.collapsed .sb-toggle-label {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        overflow: visible;
+      }
+      .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 9px 12px !important;
+      }
+      .sidebar.collapsed .nav-item i {
+        font-size: 15px;
+        margin-right: 0;
+      }
+      .sidebar.collapsed .sb-group-btn {
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .sidebar.collapsed .sb-group-btn .caret {
+        display: inline;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout {
+        justify-content: flex-start;
+        padding: 10px 14px !important;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout i {
+        margin-right: 0;
+      }
+    }
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 320px;
+      }
+      .sb-brand-title h2 {
+        font-size: 15px;
+      }
+    }
+
+    /* ============================================================
+       MAIN — CONTEÚDO PRINCIPAL
+       ============================================================ */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--accent-5);
+      font-size: 10px;
+      transition: color var(--transition);
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       CARDS E GRIDS (mesmo estilo da dashboard)
+       ============================================================ */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--accent-1);
+    }
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--transition);
+    }
+    .card-header h3 i {
+      color: var(--accent-1);
+      font-size: 16px;
+      transition: color var(--transition);
+    }
+    .card-body {
+      padding: 20px 22px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) {
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================================
+       FORMULÁRIOS (padrão da dashboard)
+       ============================================================ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-muted);
+      font-weight: 300;
+      transition: color var(--transition);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 200px;
+    }
+
+    /* ============================================================
+       BOTÕES (padrão da dashboard)
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--accent-1);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3);
+    }
+    .btn-solid:hover {
+      background: #3b7ec8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-teal {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3);
+    }
+    .btn-teal:hover {
+      background: #5ab8a9;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(107, 197, 184, 0.4);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(229, 62, 62, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(229, 62, 62, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* ============================================================
+       ALERTAS
+       ============================================================ */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      border-left: 3px solid var(--accent-5);
+    }
+    .alert-err {
+      background: var(--red-bg);
+      color: var(--red);
+      border-left: 3px solid var(--red);
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================================
+       COMPONENTES ESPECÍFICOS DA PÁGINA DE TEMPLATES
+       ============================================================ */
+    .tpl-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .tpl-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 16px;
+      position: relative;
+      transition: background var(--transition), border-color var(--transition), transform 0.25s ease, box-shadow var(--transition);
+    }
+    .tpl-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-3);
+      box-shadow: var(--shadow-hover);
+    }
+    .tpl-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      transition: color var(--transition);
+    }
+    .tpl-card .tpl-type {
+      font-size: 11px;
+      color: var(--text-muted);
+      transition: color var(--transition);
+      background: var(--bg-elevated);
+      padding: 2px 10px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+    .tpl-del {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.15s, transform 0.2s ease;
+    }
+    .tpl-del:hover {
+      color: var(--red);
+      transform: scale(1.2) rotate(10deg);
+    }
+    .search-input {
+      padding: 7px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      outline: none;
+      min-width: 180px;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.15s ease;
+    }
+    .search-input:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+
+    /* ============================================================
+       RESPONSIVO GERAL
+       ============================================================ */
+    @media (max-width: 900px) {
+      .content {
+        padding: 16px;
+      }
+      .topbar {
+        padding: 12px 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .topbar h1 {
+        font-size: 18px;
+      }
+      .tpl-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 640px) {
+      .card-body {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+  SIDEBAR (idêntica à da dashboard)
+  ============================================================ -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-header">
+      <div class="sb-brand">
+        <div class="sb-brand-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="sb-brand-title">
+          <h2>Clinic Chek</h2>
+          <small>Gestão inteligente</small>
+        </div>
+      </div>
+      <button class="sb-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name" id="sidebarName">Carregando...</div>
+      <div class="role" id="sidebarRole">Profissional</div>
+      <div class="clinic"><i class="fas fa-hospital"></i> <span id="sidebarClinic">Clínica: --</span></div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- PRINCIPAL -->
+      <div class="sb-group open" data-group="principal">
+        <button class="sb-group-btn" type="button"><span>Principal</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="dashboard" data-page-codes="dashboard,dashboard.insights" href="/medico">
+            <i class="fas fa-th-large"></i> <span>Dashboard</span>
+          </a>
+          <a class="nav-item" hidden data-page="agenda" data-page-codes="agenda,agenda.consultations" href="/medico/agenda">
+            <i class="fas fa-calendar-check"></i> <span>Agenda</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CADASTROS -->
+      <div class="sb-group open" data-group="cadastro">
+        <button class="sb-group-btn" type="button"><span>Cadastros</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="patients" data-page-codes="patients,patients.profile" href="/medico/pacientes">
+            <i class="fas fa-user-injured"></i> <span>Pacientes</span>
+          </a>
+          <a class="nav-item" hidden data-page="patients.records" data-page-codes="patients.records,patients.followups" href="/medico/prontuarios">
+            <i class="fas fa-notes-medical"></i> <span>Prontuários</span>
+          </a>
+          <a class="nav-item" hidden data-page="procedures" data-page-codes="procedures,procedures.register,procedures.types" href="/medico/procedimentos">
+            <i class="fas fa-procedures"></i> <span>Procedimentos</span>
+          </a>
+          <a class="nav-item" hidden data-page="prescriptions" data-page-codes="prescriptions,prescriptions.certificates" href="/medico/receita">
+            <i class="fas fa-prescription"></i> <span>Receita / Atestado</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- FINANCEIRO -->
+      <div class="sb-group open" data-group="financeiro">
+        <button class="sb-group-btn" type="button"><span>Financeiro</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/dashboard">
+            <i class="fas fa-chart-line"></i> <span>Dashboard Financeiro</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.caixa" data-page-codes="financeiro.caixa" href="/medico/caixa">
+            <i class="fas fa-cash-register"></i> <span>Caixa</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.despesas" data-page-codes="financeiro.despesas" href="/medico/financeiro/despesas">
+            <i class="fas fa-file-invoice-dollar"></i> <span>Contas a Pagar</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/relatorios">
+            <i class="fas fa-chart-pie"></i> <span>Relatórios</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CONVÊNIOS -->
+      <div class="sb-group open" data-group="convenios">
+        <button class="sb-group-btn" type="button"><span>Convênios</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="convenios" data-page-codes="convenios,convenios.guias" href="/medico/convenios">
+            <i class="fas fa-handshake"></i> <span>Convênios</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ESTOQUE -->
+      <div class="sb-group open" data-group="estoque">
+        <button class="sb-group-btn" type="button"><span>Estoque</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="estoque" data-page-codes="estoque" href="/medico/estoque">
+            <i class="fas fa-boxes-stacked"></i> <span>Estoque</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- MINHA CONTA -->
+      <div class="sb-group open" data-group="minha-conta">
+        <button class="sb-group-btn" type="button"><span>Minha Conta</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="perfil" href="/medico/perfil">
+            <i class="fas fa-id-badge"></i> <span>Meu Perfil</span>
+          </a>
+          <a class="nav-item" hidden data-page="portfolio" data-page-codes="portfolio" href="/medico/portfolio">
+            <i class="fas fa-globe"></i> <span>Portfólio</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- DOCUMENTOS -->
+      <div class="sb-group open" data-group="documentos">
+        <button class="sb-group-btn" type="button"><span>Documentos</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item active" hidden data-page="templates" data-page-codes="templates,templates.editor" href="/medico/templates">
+            <i class="fas fa-file-alt"></i> <span>Modelos</span>
+          </a>
+          <a class="nav-item" hidden data-page="documents" data-page-codes="documents,documents.signature" href="/medico/documentos">
+            <i class="fas fa-file-signature"></i> <span>Documentos</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ADMINISTRAÇÃO -->
+      <div class="sb-group open" data-group="administracao">
+        <button class="sb-group-btn" type="button"><span>Administração</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="team" data-page-codes="team,team.doctors,team.receptionists" id="navTeamItem" href="/admin">
+            <i class="fas fa-user-md"></i> <span>Equipe (Admin)</span>
+          </a>
+          <a class="nav-item" hidden data-page="clinic" data-page-codes="clinic,clinic.members,clinic.permissions" href="/medico/clinica">
+            <i class="fas fa-hospital-alt"></i> <span>Minha Clínica</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ACESSO EXTRA -->
+      <div class="sb-group open" data-group="acesso-extra">
+        <button class="sb-group-btn" type="button"><span>Acesso Extra</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="reception" data-page-codes="reception,reception.dashboard,reception.patients,reception.agenda" href="/recepcao">
+            <i class="fas fa-concierge-bell"></i> <span>Painel de Recepção</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span class="sb-toggle-label"><i class="fas fa-moon"></i> Tema</span>
+        <div class="toggle-switch" id="themeToggle" role="button" tabindex="0" aria-label="Alternar tema">
+          <div class="slider"></div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+  MAIN — CONTEÚDO DE MODELOS
+  ============================================================ -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Modelos de Documento</h1>
+        <div class="meta">Criar e editar modelos de termos e documentos</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+        <a href="/medico" class="btn btn-outline btn-sm">← Dashboard</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="grid2">
+        <!-- FORMULÁRIO -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-file-alt"></i> <span id="formTitle">Novo Modelo</span></h3>
+          </div>
+          <div class="card-body">
+            <form id="tplForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Nome do Modelo</label>
+                  <input type="text" id="tplName" required placeholder="Ex: Termo de Consentimento — Botox" />
+                </div>
+                <div class="form-group">
+                  <label>Tipo de Procedimento</label>
+                  <select id="tplType">
+                    <option value="">Geral (qualquer procedimento)</option>
+                    <option value="Cirurgia de Mama">Cirurgia de Mama</option>
+                    <option value="Abdominoplastia">Abdominoplastia</option>
+                    <option value="Rinoplastia">Rinoplastia</option>
+                    <option value="Lipoaspiração">Lipoaspiração</option>
+                    <option value="Blefaroplastia">Blefaroplastia</option>
+                    <option value="Lifting Facial">Lifting Facial</option>
+                    <option value="Laser">Laser</option>
+                    <option value="Botox">Botox</option>
+                    <option value="Preenchimento">Preenchimento</option>
+                    <option value="Peeling">Peeling</option>
+                    <option value="Consulta">Consulta</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Conteúdo do Documento</label>
+                  <textarea id="tplBody" required placeholder="Digite o conteúdo do documento. Você pode usar HTML básico.
+
+Variáveis disponíveis:
+{{procedimento}} — nome do procedimento
+{{descricao}} — detalhes clínicos"></textarea>
+                </div>
+              </div>
+              <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-outline btn-sm" id="useDefaultTplBtn">
+                  <i class="fas fa-file-import"></i> Usar Modelo Padrão
+                </button>
+                <button type="submit" class="btn btn-teal" id="tplSubmitBtn">
+                  <i class="fas fa-save"></i> Salvar Modelo
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" id="cancelEditBtn" style="display:none" onclick="cancelEdit()">Cancelar edição</button>
+              </div>
+              <div class="alert-msg alert-ok" id="tplOk"></div>
+              <div class="alert-msg alert-err" id="tplErr"></div>
+            </form>
+          </div>
+        </div>
+
+        <!-- LISTA DE MODELOS -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-list-ul"></i> Modelos Salvos</h3>
+            <input type="text" id="tplSearch" class="search-input" placeholder="Buscar modelo..." />
+          </div>
+          <div class="card-body">
+            <div id="tplGrid" class="tpl-grid">
+              <div style="grid-column:span 2;text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">Carregando...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================
+  SCRIPTS (mesmos da dashboard de referência)
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // INICIALIZAÇÃO DO TEMA
+    // ============================================================
+    (function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    // ============================================================
+    // SIDEBAR (funcionalidades)
+    // ============================================================
+    (function initSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      if (isCollapsed) sidebar.classList.add('collapsed');
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.innerWidth <= 992) {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+          document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        } else {
+          isCollapsed = !isCollapsed;
+          sidebar.classList.toggle('collapsed', isCollapsed);
+          localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      // Tema
+      const themeToggle = document.getElementById('themeToggle');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      // Grupos colapsáveis
+      document.querySelectorAll('.sb-group-btn').forEach((btn) => {
+        btn.addEventListener('click', function() {
+          const group = this.closest('.sb-group');
+          if (group) group.classList.toggle('open');
+        });
+      });
+
+      // Dados do usuário
+      const doctorToken = localStorage.getItem('doctorToken');
+      const receptionToken = localStorage.getItem('receptionToken');
+      const token = doctorToken || receptionToken;
+      const isReceptionSession = !doctorToken && !!receptionToken;
+      const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+      const nameEl = document.getElementById('sidebarName');
+      const roleEl = document.getElementById('sidebarRole');
+      const clinicEl = document.getElementById('sidebarClinic');
+      if (nameEl) nameEl.textContent = doctorData.name || 'Profissional';
+      if (roleEl) roleEl.textContent = isReceptionSession ? 'Recepcionista' : (doctorData.isClinicOwner ? 'Owner da Clinica' : 'Profissional');
+      if (clinicEl) clinicEl.textContent = 'Clinica: ' + (doctorData.clinicName || '--');
+
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('doctorToken'); localStorage.removeItem('doctorData');
+        localStorage.removeItem('receptionToken'); localStorage.removeItem('receptionData');
+        window.location.href = isReceptionSession ? '/recepcao/login' : '/medico/login';
+      });
+
+      // Permissões (opcional)
+      if (token) {
+        fetch(isReceptionSession ? '/api/auth/permissions-receptionist' : '/api/auth/permissions', { headers: { Authorization: 'Bearer ' + token } })
+          .then((r) => r.ok ? r.json() : null)
+          .then((data) => {
+            if (!data || !Array.isArray(data.pages)) return;
+            const allowed = new Set((data.pages || []).filter((p) => p.can_view).map((p) => p.code));
+            document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+              const rawCodes = item.getAttribute('data-page-codes') || item.getAttribute('data-page') || '';
+              const pageCodes = rawCodes.split(',').map((code) => code.trim()).filter(Boolean);
+              const canSee = pageCodes.some((code) => allowed.has(code));
+              item.hidden = !canSee;
+            });
+            document.querySelectorAll('.sb-group').forEach((g) => {
+              const hasVisible = Array.from(g.querySelectorAll('.nav-item')).some((i) => !i.hidden);
+              g.style.display = hasVisible ? '' : 'none';
+            });
+          })
+          .catch(() => {});
+      }
+    })();
+
+    // ============================================================
+    // LÓGICA DE TEMPLATES (CRUD)
+    // ============================================================
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+    if (!token) window.location.href = '/medico/login';
+    if (doctorData.name) document.getElementById('sidebarName').textContent = doctorData.name;
+
+    const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+
+    let allTemplates = [];
+    let editingId = null;
+
+    function esc(v) { return String(v || '').replace(/[&<>"']/g, (s) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s])); }
+
+    async function loadTemplates() {
+      try {
+        const res = await fetch('/api/templates', { headers });
+        if (!res.ok) throw new Error();
+        allTemplates = await res.json();
+        renderGrid();
+      } catch (error) {
+        console.error('Erro ao carregar modelos:', error);
+        document.getElementById('tplGrid').innerHTML = '<div style="grid-column:span 2;text-align:center;padding:30px;color:var(--red);font-size:13px;">Erro ao carregar modelos.</div>';
+      }
+    }
+
+    function renderGrid() {
+      const q = (document.getElementById('tplSearch')?.value || '').trim().toLowerCase();
+      const grid = document.getElementById('tplGrid');
+      let list = allTemplates;
+      if (q) {
+        list = allTemplates.filter((t) =>
+          (t.name || '').toLowerCase().includes(q) ||
+          (t.procedure_type || '').toLowerCase().includes(q)
+        );
+      }
+
+      if (!list.length) {
+        grid.innerHTML = '<div style="grid-column:span 2;text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">Nenhum modelo cadastrado. Crie o primeiro modelo ao lado.</div>';
+        return;
+      }
+
+      grid.innerHTML = list.map(t => `
+        <div class="tpl-card">
+          <button class="tpl-del" onclick="deleteTemplate('${t.id}')" title="Excluir modelo">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+          <h4>${esc(t.name)}</h4>
+          <div class="tpl-type">${t.procedure_type || 'Geral'}</div>
+          <div style="margin-top:10px;">
+            <button class="btn btn-outline btn-sm" onclick="editTemplate('${t.id}')">Editar modelo</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('useDefaultTplBtn').addEventListener('click', () => {
+      const type = document.getElementById('tplType').value || 'Procedimento Médico';
+      document.getElementById('tplBody').value = `<h2>TERMO DE CONSENTIMENTO INFORMADO</h2>
+<h3>${type}</h3>
+
+<p>Eu, paciente abaixo identificado, declaro que fui informado(a) de forma clara e detalhada sobre o procedimento a ser realizado, seus objetivos, riscos e benefícios.</p>
+
+<h4>1. IDENTIFICAÇÃO DO PROCEDIMENTO</h4>
+<p>Procedimento: {{procedimento}}</p>
+<p>Detalhes clínicos: {{descricao}}</p>
+
+<h4>2. DESCRIÇÃO DO PROCEDIMENTO</h4>
+<p>O procedimento consiste em intervenção cirúrgica/estética realizada pela equipe médica especializada, seguindo os protocolos estabelecidos pela medicina baseada em evidências.</p>
+
+<h4>3. RISCOS E POSSÍVEIS COMPLICAÇÕES</h4>
+<p>Os principais riscos associados incluem: reações anestésicas, infecções, hematomas, cicatrização inadequada, resultado insatisfatório, e outros inerentes ao procedimento específico.</p>
+
+<h4>4. BENEFÍCIOS ESPERADOS</h4>
+<p>Os benefícios esperados foram adequadamente explicados pelo médico responsável.</p>
+
+<h4>5. ALTERNATIVAS DE TRATAMENTO</h4>
+<p>Fui informado(a) sobre as alternativas disponíveis e optei livremente pelo procedimento indicado.</p>
+
+<h4>6. DECLARAÇÃO DE CONSENTIMENTO</h4>
+<p>Declaro que li e compreendi as informações contidas neste documento e consinto livre e voluntariamente com a realização do procedimento descrito.</p>`;
+    });
+
+    function editTemplate(id) {
+      const t = allTemplates.find(x => String(x.id) === id);
+      if (!t) return;
+      editingId = id;
+      document.getElementById('tplName').value = t.name || '';
+      document.getElementById('tplType').value = t.procedure_type || '';
+      document.getElementById('tplBody').value = t.body_html || '';
+      document.getElementById('formTitle').textContent = 'Editar Modelo';
+      document.getElementById('tplSubmitBtn').innerHTML = '<i class="fas fa-edit"></i> Atualizar Modelo';
+      document.getElementById('cancelEditBtn').style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      editingId = null;
+      document.getElementById('tplForm').reset();
+      document.getElementById('formTitle').textContent = 'Novo Modelo';
+      document.getElementById('tplSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Salvar Modelo';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    document.getElementById('tplForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('tplSubmitBtn');
+      const ok = document.getElementById('tplOk');
+      const err = document.getElementById('tplErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span>Salvando...';
+      try {
+        const isEdit = Boolean(editingId);
+        const res = await fetch(isEdit ? `/api/templates/${editingId}` : '/api/templates', {
+          method: isEdit ? 'PUT' : 'POST',
+          headers,
+          body: JSON.stringify({
+            name: document.getElementById('tplName').value.trim(),
+            bodyHtml: document.getElementById('tplBody').value.trim(),
+            procedureType: document.getElementById('tplType').value || null,
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ok.textContent = isEdit ? `Modelo "${data.name}" atualizado!` : `Modelo "${data.name}" salvo!`;
+          ok.style.display = 'block';
+          cancelEdit();
+          await loadTemplates();
+        } else {
+          err.textContent = data.error || 'Erro ao salvar modelo.';
+          err.style.display = 'block';
+        }
+      } catch (error) {
+        err.textContent = 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false;
+      if (!editingId) btn.innerHTML = '<i class="fas fa-save"></i> Salvar Modelo';
+    });
+
+    async function deleteTemplate(id) {
+      if (!confirm('Excluir este modelo de documento?')) return;
+      try {
+        const res = await fetch(`/api/templates/${id}`, { method: 'DELETE', headers });
+        if (res.ok) await loadTemplates();
+      } catch (error) {
+        alert('Erro ao excluir modelo.');
+      }
+    }
+
+    document.getElementById('tplSearch').addEventListener('input', renderGrid);
+
+    // ── INIT ──
+    loadTemplates();
+
+    // socket.io (opcional, para atualizações em tempo real)
+    (function() {
+      const _d = JSON.parse(localStorage.getItem('doctorData') || '{}');
+      if (!_d.id) return;
+      const _sock = io({ transports: ['websocket', 'polling'] });
+      _sock.on('connect', () => _sock.emit('join_doctor', _d.id));
+      _sock.on('template_created', () => { if (typeof loadTemplates === 'function') loadTemplates(); });
+      _sock.on('template_updated', () => { if (typeof loadTemplates === 'function') loadTemplates(); });
+      _sock.on('template_deleted', () => { if (typeof loadTemplates === 'function') loadTemplates(); });
+    })();
+  </script>
+
+  <!-- socket.io (necessário para o script acima) -->
+  <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>

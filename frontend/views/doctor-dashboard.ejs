@@ -1,0 +1,3096 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek · Painel Médico</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ============================================================
+       SISTEMA DE TEMAS — CLARO EQUILIBRADO / ESCURO
+       ============================================================ */
+    :root {
+      /* TEMA CLARO — tons suaves, fundo acinzentado */
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sidebar-width: 260px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* TEMA ESCURO (mantido) */
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       RESET E BASE
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ============================================================
+       MAIN
+       ============================================================ */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+
+    /* ============================================================
+       TOPBAR
+       ============================================================ */
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--accent-5);
+      font-size: 10px;
+      transition: color var(--transition);
+    }
+
+    /* ============================================================
+       CONTENT
+       ============================================================ */
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       SEÇÕES (toggle)
+       ============================================================ */
+    .section {
+      display: none;
+      animation: fadeUp 0.3s ease;
+    }
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================================
+       CARDS E GRIDS — COM ANIMAÇÕES DE HOVER
+       ============================================================ */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--accent-1);
+    }
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--transition);
+    }
+    .card-header h3 i {
+      color: var(--accent-1);
+      font-size: 16px;
+      transition: color var(--transition);
+    }
+    .card-header .badge {
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .card-body {
+      padding: 20px 22px;
+    }
+
+    /* ============================================================
+       STATS GRID
+       ============================================================ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+      cursor: default;
+    }
+    .stat-card:hover {
+      transform: translateY(-5px) scale(1.005);
+      background: var(--bg-card-hover);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent-1);
+    }
+    .stat-card .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      transition: background var(--transition), color var(--transition), transform 0.3s ease;
+    }
+    .stat-card:hover .icon {
+      transform: scale(1.08) rotate(-2deg);
+    }
+    .stat-card .icon.blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .stat-card .icon.teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .stat-card .icon.yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .stat-card .icon.green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .stat-card .info {
+      flex: 1;
+      min-width: 0;
+    }
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+      transition: color var(--transition);
+    }
+    .stat-card .sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .stat-card .trend {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 12px;
+      border-radius: 20px;
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      transition: background var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .stat-card:hover .trend {
+      transform: scale(1.05);
+    }
+
+    /* ============================================================
+       GRIDS AUXILIARES
+       ============================================================ */
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 8px;
+    }
+    .pulse-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    /* ============================================================
+       PULSE CARD
+       ============================================================ */
+    .pulse-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      padding: 18px 22px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .pulse-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-3px);
+      border-color: var(--accent-2);
+    }
+    .pulse-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color var(--transition);
+    }
+    .pulse-title i {
+      font-size: 14px;
+      color: var(--accent-2);
+      transition: color var(--transition);
+    }
+    .pulse-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+      gap: 12px;
+      transition: color var(--transition);
+    }
+    .pulse-row strong {
+      color: var(--text-primary);
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+    .pulse-progress {
+      height: 6px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--bg-elevated);
+      margin-top: 10px;
+      transition: background var(--transition);
+    }
+    .pulse-progress > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      transition: width 0.6s ease, background var(--transition);
+    }
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    /* ============================================================
+       TABELAS
+       ============================================================ */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.2s ease, border-color var(--transition), transform 0.15s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--bg-card-hover);
+      transform: scale(1.002);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--text-secondary);
+      vertical-align: middle;
+      transition: color var(--transition);
+    }
+    tbody td strong {
+      color: var(--text-primary);
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+
+    /* ============================================================
+       BADGES
+       ============================================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: background var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .badge:hover {
+      transform: scale(1.06);
+    }
+    .badge-blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .badge-yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .badge-gray {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .badge-purple {
+      background: var(--accent-3-dim);
+      color: var(--accent-3);
+    }
+    .stacked-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .inline-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .inline-tag {
+      display: inline-flex;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 600;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .inline-tag:hover {
+      transform: scale(1.05);
+    }
+    .table-note {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.45;
+      transition: color var(--transition);
+    }
+
+    /* ============================================================
+       FILTROS
+       ============================================================ */
+    .header-tools {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .table-search,
+    .filter-select {
+      padding: 7px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      outline: none;
+      min-width: 160px;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+    }
+    .table-search:focus,
+    .filter-select:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .table-search::placeholder {
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+    .filter-select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    /* ============================================================
+       BOTÕES — COM ANIMAÇÕES
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--accent-1);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3);
+    }
+    .btn-solid:hover {
+      background: #3b7ec8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-teal {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3);
+    }
+    .btn-teal:hover {
+      background: #5ab8a9;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(107, 197, 184, 0.4);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(229, 62, 62, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(229, 62, 62, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* ============================================================
+       FORMULÁRIOS
+       ============================================================ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols1 {
+      grid-template-columns: 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-muted);
+      font-weight: 300;
+      transition: color var(--transition);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-group select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    /* ============================================================
+       ALERTAS
+       ============================================================ */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      border-left: 3px solid var(--accent-5);
+    }
+    .alert-err {
+      background: var(--red-bg);
+      color: var(--red);
+      border-left: 3px solid var(--red);
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ============================================================
+       CÂMERA
+       ============================================================ */
+    .cam-box {
+      border: 1.5px dashed var(--border-card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 12px;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .cam-box:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .cam-preview,
+    .cam-video {
+      max-width: 240px;
+      border-radius: var(--radius);
+      display: block;
+      margin: 8px auto 0;
+    }
+    .cam-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       MODELOS
+       ============================================================ */
+    .tpl-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .tpl-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 16px;
+      position: relative;
+      transition: background var(--transition), border-color var(--transition), transform 0.25s ease, box-shadow var(--transition);
+    }
+    .tpl-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-3);
+      box-shadow: var(--shadow-hover);
+    }
+    .tpl-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      transition: color var(--transition);
+    }
+    .tpl-card .tpl-type {
+      font-size: 11px;
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+    .tpl-card .tpl-del {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.15s, transform 0.2s ease;
+    }
+    .tpl-card .tpl-del:hover {
+      color: var(--red);
+      transform: scale(1.2) rotate(10deg);
+    }
+
+    /* ============================================================
+       CERTIFICADO
+       ============================================================ */
+    .cert-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      background: var(--bg-card);
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      transition: background var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .cert-bar:hover {
+      transform: scale(1.003);
+    }
+    .cert-bar.is-ok {
+      border-color: rgba(111, 207, 151, 0.4);
+      background: var(--accent-5-dim);
+    }
+    .cert-bar.is-warn {
+      border-color: rgba(246, 173, 85, 0.4);
+      background: var(--accent-4-dim);
+    }
+    .cert-bar.is-none {
+      border-color: var(--border-card);
+      background: var(--bg-card);
+    }
+    .cert-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+      transition: background var(--transition), color var(--transition), transform 0.3s ease;
+    }
+    .cert-bar:hover .cert-icon {
+      transform: scale(1.08) rotate(-4deg);
+    }
+    .cert-bar.is-ok .cert-icon {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .cert-bar.is-warn .cert-icon {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .cert-bar.is-none .cert-icon {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .cert-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .cert-info .cert-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .cert-info .cert-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .cert-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       MODAL CERTIFICADO
+       ============================================================ */
+    .cert-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .cert-modal-overlay.open {
+      display: flex;
+    }
+    .cert-modal {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      max-width: 540px;
+      width: 100%;
+      margin: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-card);
+      transition: background var(--transition), border-color var(--transition), transform 0.25s ease;
+    }
+    .cert-modal:hover {
+      transform: scale(1.005);
+    }
+    .cert-modal-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color var(--transition);
+    }
+    .cert-modal-head h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .cert-modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s, transform 0.2s ease;
+    }
+    .cert-modal-close:hover {
+      color: var(--text-primary);
+      transform: rotate(90deg);
+    }
+    .cert-modal-body {
+      padding: 22px;
+    }
+    .cert-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .cert-list-item {
+      padding: 12px 16px;
+      border: 2px solid var(--border-card);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--bg-card);
+    }
+    .cert-list-item:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      transform: translateX(4px);
+    }
+    .cert-list-item.selected {
+      border-color: var(--accent-2);
+      background: var(--accent-2-dim);
+    }
+    .cert-list-item .cn {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .cert-list-item .issuer {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .cert-list-item .expiry {
+      font-size: 12px;
+      margin-top: 3px;
+    }
+    .cert-list-item .expiry.ok {
+      color: var(--accent-5);
+    }
+    .cert-list-item .expiry.warn {
+      color: var(--accent-4);
+    }
+    .cert-ext-banner {
+      padding: 14px;
+      background: var(--accent-1-dim);
+      border: 1px solid rgba(74, 144, 217, 0.2);
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .cert-ext-banner a {
+      color: var(--accent-1);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .cert-ext-banner a:hover {
+      text-decoration: underline;
+    }
+    .cert-upload-area {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      transition: border-color var(--transition);
+    }
+    .cert-upload-area label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 8px;
+      transition: color var(--transition);
+    }
+    .cert-upload-area input[type="file"] {
+      color: var(--text-secondary);
+      font-size: 13px;
+      transition: color var(--transition);
+    }
+    .cert-upload-area input[type="password"] {
+      padding: 6px 12px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: var(--font);
+      outline: none;
+      width: 140px;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), transform 0.15s ease;
+    }
+    .cert-upload-area input[type="password"]:focus {
+      border-color: var(--accent-1);
+      transform: scale(1.02);
+    }
+
+    /* ============================================================
+       INSIGHT ITEMS
+       ============================================================ */
+    .insight-list {
+      display: grid;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+    }
+    .insight-item {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition), transform 0.2s ease, box-shadow var(--transition);
+    }
+    .insight-item:hover {
+      transform: translateX(4px);
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      box-shadow: var(--shadow-hover);
+    }
+    .insight-item .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .insight-item .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .insight-item .actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       RESPONSIVO
+       ============================================================ */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+      .pulse-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        display: block;
+      }
+      .main {
+        margin-left: 0;
+      }
+      .topbar {
+        padding: 12px 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .topbar h1 {
+        font-size: 18px;
+      }
+      .content {
+        padding: 16px;
+      }
+      .card-header {
+        flex-wrap: wrap;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.span2 {
+        grid-column: span 1;
+      }
+      .tpl-grid {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        gap: 12px;
+      }
+      .stat-card {
+        padding: 16px;
+      }
+      .stat-card .value {
+        font-size: 24px;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .btn-sm {
+        width: auto;
+      }
+      .table-wrap table {
+        min-width: 500px;
+      }
+      .header-tools .table-search {
+        min-width: 130px;
+      }
+      .quick-actions {
+        grid-template-columns: 1fr 1fr;
+      }
+      .quick-actions .btn {
+        width: 100%;
+      }
+      .cert-actions .btn {
+        width: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .stat-card .value {
+        font-size: 22px;
+      }
+      .card-body {
+        padding: 14px;
+      }
+      .topbar-actions .badge {
+        font-size: 10px;
+        padding: 2px 10px 2px 8px;
+      }
+      .cert-modal {
+        margin: 12px;
+      }
+    }
+
+    /* ============================================================
+       UTILITÁRIOS
+       ============================================================ */
+    .text-muted {
+      color: var(--text-muted);
+    }
+    .text-secondary {
+      color: var(--text-secondary);
+    }
+    .mt-8 {
+      margin-top: 8px;
+    }
+    .mt-12 {
+      margin-top: 12px;
+    }
+    .gap-8 {
+      gap: 8px;
+    }
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+    .flex {
+      display: flex;
+    }
+    .items-center {
+      align-items: center;
+    }
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    /* ============================================================
+       CORREÇÕES PARA O TEMA
+       ============================================================ */
+    .card-header .badge {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      transition: background var(--transition), color var(--transition);
+    }
+    .badge-blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .badge-yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .badge-gray {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+    .btn-outline {
+      border-color: var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .cert-modal {
+      background: var(--bg-surface);
+    }
+    .cert-list-item {
+      background: var(--bg-card);
+    }
+    .cert-list-item.selected {
+      border-color: var(--accent-2);
+      background: var(--accent-2-dim);
+    }
+    .cert-ext-banner {
+      background: var(--accent-1-dim);
+      border-color: rgba(74, 144, 217, 0.2);
+    }
+
+    /* ============================================================
+       AJUSTES ADICIONAIS PARA O TEMA CLARO EQUILIBRADO
+       ============================================================ */
+    /* Fundo da página mais suave, não totalmente branco */
+    [data-theme="light"] .stat-card,
+    [data-theme="light"] .card,
+    [data-theme="light"] .pulse-card,
+    [data-theme="light"] .cert-bar {
+      background: #ffffff;
+    }
+    [data-theme="light"] .topbar {
+      background: #f7fafc;
+    }
+    [data-theme="light"] .sidebar-user {
+      background: #edf2f7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== SIDEBAR (partial compartilhado) ========== -->
+  <%- include('partials/doctor-sidebar') %>
+
+  <!-- ========== MAIN ========== -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="topbarTitle">Dashboard</h1>
+        <div class="meta" id="topbarMeta">Visão geral do sistema</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ========== DASHBOARD ========== -->
+      <section class="section active" id="sec-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="icon blue"><i class="fas fa-user-injured"></i></div>
+            <div class="info">
+              <div class="label">Pacientes</div>
+              <div class="value" id="statPatients">—</div>
+              <div class="sub">Cadastrados no sistema</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="icon teal"><i class="fas fa-procedures"></i></div>
+            <div class="info">
+              <div class="label">Procedimentos</div>
+              <div class="value" id="statSurgeries">—</div>
+              <div class="sub">Todos os procedimentos</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="icon yellow"><i class="fas fa-clock"></i></div>
+            <div class="info">
+              <div class="label">Docs Pendentes</div>
+              <div class="value" id="statPending">—</div>
+              <div class="sub">Aguardando assinatura</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="info">
+              <div class="label">Docs Assinados</div>
+              <div class="value" id="statSigned">—</div>
+              <div class="sub">Processo concluído</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pulse-grid">
+          <div class="pulse-card">
+            <div class="pulse-title"><i class="fas fa-heartbeat"></i> Pulso da Clínica</div>
+            <div class="pulse-row"><span>Taxa de documentos assinados</span><strong id="doctorPulsePct">0%</strong></div>
+            <div class="pulse-progress"><i id="doctorPulseBar"></i></div>
+            <div class="pulse-row" style="margin-top:12px;"><span>Atualização</span><strong id="doctorPulseTime">--:--</strong></div>
+          </div>
+          <div class="pulse-card">
+            <div class="pulse-title"><i class="fas fa-bolt"></i> Ações Rápidas</div>
+            <div class="quick-actions">
+              <button class="btn btn-outline btn-sm" onclick="goSection('patients')"><i class="fas fa-user-plus"></i> Paciente</button>
+              <button class="btn btn-outline btn-sm" onclick="goSection('procedures')"><i class="fas fa-syringe"></i> Proced.</button>
+              <button class="btn btn-outline btn-sm" onclick="goSection('documents')"><i class="fas fa-file-signature"></i> Documento</button>
+              <button class="btn btn-outline btn-sm" onclick="goSection('agenda')"><i class="fas fa-calendar-alt"></i> Agenda</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-user-md"></i> Últimos Pacientes</h3>
+              <button class="btn btn-outline btn-sm" onclick="goSection('patients-history')">Ver todos <i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table><thead><tr><th>Nome</th><th>E-mail</th><th>Cadastro</th><th>Ação</th></tr></thead>
+                <tbody id="dashPatientsList"></tbody></table>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-stethoscope"></i> Últimos Procedimentos</h3>
+              <button class="btn btn-outline btn-sm" onclick="goSection('procedures-history')">Ver todos <i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table><thead><tr><th>Paciente</th><th>Procedimento</th><th>Tipo</th></tr></thead>
+                <tbody id="dashSurgeriesList"></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-shield-alt" style="color:var(--accent-4);"></i> Pacientes com Pendência LGPD</h3>
+              <span class="badge badge-yellow" id="lgpdPendingCount">0</span>
+            </div>
+            <div class="card-body"><div class="insight-list" id="lgpdPendingList"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-file-medical" style="color:var(--red);"></i> Procedimentos sem Prontuário</h3>
+              <span class="badge badge-red" id="mrPendingCount">0</span>
+            </div>
+            <div class="card-body"><div class="insight-list" id="recordPendingList"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== EQUIPE (somente ADMIN) ========== -->
+      <section class="section" id="sec-team" style="display:none;">
+        <div class="grid2" style="align-items:start">
+          <div class="card">
+            <div class="card-header"><h3><i class="fas fa-user-md"></i> Cadastrar Profissional</h3></div>
+            <div class="card-body">
+              <form id="doctorForm">
+                <div class="form-grid cols1">
+                  <div class="form-group"><label>Nome</label><input id="dName" type="text" required></div>
+                  <div class="form-group"><label>E-mail</label><input id="dEmail" type="email" required></div>
+                  <div class="form-group"><label>CRM</label><input id="dCrm" type="text" required></div>
+                  <div class="form-group"><label>Senha inicial</label><input id="dPassword" type="password" required></div>
+                </div>
+                <div style="margin-top:14px;"><button type="submit" class="btn btn-solid" id="doctorSubmitBtn">Cadastrar Profissional</button></div>
+                <div class="alert-msg alert-ok" id="doctorOk"></div>
+                <div class="alert-msg alert-err" id="doctorErr"></div>
+              </form>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Médicos Cadastrados</h3></div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Nome</th><th>E-mail</th><th>CRM</th><th>Perfil</th></tr></thead>
+                  <tbody id="doctorsTeamList"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2" style="align-items:start; margin-top:20px;">
+          <div class="card">
+            <div class="card-header"><h3><i class="fas fa-user-tie" style="color:var(--accent-2);"></i> Cadastrar Recepcionista</h3></div>
+            <div class="card-body">
+              <form id="receptionistForm">
+                <div class="form-grid cols1">
+                  <div class="form-group"><label>Nome</label><input id="rName" type="text" required></div>
+                  <div class="form-group"><label>E-mail</label><input id="rEmail" type="email" required></div>
+                  <div class="form-group"><label>Senha inicial</label><input id="rPassword" type="password" required></div>
+                </div>
+                <div style="margin-top:14px;"><button type="submit" class="btn btn-teal" id="receptionistSubmitBtn">Cadastrar Recepcionista</button></div>
+                <div class="alert-msg alert-ok" id="receptionistOk"></div>
+                <div class="alert-msg alert-err" id="receptionistErr"></div>
+              </form>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Recepcionistas Cadastradas</h3></div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Nome</th><th>E-mail</th><th>Status</th></tr></thead>
+                  <tbody id="receptionistsTeamList"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== PACIENTES ========== -->
+      <section class="section" id="sec-patients">
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-user-plus"></i> Novo Paciente</h3></div>
+          <div class="card-body">
+            <form id="patientForm">
+              <div class="form-grid">
+                <div class="form-group"><label>Nome Completo</label><input type="text" id="pName" required placeholder="Nome do paciente"></div>
+                <div class="form-group"><label>E-mail</label><input type="email" id="pEmail" required placeholder="email@exemplo.com"></div>
+                <div class="form-group"><label>Telefone</label><input type="tel" id="pPhone" placeholder="(00) 00000-0000"></div>
+                <div class="form-group"><label>Data de Nascimento</label><input type="date" id="pBirthDate"></div>
+                <div class="form-group"><label>CPF / RG</label><input type="text" id="pDocumentId" placeholder="000.000.000-00"></div>
+                <div class="form-group"><label>Senha Inicial</label><input type="password" id="pPassword" required placeholder="Mínimo 6 caracteres"></div>
+                <div class="form-group span2"><label>Endereço</label><input type="text" id="pAddress" placeholder="Rua, número, cidade"></div>
+                <div class="form-group"><label>Contato Emergência (Nome)</label><input type="text" id="pEmergencyName" placeholder="Nome do contato"></div>
+                <div class="form-group"><label>Contato Emergência (Telefone)</label><input type="text" id="pEmergencyPhone" placeholder="(00) 00000-0000"></div>
+                <div class="form-group"><label>Versão LGPD</label><input type="text" id="pLgpdVersion" placeholder="Ex: LGPD-2026.1"></div>
+                <div class="form-group"><label>Aceite LGPD</label><input type="datetime-local" id="pLgpdAt"></div>
+                <div class="form-group span2"><label>Histórico Médico Inicial</label><textarea id="pMedicalHistory" placeholder="Condições prévias, alergias e observações clínicas"></textarea></div>
+              </div>
+
+              <div class="cam-box">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                  <span style="font-weight:600; font-size:13px; color:var(--text-secondary);"><i class="fas fa-camera"></i> Foto de Cadastro (Biometria)</span>
+                  <span style="font-size:12px;color:var(--text-muted);">Usada na verificação de assinatura</span>
+                </div>
+                <div id="camStatus" style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Sem foto capturada</div>
+                <video id="camVideo" class="cam-video" autoplay playsinline muted style="display:none"></video>
+                <canvas id="camCanvas" style="display:none"></canvas>
+                <img id="camPreview" class="cam-preview" alt="Foto do paciente" style="display:none">
+                <div class="cam-actions">
+                  <button type="button" class="btn btn-outline btn-sm" id="camStartBtn"><i class="fas fa-video"></i> Abrir câmera</button>
+                  <button type="button" class="btn btn-solid btn-sm" id="camCaptureBtn" style="display:none"><i class="fas fa-camera"></i> Capturar</button>
+                  <button type="button" class="btn btn-outline btn-sm" id="camRetakeBtn" style="display:none"><i class="fas fa-redo"></i> Refazer</button>
+                </div>
+              </div>
+
+              <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;">
+                <button type="submit" class="btn btn-solid" id="patientSubmitBtn"><i class="fas fa-save"></i> Cadastrar Paciente</button>
+                <button type="button" class="btn btn-outline" onclick="goSection('patients-history')">Ir para Histórico</button>
+              </div>
+              <div class="alert-msg alert-ok" id="patientOk"></div>
+              <div class="alert-msg alert-err" id="patientErr"></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== HISTÓRICO PACIENTES ========== -->
+      <section class="section" id="sec-patients-history">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-history"></i> Histórico de Cadastros de Pacientes</h3>
+            <input type="text" id="patientsHistorySearch" class="table-search" placeholder="Buscar por nome, e-mail ou telefone...">
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Nome</th><th>Contato</th><th>Foto</th><th>Cadastro</th><th>Ações</th></tr></thead>
+                <tbody id="patientsList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== PROCEDIMENTOS ========== -->
+      <section class="section" id="sec-procedures">
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-syringe" style="color:var(--accent-2);"></i> Novo Procedimento</h3></div>
+          <div class="card-body">
+            <form id="surgeryForm">
+              <div class="form-grid">
+                <div class="form-group span2"><label>Paciente</label>
+                  <select id="sPatientsSelect"><option value="">Selecione o paciente</option></select>
+                </div>
+                <div class="form-group span2"><label>Prontuário Médico (obrigatório)</label>
+                  <select id="sMedicalRecordSelect"><option value="">Selecione um paciente para listar prontuários</option></select>
+                </div>
+                <div class="form-group span2"><label>Tipo de Procedimento</label>
+                  <select id="sProcedureType">
+                    <option value="">— Selecione o tipo —</option>
+                    <option value="Cirurgia de Mama">Cirurgia de Mama</option>
+                    <option value="Abdominoplastia">Abdominoplastia</option>
+                    <option value="Rinoplastia">Rinoplastia</option>
+                    <option value="Lipoaspiração">Lipoaspiração</option>
+                    <option value="Blefaroplastia">Blefaroplastia</option>
+                    <option value="Lifting Facial">Lifting Facial</option>
+                    <option value="Laser">Laser</option>
+                    <option value="Botox">Botox</option>
+                    <option value="Preenchimento">Preenchimento</option>
+                    <option value="Peeling">Peeling</option>
+                    <option value="Consulta">Consulta</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+                </div>
+                <div class="form-group span2"><label>Nome / Descrição do Procedimento</label><input type="text" id="sProcedure" required placeholder="Ex: Rinoplastia primária, Botox preventivo..."></div>
+                <div class="form-group"><label>Data</label><input type="date" id="sDate"></div>
+                <div class="form-group"><label>Status</label>
+                  <select id="sStatus">
+                    <option value="DRAFT">Rascunho</option>
+                    <option value="scheduled">Agendado</option>
+                    <option value="completed">Concluído</option>
+                    <option value="cancelled">Cancelado</option>
+                  </select>
+                </div>
+                <div class="form-group span2"><label>Observações clínicas</label><textarea id="sNotes" placeholder="Notas, detalhes, histórico..."></textarea></div>
+              </div>
+              <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;">
+                <button type="submit" class="btn btn-solid" id="surgerySubmitBtn"><i class="fas fa-save"></i> Registrar Procedimento</button>
+                <button type="button" class="btn btn-outline" onclick="goSection('procedures-history')">Ir para Histórico</button>
+              </div>
+              <div class="alert-msg alert-ok" id="surgeryOk"></div>
+              <div class="alert-msg alert-err" id="surgeryErr"></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== HISTÓRICO PROCEDIMENTOS ========== -->
+      <section class="section" id="sec-procedures-history">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-list-ul"></i> Histórico de Procedimentos</h3>
+            <div class="header-tools">
+              <input type="text" id="surgeriesHistorySearch" class="table-search" placeholder="Buscar procedimento, paciente ou tipo...">
+              <select id="surgeriesFilter" class="filter-select"><option value="">Todos os pacientes</option></select>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Paciente</th><th>Procedimento</th><th>Tipo</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="surgeriesList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== MODELOS DE DOCUMENTO ========== -->
+      <section class="section" id="sec-template-editor">
+        <div class="grid2" style="align-items:start">
+          <div class="card">
+            <div class="card-header"><h3><i class="fas fa-file-alt"></i> Novo Modelo de Documento</h3></div>
+            <div class="card-body">
+              <form id="tplForm">
+                <div class="form-grid cols1">
+                  <div class="form-group"><label>Nome do Modelo</label><input type="text" id="tplName" required placeholder="Ex: Termo de Consentimento — Botox"></div>
+                  <div class="form-group"><label>Tipo de Procedimento</label>
+                    <select id="tplType">
+                      <option value="">Geral (qualquer procedimento)</option>
+                      <option value="Cirurgia de Mama">Cirurgia de Mama</option>
+                      <option value="Abdominoplastia">Abdominoplastia</option>
+                      <option value="Rinoplastia">Rinoplastia</option>
+                      <option value="Lipoaspiração">Lipoaspiração</option>
+                      <option value="Blefaroplastia">Blefaroplastia</option>
+                      <option value="Lifting Facial">Lifting Facial</option>
+                      <option value="Laser">Laser</option>
+                      <option value="Botox">Botox</option>
+                      <option value="Preenchimento">Preenchimento</option>
+                      <option value="Peeling">Peeling</option>
+                      <option value="Consulta">Consulta</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Conteúdo do Documento</label>
+                    <textarea id="tplBody" style="min-height:200px;" required placeholder="Digite o conteúdo do documento. Você pode usar HTML básico.
+
+Exemplo de estrutura:
+- Identificação do Paciente e Procedimento
+- Descrição do Procedimento
+- Riscos e Benefícios
+- Alternativas de Tratamento
+- Declaração de Consentimento
+
+Variáveis disponíveis:
+{{procedimento}} — nome do procedimento
+{{descricao}} — detalhes clínicos"></textarea>
+                  </div>
+                </div>
+                <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+                  <button type="button" class="btn btn-outline btn-sm" id="useDefaultTplBtn"><i class="fas fa-file-import"></i> Usar Modelo Padrão</button>
+                  <button type="submit" class="btn btn-teal" id="tplSubmitBtn"><i class="fas fa-save"></i> Salvar Modelo</button>
+                </div>
+                <div class="alert-msg alert-ok" id="tplOk"></div>
+                <div class="alert-msg alert-err" id="tplErr"></div>
+              </form>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Modelos Salvos</h3></div>
+            <div class="card-body">
+              <div id="tplGrid" class="tpl-grid">
+                <div style="grid-column:span 2;text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">Carregando...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== DOCUMENTOS ========== -->
+      <section class="section" id="sec-documents">
+        <div id="certBar" class="cert-bar is-none">
+          <div class="cert-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="cert-info"><div class="cert-name">Verificando certificado...</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-file-signature" style="color:var(--accent-2);"></i> Gerar Documento</h3></div>
+          <div class="card-body">
+            <form id="docForm">
+              <div class="form-grid cols1">
+                <div class="form-group"><label>Procedimento (somente rascunho ou agendado)</label>
+                  <select id="dSurgerySelect"><option value="">Selecione o procedimento</option></select>
+                </div>
+                <div class="form-group"><label>Modelo de Documento</label>
+                  <select id="dTemplateSelect"><option value="">Selecione o modelo</option></select>
+                </div>
+                <div class="form-group"><label>Título do Documento</label>
+                  <input type="text" id="dTitle" placeholder="Ex: Termo de Consentimento Informado">
+                </div>
+              </div>
+              <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+                <button type="submit" class="btn btn-teal" id="docSubmitBtn"><i class="fas fa-file-pdf"></i> Gerar PDF + DOCX + Link</button>
+                <button type="button" class="btn btn-outline" onclick="goSection('documents-history')">Ir para Histórico</button>
+              </div>
+              <div class="alert-msg alert-ok" id="docOk"></div>
+              <div class="alert-msg alert-err" id="docErr"></div>
+            </form>
+            <div id="docLinkArea" style="display:none;margin-top:18px;padding:16px;background:var(--accent-1-dim);border-radius:var(--radius);border:1px solid rgba(74,144,217,0.2);">
+              <div style="font-weight:600; font-size:13px; color:var(--accent-1); margin-bottom:6px;"><i class="fas fa-link"></i> Link de Assinatura para o Paciente</div>
+              <div style="font-size:13px;color:var(--text-secondary);word-break:break-all;" id="docLink"></div>
+              <button class="btn btn-outline btn-sm" style="margin-top:10px;" id="copyLinkBtn"><i class="fas fa-copy"></i> Copiar Link</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== HISTÓRICO DOCUMENTOS ========== -->
+      <section class="section" id="sec-documents-history">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-folder-open"></i> Histórico de Documentos</h3>
+            <div class="header-tools">
+              <input type="text" id="documentsHistorySearch" class="table-search" placeholder="Buscar por paciente, procedimento ou status...">
+              <select id="documentsFilter" class="filter-select">
+                <option value="">Todos</option>
+                <option value="DRAFT">Rascunhos</option>
+                <option value="scheduled">Agendados</option>
+                <option value="completed">Finalizados</option>
+                <option value="SIGNED">Assinados</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Paciente</th><th>Procedimento</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="documentsList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== AGENDA ========== -->
+      <section class="section" id="sec-agenda">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-calendar-check" style="color:var(--accent-2);"></i> Minha Agenda de Consultas</h3>
+            <div class="header-tools">
+              <input type="text" id="doctorAgendaSearch" class="table-search" placeholder="Buscar por paciente, resumo ou data...">
+              <button class="btn btn-outline btn-sm" onclick="loadDoctorAgenda()"><i class="fas fa-sync"></i> Atualizar</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Data</th><th>Paciente</th><th>Resumo</th><th>Google Agenda</th></tr></thead>
+                <tbody id="doctorAgendaList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ============================================================
+  SCRIPTS (INTEGRALMENTE MANTIDOS)
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // INICIALIZAÇÃO DO TEMA (sincroniza com a sidebar)
+    // ============================================================
+    (function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    // ============================================================
+    // CÓDIGO ORIGINAL (mantido intacto)
+    // ============================================================
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+    if (!token) { window.location.href = '/medico/login'; }
+    if (doctorData.name) document.getElementById('sidebarName').textContent = doctorData.name;
+
+    const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+
+    let allPatients = [];
+    let allSurgeries = [];
+    let allTemplates = [];
+    let isAdminDoctor = false;
+
+    // ── NAVEGAÇÃO ──
+    const sectionMeta = {
+      dashboard: ['Dashboard', 'Visão geral do sistema'],
+      team: ['Equipe', 'Cadastro de medicos e recepcionistas'],
+      patients: ['Cadastro de Paciente', 'Cadastrar novo paciente'],
+      'patients-history': ['Histórico de Pacientes', 'Lista de cadastros com edição'],
+      procedures: ['Cadastro de Procedimento', 'Cadastrar novo procedimento'],
+      'procedures-history': ['Histórico de Procedimentos', 'Lista de procedimentos com edição'],
+      'template-editor': ['Editor de Modelos', 'Criar e editar modelos de documentos'],
+      documents: ['Gerar Documento', 'Gerar documento para assinatura'],
+      'documents-history': ['Histórico de Documentos', 'Rascunhos, agendados, finalizados e assinados'],
+      agenda: ['Agenda', 'Consultas marcadas e atalhos para Google Agenda'],
+    };
+
+    document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
+      btn.addEventListener('click', () => goSection(btn.dataset.section));
+    });
+
+    function goSection(s) {
+      if (s === 'team' && !isAdminDoctor) {
+        s = 'dashboard';
+      }
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.nav-item[data-section="${s}"]`)?.classList.add('active');
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(`sec-${s}`)?.classList.add('active');
+      const [title, meta] = sectionMeta[s] || [s, ''];
+      document.getElementById('topbarTitle').textContent = title;
+      document.getElementById('topbarMeta').textContent = meta;
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.set('section', s);
+      window.history.replaceState({}, '', nextUrl.toString());
+
+      if (s === 'team' && isAdminDoctor) {
+        loadTeamData();
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('doctorToken'); localStorage.removeItem('doctorData');
+        localStorage.removeItem('receptionToken'); localStorage.removeItem('receptionData');
+        window.location.href = isReceptionSession ? '/recepcao/login' : '/medico/login';
+    });
+
+    // ── LOAD DATA ──
+    async function loadPatients() {
+      try {
+        const res = await fetch('/api/patients', { headers });
+        if (!res.ok) throw new Error();
+        allPatients = await res.json();
+        renderPatientsList();
+        populatePatientSelects();
+        document.getElementById('statPatients').textContent = allPatients.length;
+        const tbody = document.getElementById('dashPatientsList');
+        const recent = allPatients.slice(-5).reverse();
+        if (!recent.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:18px;color:var(--text-muted);font-size:11px">Nenhum paciente</td></tr>`; renderDashboardInsights(); return; }
+        tbody.innerHTML = recent.map(p => `<tr><td>${p.name}</td><td style="color:var(--text-muted)">${p.email}</td><td style="color:var(--text-muted)">${fmtDate(p.created_at)}</td><td><a class="btn btn-outline btn-sm" href="/medico/pacientes/${p.id}">Perfil</a></td></tr>`).join('');
+        renderDashboardInsights();
+        updateDoctorPulse();
+      } catch { document.getElementById('statPatients').textContent = '—'; }
+    }
+
+    async function loadSurgeries() {
+      try {
+        const res = await fetch('/api/surgeries', { headers });
+        if (!res.ok) throw new Error();
+        allSurgeries = await res.json();
+        renderSurgeriesList('');
+        populateSurgerySelects();
+        document.getElementById('statSurgeries').textContent = allSurgeries.length;
+        const tbody = document.getElementById('dashSurgeriesList');
+        const recent = allSurgeries.slice(-5).reverse();
+        if (!recent.length) { tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:18px;color:var(--text-muted);font-size:11px">Nenhum procedimento</td></tr>`; renderDashboardInsights(); return; }
+        tbody.innerHTML = recent.map(s => `<tr><td>${s.patient_name||'—'}</td><td>${s.title||'—'}</td><td><span class="badge badge-gray">${s.procedure_type||'—'}</span></td></tr>`).join('');
+        renderDashboardInsights();
+        updateDoctorPulse();
+      } catch { document.getElementById('statSurgeries').textContent = '—'; }
+    }
+
+    function renderDashboardInsights() {
+      const lgpdPending = allPatients.filter((p) => !p.lgpd_consent_version || !p.lgpd_consent_at);
+      const missingRecord = allSurgeries.filter((s) => s.status !== 'cancelled' && !s.medical_record_id);
+
+      const lgpdCountEl = document.getElementById('lgpdPendingCount');
+      const lgpdListEl = document.getElementById('lgpdPendingList');
+      const mrCountEl = document.getElementById('mrPendingCount');
+      const mrListEl = document.getElementById('recordPendingList');
+      if (!lgpdCountEl || !lgpdListEl || !mrCountEl || !mrListEl) return;
+
+      lgpdCountEl.textContent = String(lgpdPending.length);
+      mrCountEl.textContent = String(missingRecord.length);
+
+      lgpdListEl.innerHTML = lgpdPending.length
+        ? lgpdPending.slice(0, 8).map((p) => `<div class="insight-item"><div class="name">${p.name || 'Paciente'}</div><div class="meta">${p.email || 'Sem e-mail'} · LGPD pendente</div><div class="actions"><a class="btn btn-outline btn-sm" href="/medico/pacientes/${p.id}">Abrir Perfil</a></div></div>`).join('')
+        : '<div style="font-size:11px;color:var(--text-muted);">Nenhuma pendência de LGPD.</div>';
+
+      mrListEl.innerHTML = missingRecord.length
+        ? missingRecord.slice(0, 8).map((s) => `<div class="insight-item"><div class="name">${s.patient_name || 'Paciente'} · ${s.title || 'Procedimento'}</div><div class="meta">Sem prontuário vinculado</div><div class="actions"><a class="btn btn-outline btn-sm" href="/medico/pacientes/${s.patient_id}">Perfil do Paciente</a><button class="btn btn-outline btn-sm" onclick="goSection('procedures-history')">Ir para Procedimentos</button></div></div>`).join('')
+        : '<div style="font-size:11px;color:var(--text-muted);">Todos os procedimentos ativos têm prontuário.</div>';
+    }
+
+    async function loadTemplates() {
+      try {
+        const res = await fetch('/api/templates', { headers });
+        if (!res.ok) throw new Error();
+        allTemplates = await res.json();
+        renderTemplatesGrid();
+        populateTemplateSelects();
+      } catch {}
+    }
+
+    async function loadDoctorProfile() {
+      try {
+        const res = await fetch('/api/auth/me', { headers });
+        if (!res.ok) return;
+        const me = await res.json();
+        isAdminDoctor = me?.role === 'ADMIN' || doctorData?.isAdmin === true;
+
+        const navTeam = document.getElementById('navTeamItem');
+        const secTeam = document.getElementById('sec-team');
+        if (isAdminDoctor) {
+          if (navTeam) navTeam.style.display = '';
+          if (secTeam) secTeam.style.display = '';
+        } else {
+          if (navTeam) navTeam.style.display = 'none';
+          if (secTeam) secTeam.style.display = 'none';
+        }
+      } catch {}
+    }
+
+    async function loadTeamData() {
+      if (!isAdminDoctor) return;
+
+      const doctorsBody = document.getElementById('doctorsTeamList');
+      const recepBody = document.getElementById('receptionistsTeamList');
+
+      try {
+        const [docsRes, recRes] = await Promise.all([
+          fetch('/api/auth/team/doctors', { headers }),
+          fetch('/api/auth/team/receptionists', { headers }),
+        ]);
+
+        const doctors = docsRes.ok ? await docsRes.json() : [];
+        const receptionists = recRes.ok ? await recRes.json() : [];
+
+        doctorsBody.innerHTML = doctors.length
+          ? doctors.map(d => `<tr><td>${d.name || '—'}</td><td>${d.email || '—'}</td><td>${d.crm || '—'}</td><td>${statusBadge(d.role || 'DOCTOR')}</td></tr>`).join('')
+          : '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px">Nenhum medico cadastrado</td></tr>';
+
+        recepBody.innerHTML = receptionists.length
+          ? receptionists.map(r => `<tr><td>${r.name || '—'}</td><td>${r.email || '—'}</td><td>${r.active ? '<span class="badge badge-green">Ativa</span>' : '<span class="badge badge-red">Inativa</span>'}</td></tr>`).join('')
+          : '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px">Nenhuma recepcionista cadastrada</td></tr>';
+      } catch {
+        doctorsBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--red);font-size:11px">Erro ao carregar equipe</td></tr>';
+        recepBody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--red);font-size:11px">Erro ao carregar equipe</td></tr>';
+      }
+    }
+
+    function renderPatientsList() {
+      const tbody = document.getElementById('patientsList');
+      const q = (document.getElementById('patientsHistorySearch')?.value || '').trim().toLowerCase();
+      const list = !q
+        ? allPatients
+        : allPatients.filter((p) =>
+          String(p.name || '').toLowerCase().includes(q)
+          || String(p.email || '').toLowerCase().includes(q)
+          || String(p.phone || '').toLowerCase().includes(q)
+        );
+      if (!list.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--text-muted);font-size:11px">Nenhum paciente encontrado</td></tr>`; return; }
+      tbody.innerHTML = list.map(p => `<tr>
+        <td><strong>${p.name}</strong></td>
+        <td style="color:var(--text-muted)">${p.email}<br><small>${p.phone||'—'}</small></td>
+        <td>${p.reference_face_path ? `<img src="${p.reference_face_path}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--accent-5)">` : '<span style="color:var(--text-muted);font-size:10px">Sem foto</span>'}</td>
+        <td style="color:var(--text-muted)">${fmtDate(p.created_at)}</td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap;"><a class="btn btn-outline btn-sm" href="/medico/pacientes/${p.id}">Perfil</a><button class="btn btn-outline btn-sm" onclick="editPatient('${p.id}')">Editar</button></div></td>
+      </tr>`).join('');
+    }
+
+    function renderSurgeriesList(filterPatientId) {
+      const tbody = document.getElementById('surgeriesList');
+      const q = (document.getElementById('surgeriesHistorySearch')?.value || '').trim().toLowerCase();
+      let list = allSurgeries.filter(s => s.status !== 'cancelled');
+      if (filterPatientId) {
+        list = list.filter(s => String(s.patient_id) === String(filterPatientId));
+        // Ao filtrar por paciente, só exibe procedimentos ativos (rascunho, em aberto, agendado)
+        list = list.filter(s => ['DRAFT','AWAITING_SIGNATURE','scheduled'].includes(s.status));
+      }
+      if (q) {
+        list = list.filter((s) =>
+          String(s.patient_name || '').toLowerCase().includes(q)
+          || String(s.title || '').toLowerCase().includes(q)
+          || String(s.procedure_type || '').toLowerCase().includes(q)
+          || String(s.status || '').toLowerCase().includes(q)
+        );
+      }
+      if (!list.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted);font-size:11px">Nenhum procedimento encontrado</td></tr>`; return; }
+      tbody.innerHTML = list.map(s => `<tr>
+        <td>${s.patient_name||'—'}</td>
+        <td>${s.title||'—'}</td>
+        <td><span class="badge badge-gray">${s.procedure_type||'—'}</span></td>
+        <td style="color:var(--text-muted)">${fmtDate(s.scheduled_at)}</td>
+        <td>${statusBadge(s.status)}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="editSurgery('${s.id}')">Editar</button></td>
+      </tr>`).join('');
+    }
+
+    function renderTemplatesGrid() {
+      const grid = document.getElementById('tplGrid');
+      if (!allTemplates.length) {
+        grid.innerHTML = `<div style="grid-column:span 2;text-align:center;padding:30px;color:var(--text-muted);font-size:11px">Nenhum modelo cadastrado. Crie o primeiro modelo ao lado.</div>`;
+        return;
+      }
+      grid.innerHTML = allTemplates.map(t => `
+        <div class="tpl-card">
+          <button class="tpl-del" onclick="deleteTemplate('${t.id}')" title="Excluir modelo">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+          <h4>${t.name}</h4>
+          <div class="tpl-type">${t.procedure_type || 'Geral'}</div>
+          <div style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="editTemplate('${t.id}')">Editar modelo</button></div>
+        </div>
+      `).join('');
+    }
+
+    function populatePatientSelects() {
+      ['sPatientsSelect', 'surgeriesFilter'].forEach(id => {
+        const sel = document.getElementById(id);
+        const curVal = sel.value;
+        sel.innerHTML = id === 'surgeriesFilter' ? '<option value="">Todos os pacientes</option>' : '<option value="">Selecione o paciente</option>';
+        allPatients.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name; sel.appendChild(o); });
+        if (curVal) sel.value = curVal;
+      });
+
+      const selectedPatientId = document.getElementById('sPatientsSelect').value;
+      if (selectedPatientId) {
+        loadMedicalRecordsByPatientDashboard(selectedPatientId);
+      }
+    }
+
+    async function loadMedicalRecordsByPatientDashboard(patientId) {
+      const recordSelect = document.getElementById('sMedicalRecordSelect');
+      if (!recordSelect) return;
+
+      if (!patientId) {
+        recordSelect.innerHTML = '<option value="">Selecione um paciente para listar prontuários</option>';
+        return;
+      }
+
+      recordSelect.innerHTML = '<option value="">Carregando prontuários...</option>';
+      try {
+        const res = await fetch(`/api/patients/${patientId}/medical-records`, { headers });
+        const records = res.ok ? await res.json() : [];
+        if (!Array.isArray(records) || records.length === 0) {
+          recordSelect.innerHTML = '<option value="">Nenhum prontuário disponível</option>';
+          return;
+        }
+        recordSelect.innerHTML = '<option value="">Selecione o prontuário</option>';
+        records.forEach((record) => {
+          const option = document.createElement('option');
+          option.value = record.id;
+          option.textContent = `${record.title || 'Prontuário'}${record.is_primary ? ' (principal)' : ''}`;
+          recordSelect.appendChild(option);
+        });
+      } catch {
+        recordSelect.innerHTML = '<option value="">Erro ao carregar prontuários</option>';
+      }
+    }
+
+    function populateSurgerySelects() {
+      const sel = document.getElementById('dSurgerySelect');
+      sel.innerHTML = '<option value="">Selecione o procedimento</option>';
+      allSurgeries
+        .filter(s => s.status === 'DRAFT' || s.status === 'scheduled')
+        .forEach(s => {
+        const o = document.createElement('option');
+        o.value = s.id;
+        o.textContent = `${s.patient_name||'Paciente'} — ${s.title||'Procedimento'} (${s.procedure_type||''})`;
+        sel.appendChild(o);
+      });
+      // Stats
+      const pending = allSurgeries.filter(s => s.status !== 'cancelled' && s.document_status && s.document_status !== 'SIGNED').length;
+      const signed = allSurgeries.filter(s => s.document_status === 'SIGNED').length;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statSigned').textContent = signed;
+      updateDoctorPulse();
+    }
+
+    function updateDoctorPulse() {
+      const pending = Number(document.getElementById('statPending').textContent) || 0;
+      const signed = Number(document.getElementById('statSigned').textContent) || 0;
+      const total = pending + signed;
+      const pct = total ? Math.round((signed / total) * 100) : 0;
+
+      const pctEl = document.getElementById('doctorPulsePct');
+      const barEl = document.getElementById('doctorPulseBar');
+      const timeEl = document.getElementById('doctorPulseTime');
+      if (pctEl) pctEl.textContent = `${pct}%`;
+      if (barEl) barEl.style.width = `${pct}%`;
+      if (timeEl) {
+        timeEl.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    function populateTemplateSelects() {
+      const sel = document.getElementById('dTemplateSelect');
+      sel.innerHTML = '<option value="">Selecione o modelo</option>';
+      allTemplates.forEach(t => {
+        const o = document.createElement('option'); o.value = t.id;
+        o.textContent = `${t.name}${t.procedure_type ? ' (' + t.procedure_type + ')' : ''}`;
+        sel.appendChild(o);
+      });
+    }
+
+    // FILTER
+    document.getElementById('surgeriesFilter').addEventListener('change', e => renderSurgeriesList(e.target.value));
+    document.getElementById('documentsFilter').addEventListener('change', e => loadDocuments(e.target.value));
+    document.getElementById('patientsHistorySearch').addEventListener('input', renderPatientsList);
+    document.getElementById('surgeriesHistorySearch').addEventListener('input', () => {
+      renderSurgeriesList(document.getElementById('surgeriesFilter').value);
+    });
+    document.getElementById('documentsHistorySearch').addEventListener('input', () => {
+      loadDocuments(document.getElementById('documentsFilter').value || '');
+    });
+    document.getElementById('doctorAgendaSearch').addEventListener('input', () => {
+      loadDoctorAgenda();
+    });
+    document.getElementById('sPatientsSelect').addEventListener('change', async (e) => {
+      await loadMedicalRecordsByPatientDashboard(e.target.value);
+    });
+
+    // ── CÂMERA CADASTRO ──
+    let camStream = null;
+    let faceBase64 = null;
+    let editingTemplateId = null;
+
+    async function editPatient(id) {
+      const p = allPatients.find(item => String(item.id) === String(id));
+      if (!p) return;
+
+      const name = prompt('Nome do paciente:', p.name || '');
+      if (name === null) return;
+      const email = prompt('E-mail:', p.email || '');
+      if (email === null) return;
+      const phone = prompt('Telefone:', p.phone || '');
+      if (phone === null) return;
+      const birthDate = prompt('Data de nascimento (YYYY-MM-DD):', p.birth_date ? String(p.birth_date).slice(0, 10) : '');
+      if (birthDate === null) return;
+      const documentId = prompt('CPF/RG:', p.document_id || '');
+      if (documentId === null) return;
+      const address = prompt('Endereço:', p.address || '');
+      if (address === null) return;
+
+      try {
+        const res = await fetch(`/api/patients/${id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim(),
+            phone: phone.trim(),
+            birthDate: birthDate.trim(),
+            documentId: documentId.trim(),
+            address: address.trim(),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao atualizar paciente');
+        await loadPatients();
+      } catch (e) {
+        alert(e.message || 'Erro ao atualizar paciente.');
+      }
+    }
+
+    async function editSurgery(id) {
+      const s = allSurgeries.find(item => String(item.id) === String(id));
+      if (!s) return;
+
+      const title = prompt('Nome/descrição do procedimento:', s.title || '');
+      if (title === null) return;
+      const procedureType = prompt('Tipo do procedimento:', s.procedure_type || '');
+      if (procedureType === null) return;
+      const dateValue = prompt('Data (YYYY-MM-DD):', s.scheduled_at ? String(s.scheduled_at).slice(0, 10) : '');
+      if (dateValue === null) return;
+      const status = prompt('Status (DRAFT, scheduled, completed, cancelled):', s.status || 'DRAFT');
+      if (status === null) return;
+      const notes = prompt('Observações:', s.notes || '');
+      if (notes === null) return;
+
+      try {
+        const res = await fetch(`/api/surgeries/${id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            title: title.trim(),
+            procedureType: procedureType.trim(),
+            scheduledAt: dateValue.trim(),
+            status: status.trim(),
+            notes: notes.trim(),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao atualizar procedimento');
+        await loadSurgeries();
+        await loadDocuments(document.getElementById('documentsFilter').value || '');
+      } catch (e) {
+        alert(e.message || 'Erro ao atualizar procedimento.');
+      }
+    }
+
+    function editTemplate(id) {
+      const t = allTemplates.find(item => String(item.id) === String(id));
+      if (!t) return;
+      editingTemplateId = id;
+      document.getElementById('tplName').value = t.name || '';
+      document.getElementById('tplType').value = t.procedure_type || '';
+      document.getElementById('tplBody').value = t.body_html || '';
+      document.getElementById('tplSubmitBtn').innerHTML = '<i class="fas fa-edit"></i> Atualizar Modelo';
+      goSection('template-editor');
+    }
+
+    document.getElementById('camStartBtn').addEventListener('click', async () => {
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:320, height:240 } });
+        const video = document.getElementById('camVideo');
+        video.srcObject = camStream;
+        video.style.display = 'block';
+        document.getElementById('camPreview').style.display = 'none';
+        document.getElementById('camStartBtn').style.display = 'none';
+        document.getElementById('camCaptureBtn').style.display = '';
+        document.getElementById('camStatus').textContent = 'Câmera ativa — clique em Capturar';
+      } catch { document.getElementById('camStatus').textContent = 'Câmera não disponível'; }
+    });
+
+    document.getElementById('camCaptureBtn').addEventListener('click', () => {
+      const video = document.getElementById('camVideo');
+      const canvas = document.getElementById('camCanvas');
+      canvas.width = video.videoWidth || 320;
+      canvas.height = video.videoHeight || 240;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      faceBase64 = canvas.toDataURL('image/jpeg', 0.75);
+      const preview = document.getElementById('camPreview');
+      preview.src = faceBase64; preview.style.display = 'block';
+      document.getElementById('camVideo').style.display = 'none';
+      document.getElementById('camCaptureBtn').style.display = 'none';
+      document.getElementById('camRetakeBtn').style.display = '';
+      document.getElementById('camStatus').textContent = '✓ Foto capturada com sucesso';
+      if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+    });
+
+    document.getElementById('camRetakeBtn').addEventListener('click', async () => {
+      faceBase64 = null;
+      document.getElementById('camPreview').style.display = 'none';
+      document.getElementById('camRetakeBtn').style.display = 'none';
+      document.getElementById('camStartBtn').style.display = '';
+      document.getElementById('camStatus').textContent = 'Sem foto capturada';
+      document.getElementById('camVideo').style.display = 'none';
+    });
+
+    // ── PATIENT FORM ──
+    document.getElementById('patientForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('patientSubmitBtn');
+      const ok = document.getElementById('patientOk');
+      const err = document.getElementById('patientErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+      btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Salvando...';
+      try {
+        const res = await fetch('/api/patients', {
+          method: 'POST', headers,
+          body: JSON.stringify({
+            name: document.getElementById('pName').value.trim(),
+            email: document.getElementById('pEmail').value.trim(),
+            phone: document.getElementById('pPhone').value.trim(),
+            birthDate: document.getElementById('pBirthDate').value,
+            documentId: document.getElementById('pDocumentId').value.trim(),
+            address: document.getElementById('pAddress').value.trim(),
+            emergencyContactName: document.getElementById('pEmergencyName').value.trim(),
+            emergencyContactPhone: document.getElementById('pEmergencyPhone').value.trim(),
+            lgpdConsentVersion: document.getElementById('pLgpdVersion').value.trim(),
+            lgpdConsentAt: document.getElementById('pLgpdAt').value || null,
+            medicalHistorySummary: document.getElementById('pMedicalHistory').value.trim(),
+            password: document.getElementById('pPassword').value,
+            faceImage: faceBase64 || null,
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ok.textContent = `Paciente "${data.patient.name}" cadastrado com sucesso!${faceBase64 ? ' (com foto biométrica)' : ''}`;
+          ok.style.display = 'block';
+          e.target.reset();
+          faceBase64 = null;
+          document.getElementById('camPreview').style.display = 'none';
+          document.getElementById('camRetakeBtn').style.display = 'none';
+          document.getElementById('camStartBtn').style.display = '';
+          document.getElementById('camStatus').textContent = 'Sem foto capturada';
+          await loadPatients();
+        } else {
+          err.textContent = data.error || 'Erro ao cadastrar paciente.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Cadastrar Paciente';
+    });
+
+    // ── SURGERY FORM ──
+    document.getElementById('surgeryForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('surgerySubmitBtn');
+      const ok = document.getElementById('surgeryOk');
+      const err = document.getElementById('surgeryErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+      btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Salvando...';
+      try {
+        const res = await fetch('/api/surgeries', {
+          method: 'POST', headers,
+          body: JSON.stringify({
+            patientId: document.getElementById('sPatientsSelect').value,
+            medicalRecordId: document.getElementById('sMedicalRecordSelect').value,
+            title: document.getElementById('sProcedure').value.trim(),
+            procedureType: document.getElementById('sProcedureType').value,
+            scheduledAt: document.getElementById('sDate').value,
+            status: document.getElementById('sStatus').value,
+            notes: document.getElementById('sNotes').value.trim(),
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ok.textContent = 'Procedimento registrado com sucesso!';
+          ok.style.display = 'block';
+          e.target.reset();
+          await loadSurgeries();
+        } else {
+          err.textContent = data.error || 'Erro ao registrar procedimento.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Registrar Procedimento';
+    });
+
+    // ── TEMPLATE FORM ──
+    document.getElementById('useDefaultTplBtn').addEventListener('click', () => {
+      const type = document.getElementById('tplType').value || 'Procedimento Médico';
+      document.getElementById('tplBody').value = `<h2>TERMO DE CONSENTIMENTO INFORMADO</h2>
+<h3>${type}</h3>
+
+<p>Eu, paciente abaixo identificado, declaro que fui informado(a) de forma clara e detalhada sobre o procedimento a ser realizado, seus objetivos, riscos e benefícios.</p>
+
+<h4>1. IDENTIFICAÇÃO DO PROCEDIMENTO</h4>
+<p>Procedimento: {{procedimento}}</p>
+<p>Detalhes clínicos: {{descricao}}</p>
+
+<h4>2. DESCRIÇÃO DO PROCEDIMENTO</h4>
+<p>O procedimento consiste em intervenção cirúrgica/estética realizada pela equipe médica especializada, seguindo os protocolos estabelecidos pela medicina baseada em evidências.</p>
+
+<h4>3. RISCOS E POSSÍVEIS COMPLICAÇÕES</h4>
+<p>Conforme orientação médica, os principais riscos associados incluem: reações anestésicas, infecções, hematomas, cicatrização inadequada, resultado insatisfatório, e outros inerentes ao procedimento específico.</p>
+
+<h4>4. BENEFÍCIOS ESPERADOS</h4>
+<p>Os benefícios esperados com a realização do procedimento foram adequadamente explicados pelo médico responsável.</p>
+
+<h4>5. ALTERNATIVAS DE TRATAMENTO</h4>
+<p>Fui informado(a) sobre as alternativas disponíveis ao tratamento proposto e optei livremente pelo procedimento indicado.</p>
+
+<h4>6. DECLARAÇÃO DE CONSENTIMENTO</h4>
+<p>Declaro que li e compreendi as informações contidas neste documento, que tive oportunidade de fazer perguntas, e que consinto livre e voluntariamente com a realização do procedimento descrito.</p>`;
+    });
+
+    document.getElementById('tplForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('tplSubmitBtn');
+      const ok = document.getElementById('tplOk');
+      const err = document.getElementById('tplErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+      btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Salvando...';
+      try {
+        const isEdit = Boolean(editingTemplateId);
+        const res = await fetch(isEdit ? `/api/templates/${editingTemplateId}` : '/api/templates', {
+          method: isEdit ? 'PUT' : 'POST', headers,
+          body: JSON.stringify({
+            name: document.getElementById('tplName').value.trim(),
+            bodyHtml: document.getElementById('tplBody').value.trim(),
+            procedureType: document.getElementById('tplType').value || null,
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ok.textContent = isEdit ? `Modelo "${data.name}" atualizado com sucesso!` : `Modelo "${data.name}" salvo com sucesso!`;
+          ok.style.display = 'block';
+          e.target.reset();
+          editingTemplateId = null;
+          await loadTemplates();
+        } else {
+          err.textContent = data.error || 'Erro ao salvar modelo.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Salvar Modelo';
+    });
+
+    async function deleteTemplate(id) {
+      if (!confirm('Excluir este modelo de documento?')) return;
+      try {
+        const res = await fetch(`/api/templates/${id}`, { method: 'DELETE', headers });
+        if (res.ok) await loadTemplates();
+      } catch {}
+    }
+
+    // ── TEAM FORM (ADMIN) ──
+    const doctorFormEl = document.getElementById('doctorForm');
+    if (doctorFormEl) {
+      doctorFormEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const ok = document.getElementById('doctorOk');
+        const err = document.getElementById('doctorErr');
+        const btn = document.getElementById('doctorSubmitBtn');
+        ok.style.display = 'none';
+        err.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        try {
+          const res = await fetch('/api/auth/register-doctor', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              name: document.getElementById('dName').value.trim(),
+              email: document.getElementById('dEmail').value.trim(),
+              crm: document.getElementById('dCrm').value.trim(),
+              password: document.getElementById('dPassword').value,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Erro ao cadastrar medico');
+
+          ok.textContent = `Médico ${data.name} cadastrado com sucesso.`;
+          ok.style.display = 'block';
+          e.target.reset();
+          await loadTeamData();
+        } catch (error) {
+          err.textContent = error.message || 'Erro ao cadastrar medico.';
+          err.style.display = 'block';
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Cadastrar Médico';
+      });
+    }
+
+    const receptionistFormEl = document.getElementById('receptionistForm');
+    if (receptionistFormEl) {
+      receptionistFormEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const ok = document.getElementById('receptionistOk');
+        const err = document.getElementById('receptionistErr');
+        const btn = document.getElementById('receptionistSubmitBtn');
+        ok.style.display = 'none';
+        err.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        try {
+          const res = await fetch('/api/auth/register-receptionist', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              name: document.getElementById('rName').value.trim(),
+              email: document.getElementById('rEmail').value.trim(),
+              password: document.getElementById('rPassword').value,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Erro ao cadastrar recepcionista');
+
+          ok.textContent = `Recepcionista ${data.name} cadastrada com sucesso.`;
+          ok.style.display = 'block';
+          e.target.reset();
+          await loadTeamData();
+        } catch (error) {
+          err.textContent = error.message || 'Erro ao cadastrar recepcionista.';
+          err.style.display = 'block';
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Cadastrar Recepcionista';
+      });
+    }
+
+    // ── DOC FORM ──
+    document.getElementById('docForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('docSubmitBtn');
+      const ok = document.getElementById('docOk');
+      const err = document.getElementById('docErr');
+      const linkArea = document.getElementById('docLinkArea');
+      ok.style.display = 'none'; err.style.display = 'none'; linkArea.style.display = 'none';
+      btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Gerando...';
+      try {
+        const res = await fetch('/api/documents/generate', {
+          method: 'POST', headers,
+          body: JSON.stringify({
+            surgeryId: document.getElementById('dSurgerySelect').value,
+            templateId: document.getElementById('dTemplateSelect').value || undefined,
+            title: document.getElementById('dTitle').value.trim() || 'Termo de Consentimento Informado',
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.accessToken) {
+          const link = `${window.location.origin}/paciente/assinar/${data.accessToken}`;
+          document.getElementById('docLink').textContent = link;
+          linkArea.style.display = 'block';
+          ok.textContent = 'Documento gerado! Copie o link e envie ao paciente.';
+          ok.style.display = 'block';
+          await loadSurgeries();
+          await loadDocuments();
+        } else {
+          err.textContent = data.error || 'Erro ao gerar documento.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-file-pdf"></i> Gerar PDF + DOCX + Link';
+    });
+
+    document.getElementById('copyLinkBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('docLink').textContent).then(() => {
+        document.getElementById('copyLinkBtn').textContent = '✓ Copiado!';
+        setTimeout(() => { document.getElementById('copyLinkBtn').innerHTML = '<i class="fas fa-copy"></i> Copiar Link'; }, 2500);
+      });
+    });
+
+    async function loadDocuments(statusFilter = '') {
+      try {
+        const res = await fetch('/api/surgeries', { headers });
+        if (!res.ok) return;
+        const surgeries = await res.json();
+        const tbody = document.getElementById('documentsList');
+        const q = (document.getElementById('documentsHistorySearch')?.value || '').trim().toLowerCase();
+        let list = surgeries.filter(s => {
+          const hasDocumentContext = s.document_status || s.access_token || s.surgery_document_id;
+          if (!hasDocumentContext) return false;
+          const isSigned = String(s.document_status || '').toUpperCase() === 'SIGNED';
+          return isSigned || s.status !== 'cancelled';
+        });
+        if (statusFilter === 'SIGNED') {
+          list = list.filter(s => s.document_status === 'SIGNED');
+        } else if (statusFilter) {
+          list = list.filter(s => s.status === statusFilter);
+        }
+        if (q) {
+          list = list.filter((s) =>
+            String(s.patient_name || '').toLowerCase().includes(q)
+            || String(s.title || '').toLowerCase().includes(q)
+            || String(s.status || '').toLowerCase().includes(q)
+            || String(s.document_status || '').toLowerCase().includes(q)
+          );
+        }
+
+        if (!list.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:28px;color:var(--text-muted);font-size:11px">Nenhum documento encontrado</td></tr>`; return; }
+        tbody.innerHTML = list.map(s => {
+          const badge = docStatusBadge(s.document_status);
+          const surgeryBadge = statusBadge(s.status);
+          const legal = legalEvidenceBadge(s.document_evidence);
+          const notes = evidenceInline(s.document_evidence);
+          const actions = s.access_token && s.status !== 'cancelled'
+            ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+                <a href="/paciente/assinar/${s.access_token}" target="_blank" class="btn btn-outline btn-sm">Abrir</a>
+                <a href="/api/documents/${s.surgery_document_id}/download/pdf" class="btn btn-outline btn-sm" title="Baixar PDF"><i class="fas fa-file-pdf"></i> PDF</a>
+                <a href="/api/documents/${s.surgery_document_id}/download/docx" class="btn btn-outline btn-sm" title="Baixar DOCX"><i class="fas fa-file-word"></i> DOCX</a>
+               </div>`
+            : '—';
+          return `<tr><td>${s.patient_name||'—'}</td><td>${s.title||'—'}</td><td><div class="stacked-badges">${surgeryBadge}${badge}${legal}</div>${notes}</td><td>${actions}</td></tr>`;
+        }).join('');
+      } catch {}
+    }
+
+    async function loadDoctorAgenda() {
+      const tbody = document.getElementById('doctorAgendaList');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px">Carregando agenda...</td></tr>';
+      const formatAgendaDateTime = (value) => {
+        if (!value) return '—';
+        return new Date(value).toLocaleString('pt-BR', {
+          dateStyle:'short',
+          timeStyle:'short',
+          timeZone: 'America/Sao_Paulo',
+        });
+      };
+      try {
+        const res = await fetch('/api/reception/agenda', { headers });
+        if (!res.ok) throw new Error();
+        const q = (document.getElementById('doctorAgendaSearch')?.value || '').trim().toLowerCase();
+        const rawItems = await res.json();
+        const items = q
+          ? rawItems.filter((i) => {
+            const dt = formatAgendaDateTime(i.consultation_at).toLowerCase();
+            return String(i.patient_name || '').toLowerCase().includes(q)
+              || String(i.summary || '').toLowerCase().includes(q)
+              || dt.includes(q);
+          })
+          : rawItems;
+        if (!items.length) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px">Nenhuma consulta encontrada</td></tr>';
+          return;
+        }
+        tbody.innerHTML = items.map(i => `
+          <tr>
+            <td style="color:var(--text-muted)">${formatAgendaDateTime(i.consultation_at)}</td>
+            <td>${i.patient_name || '—'}</td>
+            <td>${i.summary || '—'}</td>
+            <td><a href="${i.google_calendar_link}" target="_blank" class="btn btn-outline btn-sm">Adicionar</a></td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--red);font-size:11px">Erro ao carregar agenda</td></tr>';
+      }
+    }
+
+    // ── HELPERS ──
+    function fmtDate(d) {
+      if (!d) return '—';
+      return new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    }
+    function statusBadge(s) {
+      const map = { DRAFT:'badge-gray', scheduled:'badge-blue', completed:'badge-green', cancelled:'badge-red', SIGNED:'badge-green', AWAITING_SIGNATURE:'badge-yellow' };
+      const labels = { DRAFT:'Rascunho', scheduled:'Agendado', completed:'Concluído', cancelled:'Cancelado', SIGNED:'Assinado', AWAITING_SIGNATURE:'Aguard. Assinatura' };
+      return `<span class="badge ${map[s]||'badge-gray'}">${labels[s]||s||'—'}</span>`;
+    }
+    function docStatusBadge(s) {
+      const map = { PENDING_SIGNATURE:'badge-yellow', SIGNED:'badge-green' };
+      const labels = { PENDING_SIGNATURE:'Pendente', SIGNED:'Assinado' };
+      return `<span class="badge ${map[s]||'badge-gray'}">${labels[s]||s||'—'}</span>`;
+    }
+    function legalEvidenceBadge(evidence) {
+      if (!evidence) return '';
+      const map = {
+        QUALIFIED: 'badge-green',
+        AUTHENTICATED: 'badge-teal',
+        QUALIFIED_REQUIRED: 'badge-yellow',
+        PENDING: 'badge-yellow',
+        SIGNED: 'badge-blue',
+      };
+      return `<span class="badge ${map[evidence.legalStatus] || 'badge-blue'}">${evidence.legalLabel}</span>`;
+    }
+    function evidenceInline(evidence) {
+      if (!evidence) return '';
+      const tags = [];
+      if (evidence.biometrics?.completed) tags.push('<span class="inline-tag">Biometria</span>');
+      if (evidence.auditTrail?.completed) tags.push('<span class="inline-tag">Auditoria</span>');
+      if (evidence.timestamp?.completed) tags.push('<span class="inline-tag">TSA</span>');
+      if (evidence.qualifiedSignature?.required) tags.push(`<span class="inline-tag">${evidence.qualifiedSignature.completed ? 'ICP-Brasil ok' : 'ICP-Brasil obrigatório'}</span>`);
+      const refs = [];
+      if (evidence.qualifiedSignature?.ref) {
+        refs.push(`<div class="table-note"><strong>Protocolo ICP-Brasil:</strong> ${evidence.qualifiedSignature.ref}</div>`);
+      }
+      if (evidence.timestamp?.at) {
+        const tsDate = new Date(evidence.timestamp.at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' });
+        const tsProv = evidence.timestamp.provider ? ` via ${evidence.timestamp.provider}` : '';
+        refs.push(`<div class="table-note"><strong>Carimbo de tempo:</strong> ${tsDate}${tsProv}</div>`);
+      }
+      return `<div class="inline-tags">${tags.join('')}</div><div class="table-note">${evidence.procedureClassification?.reason || evidence.qualifiedSignature?.reason || 'Resumo jurídico indisponível.'}</div>${refs.join('')}`;
+    }
+
+    // ── INIT ──
+    (async () => {
+      await loadDoctorProfile();
+      const initialSection = new URLSearchParams(window.location.search).get('section') || 'dashboard';
+      goSection(initialSection);
+      await Promise.all([loadPatients(), loadSurgeries(), loadTemplates()]);
+      loadDocuments(document.getElementById('documentsFilter').value || '');
+      loadDoctorAgenda();
+      initCertificatePanel();
+    })();
+  </script>
+
+  <!-- ========== MODAL CERTIFICADO DIGITAL ========== -->
+  <div class="cert-modal-overlay" id="certModalOverlay">
+    <div class="cert-modal">
+      <div class="cert-modal-head">
+        <h3>Selecionar Certificado Digital</h3>
+        <button class="cert-modal-close" onclick="closeCertModal()">&times;</button>
+      </div>
+      <div class="cert-modal-body">
+        <div id="certExtBanner" class="cert-ext-banner" style="display:none;">
+          Para usar certificados instalados no computador (A1/A3/token USB), instale a
+          <a href="https://www.lacunasoftware.com/web-pki/" target="_blank" rel="noopener">extensão Lacuna Web PKI</a>
+          no seu navegador (Chrome, Edge ou Firefox). É gratuita.
+          <br><br>
+          Enquanto isso, use o upload manual de arquivo (.pfx) abaixo.
+        </div>
+        <ul class="cert-list" id="certList"></ul>
+        <div id="certListLoading" style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">Carregando certificados...</div>
+        <div class="cert-upload-area" id="certUploadArea" style="display:none">
+          <label>Ou envie o arquivo do certificado (.pfx / .p12):</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input type="file" id="certFileInput" accept=".pfx,.p12" style="font-size:13px;flex:1;">
+            <input type="password" id="certFilePassword" placeholder="Senha (se houver)" style="width:140px;padding:6px 12px;border:1px solid var(--border-card);border-radius:var(--radius);font-size:13px;font-family:var(--font);background:var(--bg-base);color:var(--text-primary);">
+          </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="readUploadedCert()">Ler Certificado</button>
+          <div id="certUploadMsg" style="font-size:13px;margin-top:8px;"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="closeCertModal()">Cancelar</button>
+          <button class="btn btn-teal btn-sm" id="certConfirmBtn" disabled onclick="confirmCertSelection()">Usar este certificado</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lacuna Web PKI (CDN gratuito) -->
+  <script src="https://cdn.lacunasoftware.com/libs/web-pki/lacuna-web-pki-2.16.1.min.js"></script>
+  <script>
+  // ═══════════════════════════════════════════════════════════════
+  // CERTIFICADO DIGITAL — Web PKI + fallback upload
+  // ═══════════════════════════════════════════════════════════════
+  const CERT_STORAGE_KEY = 'clinica_doctor_cert';
+  let selectedCertThumbprint = null;
+  let selectedCertData = null;
+  let pki = null;
+  let webPkiAvailable = false;
+
+  // Carrega/lê o certificado salvo (localStorage → DB)
+  async function initCertificatePanel() {
+    const bar = document.getElementById('certBar');
+    if (!bar) return;
+
+    // Tenta recuperar do DB
+    try {
+      const res = await fetch('/api/certificates/me', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.connected && data.certificate?.providerType === 'WEBPKI_LOCAL') {
+          const exp = data.certificate.tokenExpiresAt;
+          const isExpired = exp && new Date(exp) < new Date();
+          renderCertBar({
+            commonName: data.certificate.providerAccountId || 'Certificado Configurado',
+            expiresAt: exp,
+            expired: isExpired,
+          });
+          // Salva no localStorage para uso offline/rápido
+          localStorage.setItem(CERT_STORAGE_KEY, JSON.stringify({
+            commonName: data.certificate.providerAccountId,
+            expiresAt: exp,
+            providerSubject: data.certificate.providerSubject,
+          }));
+          return;
+        }
+      }
+    } catch (_) {}
+
+    // Fallback localStorage
+    const stored = localStorage.getItem(CERT_STORAGE_KEY);
+    if (stored) {
+      try {
+        const c = JSON.parse(stored);
+        if (c.expiresAt && new Date(c.expiresAt) > new Date()) {
+          renderCertBar({ commonName: c.commonName, expiresAt: c.expiresAt, expired: false });
+          return;
+        }
+      } catch (_) {}
+    }
+
+    renderCertBar(null);
+  }
+
+  function renderCertBar(cert) {
+    const bar = document.getElementById('certBar');
+    if (!bar) return;
+    if (!cert) {
+      bar.className = 'cert-bar is-none';
+      bar.innerHTML = `
+        <div class="cert-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="cert-info">
+          <div class="cert-name">Nenhum certificado digital configurado</div>
+          <div class="cert-meta">Configure uma vez e o sistema usará automaticamente ao gerar documentos.</div>
+        </div>
+        <div class="cert-actions">
+          <button class="btn btn-teal btn-sm" onclick="openCertModal()">
+            <i class="fas fa-certificate"></i> Configurar Certificado
+          </button>
+        </div>`;
+      return;
+    }
+    const expDate = cert.expiresAt ? new Date(cert.expiresAt) : null;
+    const daysLeft = expDate ? Math.floor((expDate - Date.now()) / 86400000) : null;
+    const isWarn = cert.expired || (daysLeft !== null && daysLeft < 30);
+    bar.className = `cert-bar ${cert.expired ? 'is-warn' : 'is-ok'}`;
+    bar.innerHTML = `
+      <div class="cert-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="cert-info">
+        <div class="cert-name">${escHtml(cert.commonName || 'Certificado Digital')}</div>
+        <div class="cert-meta">${cert.expired ? '⚠ Certificado vencido — configure um novo.' : (daysLeft !== null ? `Válido por mais ${daysLeft} dia(s)` : 'Ativo')}</div>
+      </div>
+      <div class="cert-actions">
+        <button class="btn btn-outline btn-sm" onclick="openCertModal()">Alterar</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red);" onclick="removeCert()">Remover</button>
+      </div>`;
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Abre modal e tenta listar certificados via Web PKI
+  async function openCertModal() {
+    document.getElementById('certModalOverlay').classList.add('open');
+    document.getElementById('certConfirmBtn').disabled = true;
+    document.getElementById('certList').innerHTML = '';
+    document.getElementById('certListLoading').style.display = 'block';
+    document.getElementById('certExtBanner').style.display = 'none';
+    document.getElementById('certUploadArea').style.display = 'none';
+    selectedCertThumbprint = null;
+    selectedCertData = null;
+
+    // Inicializa Web PKI
+    try {
+      if (!pki) {
+        pki = new LacunaWebPKI();
+      }
+      await new Promise((resolve, reject) => {
+        pki.init({
+          ready: resolve,
+          notInstalled: () => reject(new Error('NOT_INSTALLED')),
+        });
+      });
+      webPkiAvailable = true;
+      await listWebPkiCerts();
+    } catch (e) {
+      webPkiAvailable = false;
+      document.getElementById('certListLoading').style.display = 'none';
+      document.getElementById('certExtBanner').style.display = 'block';
+      document.getElementById('certUploadArea').style.display = 'block';
+    }
+  }
+
+  function closeCertModal() {
+    document.getElementById('certModalOverlay').classList.remove('open');
+  }
+
+  async function listWebPkiCerts() {
+    try {
+      const certs = await new Promise((resolve, reject) => {
+        pki.listCertificates({
+          success: resolve,
+          error: reject,
+        });
+      });
+
+      document.getElementById('certListLoading').style.display = 'none';
+      document.getElementById('certUploadArea').style.display = 'block';
+
+      const list = document.getElementById('certList');
+      if (!certs || !certs.length) {
+        list.innerHTML = '<li style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">Nenhum certificado encontrado no computador.</li>';
+        return;
+      }
+
+      list.innerHTML = certs.map(c => {
+        const exp = c.validityEnd ? new Date(c.validityEnd) : null;
+        const daysLeft = exp ? Math.floor((exp - Date.now()) / 86400000) : null;
+        const expClass = daysLeft === null ? '' : (daysLeft < 0 ? 'warn' : daysLeft < 30 ? 'warn' : 'ok');
+        const expText = daysLeft === null ? '' : (daysLeft < 0 ? `Vencido em ${exp.toLocaleDateString('pt-BR')}` : `Válido até ${exp.toLocaleDateString('pt-BR')}`);
+        return `<li class="cert-list-item" data-thumbprint="${escHtml(c.thumbprint)}" onclick="selectCert(this, ${escHtml(JSON.stringify(c))})">
+          <div class="cn">${escHtml(c.subjectName || c.commonName || 'Desconhecido')}</div>
+          <div class="issuer">${escHtml(c.issuerName || c.issuer || '')}</div>
+          ${expText ? `<div class="expiry ${expClass}">${expText}</div>` : ''}
+        </li>`;
+      }).join('');
+    } catch (e) {
+      document.getElementById('certListLoading').textContent = 'Erro ao listar certificados: ' + (e.message || e);
+    }
+  }
+
+  function selectCert(el, certData) {
+    document.querySelectorAll('.cert-list-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCertThumbprint = el.dataset.thumbprint;
+    selectedCertData = certData;
+    document.getElementById('certConfirmBtn').disabled = false;
+  }
+
+  async function confirmCertSelection() {
+    if (!selectedCertThumbprint && !selectedCertData) return;
+    const btn = document.getElementById('certConfirmBtn');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    const certInfo = selectedCertData || {};
+    const commonName = certInfo.subjectName || certInfo.commonName || 'Certificado Digital';
+    const expiresAt = certInfo.validityEnd || null;
+
+    try {
+      const res = await fetch('/api/certificates/webpki/save', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          thumbprint: selectedCertThumbprint,
+          commonName,
+          expiresAt,
+          subjectDn: certInfo.subjectName || certInfo.dn || null,
+        }),
+      });
+      if (!res.ok) throw new Error('Erro ao salvar');
+
+      localStorage.setItem(CERT_STORAGE_KEY, JSON.stringify({ commonName, expiresAt }));
+      closeCertModal();
+      renderCertBar({ commonName, expiresAt, expired: false });
+    } catch (e) {
+      alert('Erro ao salvar certificado: ' + e.message);
+    }
+    btn.disabled = false;
+    btn.textContent = 'Usar este certificado';
+  }
+
+  // Leitura via upload de arquivo .pfx (mobile / sem extensão)
+  async function readUploadedCert() {
+    const fileInput = document.getElementById('certFileInput');
+    const password = document.getElementById('certFilePassword').value;
+    const msg = document.getElementById('certUploadMsg');
+
+    if (!fileInput.files || !fileInput.files[0]) {
+      msg.textContent = 'Selecione um arquivo .pfx ou .p12.';
+      msg.style.color = 'var(--red)';
+      return;
+    }
+
+    msg.textContent = 'Lendo certificado...';
+    msg.style.color = 'var(--text-muted)';
+
+    const formData = new FormData();
+    formData.append('certificate', fileInput.files[0]);
+    if (password) formData.append('password', password);
+
+    try {
+      const authHeader = headers['Authorization'];
+      const res = await fetch('/api/certificates/read', {
+        method: 'POST',
+        headers: { 'Authorization': authHeader },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        msg.textContent = data.error || 'Não foi possível ler o certificado.';
+        msg.style.color = 'var(--red)';
+        return;
+      }
+
+      // Usa commonName do subject como "thumbprint" simulado para upload
+      const thumbprint = `UPLOAD_${Date.now()}`;
+      selectedCertThumbprint = thumbprint;
+      selectedCertData = {
+        subjectName: data.subject.commonName,
+        issuerName: data.issuer.commonName,
+        validityEnd: data.validity.notAfter,
+        thumbprint,
+        _fromUpload: true,
+      };
+
+      // Mostra como item selecionado
+      const exp = new Date(data.validity.notAfter);
+      const daysLeft = Math.floor((exp - Date.now()) / 86400000);
+      const list = document.getElementById('certList');
+      const existing = list.querySelector('[data-thumbprint="' + thumbprint + '"]');
+      if (!existing) {
+        const li = document.createElement('li');
+        li.className = 'cert-list-item selected';
+        li.dataset.thumbprint = thumbprint;
+        li.innerHTML = `<div class="cn">${escHtml(data.subject.commonName || 'Certificado')}</div>
+          <div class="issuer">${escHtml(data.issuer.commonName || '')}</div>
+          <div class="expiry ${daysLeft < 0 ? 'warn' : 'ok'}">Válido até ${exp.toLocaleDateString('pt-BR')}</div>`;
+        list.appendChild(li);
+      }
+
+      document.getElementById('certConfirmBtn').disabled = false;
+      msg.textContent = `Certificado lido: ${data.subject.commonName || 'OK'}`;
+      msg.style.color = 'var(--accent-5)';
+    } catch (e) {
+      msg.textContent = 'Erro de conexão.';
+      msg.style.color = 'var(--red)';
+    }
+  }
+
+  async function removeCert() {
+    if (!confirm('Remover o certificado digital configurado?')) return;
+    await fetch('/api/certificates/webpki/remove', { method: 'DELETE', headers });
+    localStorage.removeItem(CERT_STORAGE_KEY);
+    renderCertBar(null);
+  }
+
+  // Fecha modal ao clicar fora
+  document.getElementById('certModalOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeCertModal();
+  });
+  </script>
+
+  <!-- socket.io - atualizações em tempo real -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  (function(){
+    const _tok = localStorage.getItem('doctorToken');
+    const _doc = JSON.parse(localStorage.getItem('doctorData')||'{}');
+    if (!_tok || !_doc.id) return;
+    const _sock = io({ transports: ['websocket','polling'] });
+    _sock.on('connect', () => _sock.emit('join_doctor', _doc.id));
+
+    const reloadProcedures = () => {
+      if (typeof loadSurgeries === 'function') loadSurgeries();
+      if (typeof loadDocuments === 'function') loadDocuments(document.getElementById('documentsFilter')?.value || '');
+    };
+    const reloadPatients = () => { if (typeof loadPatients === 'function') loadPatients(); };
+    const reloadTemplates = () => { if (typeof loadTemplates === 'function') loadTemplates(); };
+    const reloadAgenda = () => { if (typeof loadDoctorAgenda === 'function') loadDoctorAgenda(); };
+    const reloadTeam = () => { if (typeof loadTeamData === 'function') loadTeamData(); };
+
+    _sock.on('procedure_created', reloadProcedures);
+    _sock.on('procedure_updated', reloadProcedures);
+    _sock.on('procedure_type_created', reloadProcedures);
+    _sock.on('procedure_type_updated', reloadProcedures);
+    _sock.on('procedure_type_deleted', reloadProcedures);
+
+    _sock.on('patient_created', reloadPatients);
+    _sock.on('patient_updated', reloadPatients);
+
+    _sock.on('template_created', reloadTemplates);
+    _sock.on('template_updated', reloadTemplates);
+    _sock.on('template_deleted', reloadTemplates);
+
+    _sock.on('document_generated', reloadProcedures);
+    _sock.on('document_signed', reloadProcedures);
+
+    _sock.on('consultation_created', reloadAgenda);
+    _sock.on('agenda_updated', reloadAgenda);
+
+    _sock.on('clinic_member_added', reloadTeam);
+    _sock.on('clinic_member_role_updated', reloadTeam);
+    _sock.on('clinic_member_removed', reloadTeam);
+  })();
+  </script>
+</body>
+</html>

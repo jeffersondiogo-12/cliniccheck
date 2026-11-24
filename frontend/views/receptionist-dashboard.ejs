@@ -1,0 +1,4452 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek · Painel do Recepcionista</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* ============================================================
+       TEMA ÚNICO — MESMA BASE COM MELHORIAS DE CONTRASTE
+       ============================================================ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --sb-bg: #f8fafc;
+      --sb-surface: #ffffff;
+      --sb-elevated: #f1f5f9;
+      --sb-border: #e2e8f0;
+      --sb-text: #1e293b;
+      --sb-text-secondary: #334155;
+      --sb-text-muted: #64748b;
+      --sb-accent: #2563eb;
+      --sb-accent-dim: #eff6ff;
+      --sb-accent-hover: #dbeafe;
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+      --sb-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.10);
+      --sb-radius: 12px;
+      --sb-font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sb-sidebar-width: 280px;
+      --sb-sidebar-collapsed: 72px;
+      --sb-transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      /* Cores mais vibrantes para médicos (visíveis no modo claro) */
+      --doctor-palette: #0f4c81, #0d9488, #7c3aed, #b45309, #be123c, #0f766e, #4338ca, #92400e, #6d28d9, #1d4ed8;
+    }
+
+    [data-theme="dark"] {
+      --sb-bg: #0b1120;
+      --sb-surface: #111c2e;
+      --sb-elevated: #1e2d45;
+      --sb-border: rgba(255, 255, 255, 0.06);
+      --sb-text: #f0f4ff;
+      --sb-text-secondary: #b0c4e8;
+      --sb-text-muted: #7a8aa8;
+      --sb-accent: #3b82f6;
+      --sb-accent-dim: rgba(59, 130, 246, 0.15);
+      --sb-accent-hover: rgba(59, 130, 246, 0.25);
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      --sb-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       SIDEBAR — ESTRUTURA PRINCIPAL (mantida)
+       ============================================================ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sb-sidebar-width);
+      background: var(--sb-surface);
+      border-right: 1px solid var(--sb-border);
+      color: var(--sb-text);
+      font-family: var(--sb-font);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: width var(--sb-transition), transform var(--sb-transition), background var(--sb-transition);
+      box-shadow: var(--sb-shadow);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sb-sidebar-collapsed);
+    }
+    .sidebar.collapsed .sb-brand-title,
+    .sidebar.collapsed .sidebar-user,
+    .sidebar.collapsed .sb-group-btn span:not(.caret),
+    .sidebar.collapsed .nav-item span,
+    .sidebar.collapsed .sidebar-footer .btn-logout span,
+    .sidebar.collapsed .sb-toggle-label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sidebar.collapsed .sb-brand-icon {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .nav-item i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+    .sidebar.collapsed .sb-group-btn {
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .sidebar.collapsed .sb-group-btn .caret {
+      display: none;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout i {
+      margin-right: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--sb-border);
+      flex-shrink: 0;
+    }
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .sb-brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--sb-accent), #06b6d4);
+      border-radius: var(--sb-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .sb-brand-icon:hover {
+      transform: rotate(-8deg) scale(1.05);
+    }
+    .sb-brand-title {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sb-brand-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--sb-text);
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--sb-text) 60%, var(--sb-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sb-brand-title small {
+      font-size: 10px;
+      color: var(--sb-text-muted);
+      font-weight: 400;
+      -webkit-text-fill-color: var(--sb-text-muted);
+    }
+
+    .sb-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--sb-text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn:hover {
+      background: var(--sb-elevated);
+      color: var(--sb-text);
+    }
+    .sb-toggle-btn:active {
+      transform: scale(0.9);
+    }
+
+    .sidebar-user {
+      margin: 12px 16px 8px;
+      padding: 14px 16px;
+      background: var(--sb-elevated);
+      border-radius: var(--sb-radius);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .sidebar-user .role {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-user .clinic {
+      font-size: 11px;
+      color: var(--sb-accent);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-user .clinic i {
+      font-size: 10px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 12px 8px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--sb-border) transparent;
+    }
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--sb-border);
+      border-radius: 10px;
+    }
+
+    .sb-group {
+      margin-top: 4px;
+    }
+    .sb-group + .sb-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--sb-border);
+    }
+
+    .sb-group-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      border: 0;
+      color: var(--sb-text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--sb-font);
+      border-radius: 6px;
+      transition: color 0.25s, background 0.25s;
+    }
+    .sb-group-btn:hover {
+      color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+    }
+    .sb-group-btn .caret {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 9px;
+    }
+    .sb-group.open .sb-group-btn .caret {
+      transform: rotate(90deg);
+      color: var(--sb-accent);
+    }
+
+    .sb-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+    }
+    .sb-group.open .sb-group-list {
+      max-height: 600px;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sb-text-secondary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, transform 0.15s, padding 0.2s;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sb-font);
+      overflow: hidden;
+    }
+    .nav-item i {
+      width: 20px;
+      font-size: 15px;
+      color: var(--sb-text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--sb-accent);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .nav-item:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      transform: translateX(3px);
+    }
+    .nav-item:hover i {
+      color: var(--sb-accent);
+      transform: scale(1.1) rotate(-4deg);
+    }
+    .nav-item:hover::before {
+      transform: scaleY(0.5);
+    }
+    .nav-item.active {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--sb-accent);
+    }
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    .nav-item.active i {
+      color: var(--sb-accent);
+    }
+    .nav-item:active {
+      transform: scale(0.97);
+    }
+    .nav-item[hidden] {
+      display: none !important;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--sb-border);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--sb-elevated);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s;
+    }
+    .theme-toggle .sb-toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sb-text-muted);
+      transition: opacity 0.2s;
+    }
+    .theme-toggle .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--sb-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .theme-toggle .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch {
+      background: var(--sb-accent);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch .slider {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--sb-font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-logout i {
+      font-size: 15px;
+    }
+    .btn-logout span {
+      transition: opacity 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+    .btn-logout:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sb-sidebar-width);
+        border-right: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .sidebar.collapsed {
+        width: var(--sb-sidebar-width);
+      }
+      .sidebar.collapsed .sb-brand-title,
+      .sidebar.collapsed .sidebar-user,
+      .sidebar.collapsed .sb-group-btn span:not(.caret),
+      .sidebar.collapsed .nav-item span,
+      .sidebar.collapsed .sidebar-footer .btn-logout span,
+      .sidebar.collapsed .sb-toggle-label {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        overflow: visible;
+      }
+      .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 9px 12px !important;
+      }
+      .sidebar.collapsed .nav-item i {
+        font-size: 15px;
+        margin-right: 0;
+      }
+      .sidebar.collapsed .sb-group-btn {
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .sidebar.collapsed .sb-group-btn .caret {
+        display: inline;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout {
+        justify-content: flex-start;
+        padding: 10px 14px !important;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout i {
+        margin-right: 0;
+      }
+    }
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 320px;
+      }
+      .sb-brand-title h2 {
+        font-size: 15px;
+      }
+    }
+
+    /* ============================================================
+       MAIN — CONTEÚDO PRINCIPAL
+       ============================================================ */
+    .main {
+      margin-left: var(--sb-sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--sb-bg);
+      transition: background var(--sb-transition), margin-left var(--sb-transition);
+    }
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--sb-surface);
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--sb-text);
+      transition: color var(--sb-transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--sb-text-muted);
+      margin-top: 2px;
+      transition: color var(--sb-transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--sb-text-secondary);
+      background: var(--sb-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--sb-border);
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--sb-accent);
+      font-size: 10px;
+      transition: color var(--sb-transition);
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       SECTIONS
+       ============================================================ */
+    .section {
+      display: none;
+      animation: fadeUp 0.3s ease;
+    }
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       CARDS E GRIDS
+       ============================================================ */
+    .card {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      border: 1px solid var(--sb-border);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--sb-shadow);
+      transition: background var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--sb-shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--sb-accent);
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--sb-transition), background var(--sb-transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--sb-transition);
+    }
+    .card-header h3 i {
+      color: var(--sb-accent);
+      font-size: 16px;
+      transition: color var(--sb-transition);
+    }
+    .card-body {
+      padding: 18px 20px;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .stat-card {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      padding: 16px 20px;
+      border: 1px solid var(--sb-border);
+      box-shadow: var(--sb-shadow);
+      transition: background var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.25s ease;
+      border-top: 3px solid var(--sb-accent);
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--sb-shadow-hover);
+      border-color: var(--sb-accent);
+    }
+    .stat-card .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sb-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 6px;
+      transition: color var(--sb-transition);
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--sb-text);
+      line-height: 1.2;
+      transition: color var(--sb-transition);
+    }
+    .stat-card .sub {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+      margin-top: 4px;
+      transition: color var(--sb-transition);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .chart-card {
+      background: var(--sb-surface);
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      padding: 16px;
+      box-shadow: var(--sb-shadow);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .chart-card h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sb-text);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+    }
+    .chart-card canvas {
+      width: 100% !important;
+      max-height: 260px;
+    }
+
+    .pulse-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .pulse-card {
+      background: var(--sb-surface);
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      padding: 16px 18px;
+      box-shadow: var(--sb-shadow);
+      transition: background var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.25s ease;
+    }
+    .pulse-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--sb-shadow-hover);
+      border-color: var(--sb-accent);
+    }
+    .pulse-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sb-text);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pulse-title i {
+      color: var(--sb-accent);
+    }
+    .pulse-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--sb-text-secondary);
+      transition: color var(--sb-transition);
+    }
+    .pulse-row strong {
+      color: var(--sb-text);
+      font-weight: 600;
+    }
+    .pulse-progress {
+      height: 8px;
+      background: var(--sb-elevated);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+      transition: background var(--sb-transition);
+    }
+    .pulse-progress > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--sb-accent), #06b6d4);
+      transition: width 0.6s ease, background var(--sb-transition);
+    }
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .quick-actions button {
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .pulse-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================================
+       FORMULÁRIOS — REESTRUTURADOS E COM MAIOR DESTAQUE
+       ============================================================ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols1 {
+      grid-template-columns: 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group.span3 {
+      grid-column: span 3;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sb-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--sb-transition);
+    }
+    .form-group label .req {
+      color: #ef4444;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      font-size: 13px;
+      font-family: var(--sb-font);
+      color: var(--sb-text);
+      background: var(--sb-surface);
+      outline: none;
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition), box-shadow var(--sb-transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--sb-accent);
+      box-shadow: 0 0 0 3px var(--sb-accent-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--sb-text-muted);
+      font-weight: 300;
+      transition: color var(--sb-transition);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Novo estilo para blocos de seção internos */
+    .form-section-card {
+      background: var(--sb-elevated);
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      padding: 16px;
+      margin-top: 12px;
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .form-section-card .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sb-text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .form-section-card .section-title i {
+      color: var(--sb-accent);
+      font-size: 13px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      background: var(--sb-surface);
+      cursor: pointer;
+      transition: border-color 0.2s, background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .checkbox-row:hover {
+      border-color: var(--sb-accent);
+    }
+    .checkbox-row input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--sb-accent);
+    }
+    .checkbox-row label {
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--sb-text);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.span2, .form-group.span3 { grid-column: span 1; }
+    }
+
+    /* ============================================================
+       BOTÕES
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--sb-radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--sb-font);
+      cursor: pointer;
+      transition: background var(--sb-transition), color var(--sb-transition), border-color var(--sb-transition), box-shadow var(--sb-transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--sb-accent);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+    }
+    .btn-solid:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(37, 99, 235, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--sb-text-secondary);
+      border: 1px solid var(--sb-border);
+    }
+    .btn-outline:hover {
+      border-color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-teal {
+      background: #06b6d4;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+    }
+    .btn-teal:hover {
+      background: #0891b2;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(6, 182, 212, 0.4);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-xs {
+      padding: 3px 10px;
+      font-size: 10px;
+    }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-pink {
+      background: linear-gradient(135deg, #ec4899, #db2777);
+      color: #fff;
+    }
+    .btn-pink:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.3);
+    }
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 16px;
+      background: var(--sb-elevated);
+      color: var(--sb-text-secondary);
+      border: 1px solid var(--sb-border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-accent);
+      border-color: var(--sb-accent);
+    }
+    .btn-icon.active {
+      background: var(--sb-accent);
+      color: #fff;
+      border-color: var(--sb-accent);
+    }
+
+    /* ============================================================
+       ALERTAS
+       ============================================================ */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--sb-radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--sb-transition), color var(--sb-transition), border-color var(--sb-transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      border-left: 3px solid #10b981;
+    }
+    .alert-err {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      border-left: 3px solid #ef4444;
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ============================================================
+       BADGES
+       ============================================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-blue {
+      background: var(--sb-accent-dim);
+      color: var(--sb-accent);
+    }
+    .badge-green {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+    }
+    .badge-yellow {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+    }
+    .badge-red {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+    }
+    .badge-gray {
+      background: var(--sb-elevated);
+      color: var(--sb-text-muted);
+    }
+    .badge-up {
+      background: var(--sb-accent-dim);
+      color: var(--sb-accent);
+    }
+    .badge-done {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+    }
+
+    /* ============================================================
+       COMPONENTES DE BUSCA
+       ============================================================ */
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap .search-ico {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sb-text-muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .search-wrap input {
+      padding-left: 36px !important;
+    }
+    .search-spinner {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+    }
+    .search-spinner.active {
+      display: block;
+    }
+    .search-spinner span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--sb-border);
+      border-top-color: var(--sb-accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--sb-surface);
+      border: 1px solid var(--sb-border);
+      border-top: none;
+      border-radius: 0 0 var(--sb-radius) var(--sb-radius);
+      z-index: 100;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      box-shadow: var(--sb-shadow);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .search-results.show {
+      display: block;
+    }
+    .search-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+    .search-item:last-child {
+      border-bottom: none;
+    }
+    .search-item:hover {
+      background: var(--sb-accent-dim);
+    }
+    .search-item .s-name {
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .search-item .s-meta {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+    }
+    .no-result {
+      padding: 14px;
+      text-align: center;
+      color: var(--sb-text-muted);
+      font-size: 13px;
+    }
+    .patient-selected {
+      display: none;
+      padding: 10px 14px;
+      background: var(--sb-accent-dim);
+      border: 1px solid var(--sb-accent);
+      border-radius: var(--sb-radius);
+      font-size: 13px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .patient-selected.show {
+      display: flex;
+    }
+    .patient-selected .ps-name {
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .patient-selected button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ef4444;
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+    .patient-selected button:hover {
+      transform: scale(1.2);
+    }
+
+    /* ============================================================
+       TABELA
+       ============================================================ */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--sb-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--sb-border);
+      background: var(--sb-elevated);
+      transition: color var(--sb-transition), border-color var(--sb-transition), background var(--sb-transition);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--sb-border);
+      transition: background 0.2s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--sb-accent-dim);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--sb-text-secondary);
+      vertical-align: middle;
+      transition: color var(--sb-transition);
+    }
+
+    /* ============================================================
+       FILTRO
+       ============================================================ */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-bar input,
+    .filter-bar select {
+      padding: 7px 12px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      font-size: 12px;
+      font-family: var(--sb-font);
+      background: var(--sb-surface);
+      color: var(--sb-text);
+      outline: none;
+      transition: background var(--sb-transition), border-color var(--sb-transition), color var(--sb-transition);
+    }
+    .filter-bar input:focus,
+    .filter-bar select:focus {
+      border-color: var(--sb-accent);
+    }
+
+    /* ============================================================
+       COLOR LEGEND
+       ============================================================ */
+    .color-legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .color-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--sb-border);
+      border-radius: 999px;
+      font-size: 10px;
+      background: var(--sb-surface);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ============================================================
+       MODAL
+       ============================================================ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.show {
+      display: flex;
+    }
+    .modal-card {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--sb-shadow-hover);
+      border: 1px solid var(--sb-border);
+      transition: background var(--sb-transition), border-color var(--sb-transition);
+    }
+    .modal-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--sb-elevated);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      transition: border-color var(--sb-transition), background var(--sb-transition);
+    }
+    .modal-head h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--sb-text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+    }
+    .modal-body {
+      padding: 20px;
+    }
+    .modal-actions {
+      padding: 12px 20px;
+      border-top: 1px solid var(--sb-border);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      transition: border-color var(--sb-transition);
+    }
+    .kv {
+      font-size: 13px;
+      color: var(--sb-text-secondary);
+      margin-bottom: 6px;
+    }
+    .kv b {
+      color: var(--sb-text);
+    }
+
+    /* ============================================================
+       FULLCALENDAR — CONTRASTE APRIMORADO (CLARO E ESCURO)
+       ============================================================ */
+    #receptionCalendar, #popupCalendar {
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      padding: 4px;
+      transition: background var(--sb-transition);
+    }
+
+    /* Barra de ferramentas */
+    .fc .fc-toolbar-title {
+      color: var(--sb-text) !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Botões */
+    .fc .fc-button {
+      background: var(--sb-elevated) !important;
+      border: 1px solid #94a3b8 !important;           /* borda mais visível no claro */
+      color: var(--sb-text) !important;
+      font-family: var(--sb-font) !important;
+      font-size: 12px !important;
+      padding: 4px 10px !important;
+      border-radius: var(--sb-radius) !important;
+      font-weight: 500 !important;
+    }
+    .fc .fc-button:hover {
+      background: var(--sb-accent-dim) !important;
+      border-color: var(--sb-accent) !important;
+    }
+    .fc .fc-button-primary:not(:disabled):active,
+    .fc .fc-button-primary:not(:disabled).fc-button-active {
+      background: var(--sb-accent) !important;
+      border-color: var(--sb-accent) !important;
+      color: #fff !important;
+    }
+
+    /* Cabeçalho das colunas (dias da semana) */
+    .fc .fc-col-header-cell-cushion {
+      color: #1e293b !important;                     /* texto escuro (modo claro e escuro terá fallback) */
+      font-weight: 700 !important;
+      font-size: 11px !important;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    [data-theme="dark"] .fc .fc-col-header-cell-cushion {
+      color: #cbd5e1 !important;                    /* claro o suficiente no dark */
+    }
+
+    /* Células dos dias */
+    .fc .fc-daygrid-day {
+      background: var(--sb-surface) !important;
+      border-color: #cbd5e1 !important;              /* borda mais visível no modo claro */
+    }
+    [data-theme="dark"] .fc .fc-daygrid-day {
+      border-color: var(--sb-border) !important;
+    }
+
+    /* Números dos dias */
+    .fc .fc-daygrid-day-number {
+      color: #1e293b !important;                    /* preto/cinza escuro */
+      font-family: var(--sb-font) !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+    }
+    [data-theme="dark"] .fc .fc-daygrid-day-number {
+      color: #e2e8f0 !important;
+    }
+
+    /* Dia de hoje */
+    .fc .fc-day-today {
+      background: var(--sb-accent-dim) !important;
+      border: 1px solid var(--sb-accent) !important;
+    }
+    .fc .fc-day-today .fc-daygrid-day-number {
+      color: var(--sb-accent) !important;
+      font-weight: 700 !important;
+    }
+
+    /* ===== EVENTOS (consultas e indisponibilidades) ===== */
+    .fc .fc-event {
+      border: none !important;
+      border-radius: 6px !important;
+      padding: 3px 6px !important;
+      font-size: 11px !important;
+      font-family: var(--sb-font) !important;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      /* Texto sempre branco com sombra forte para legibilidade */
+      color: #ffffff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+      font-weight: 600 !important;
+      /* Borda sutil para separar do fundo quando a cor for muito clara */
+      border: 1px solid rgba(0, 0, 0, 0.2) !important;
+    }
+    .fc .fc-event:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    /* Título do evento – fundo semi‑transparente para garantir legibilidade */
+    .fc .fc-event-title {
+      font-weight: 600 !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7) !important;
+      background: rgba(0, 0, 0, 0.2);                /* camada escura por baixo do texto */
+      padding: 1px 4px;
+      border-radius: 3px;
+      display: inline-block;                         /* para que o fundo só ocupe o necessário */
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    /* Horário dentro do evento */
+    .fc .fc-event-time {
+      font-weight: 600 !important;
+      color: #ffffff !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    /* ============================================================
+       CALENDAR POPUP ARRASTÁVEL E FLUTUANTE
+       ============================================================ */
+    .calendar-popup-floating {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 300;
+      background: var(--sb-surface);
+      border-radius: var(--sb-radius);
+      width: 400px;
+      max-width: 90vw;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+      border: 1px solid var(--sb-border);
+      transition: box-shadow 0.3s ease;
+      resize: both;
+      overflow: auto;
+      min-width: 320px;
+      min-height: 300px;
+    }
+    .calendar-popup-floating.dragging {
+      transition: none;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      cursor: grabbing;
+    }
+    .calendar-popup-floating.pinned {
+      border: 2px solid var(--sb-accent);
+    }
+    .popup-drag-handle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: var(--sb-elevated);
+      border-bottom: 1px solid var(--sb-border);
+      cursor: grab;
+      user-select: none;
+      border-radius: var(--sb-radius) var(--sb-radius) 0 0;
+    }
+    .popup-drag-handle:active {
+      cursor: grabbing;
+    }
+    .popup-drag-handle span {
+      font-weight: 600;
+      color: var(--sb-text);
+      font-size: 14px;
+    }
+    .popup-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .popup-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--sb-text-muted);
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .popup-actions button:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-accent);
+    }
+    .popup-actions button.pin-active {
+      color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+    }
+    .calendar-minimized-bar {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--sb-surface);
+      border: 1px solid var(--sb-border);
+      border-radius: 32px;
+      padding: 10px 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      z-index: 301;
+      cursor: pointer;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sb-text);
+      transition: all 0.3s ease;
+    }
+    .calendar-minimized-bar.show {
+      display: flex;
+    }
+    .calendar-minimized-bar i {
+      color: var(--sb-accent);
+      font-size: 18px;
+    }
+
+    /* ============================================================
+       RESPONSIVO GERAL
+       ============================================================ */
+    @media (max-width: 900px) {
+      .content { padding: 16px; }
+      .topbar { padding: 12px 18px; flex-wrap: wrap; gap: 8px; }
+      .topbar h1 { font-size: 18px; }
+      .calendar-popup-floating { width: 90vw; }
+    }
+    @media (max-width: 640px) {
+      .card-body { padding: 14px; }
+      .quick-actions { grid-template-columns: 1fr; }
+      .calendar-popup-floating { width: 95vw; min-width: auto; }
+    }
+
+    /* UTILITÁRIOS */
+    .hidden { display: none !important; }
+    .mt-8 { margin-top: 8px; }
+    .gap-8 { gap: 8px; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+
+    /* ============================================================
+       CAIXA — estilos específicos
+       ============================================================ */
+    .session-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .session-info { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .session-info .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .session-info .dot.open { background:#10b981; box-shadow:0 0 0 4px rgba(16,185,129,0.18); }
+    .session-info .dot.closed { background:var(--sb-text-muted); }
+    .session-info .label { font-size:13px; color: var(--sb-text-secondary, var(--sb-text-muted)); }
+    .session-info .label strong { color: var(--sb-text); }
+    .patient-result-item {
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--sb-text);
+      border-bottom: 1px solid var(--sb-border);
+    }
+    .patient-result-item:last-child { border-bottom: none; }
+    .patient-result-item:hover { background: rgba(255,255,255,0.05); }
+    .patient-result-item small { display:block; color:var(--sb-text-muted); font-size:11px; margin-top:2px; }
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .payment-method-btn {
+      padding: 12px 10px;
+      border-radius: var(--sb-radius);
+      border: 1.5px solid var(--sb-border);
+      background: var(--sb-surface);
+      color: var(--sb-text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .payment-method-btn i { font-size: 18px; }
+    .payment-method-btn:hover { border-color: var(--sb-accent); color: var(--sb-text); }
+    .payment-method-btn.selected {
+      border-color: var(--sb-accent);
+      background: rgba(15, 76, 129, 0.1);
+      color: var(--sb-accent);
+    }
+    .diff-positive { color: #10b981; font-weight: 700; }
+    .diff-negative { color: #ef4444; font-weight: 700; }
+    .receive-legs-empty {
+      font-size: 12.5px;
+      color: var(--sb-text-muted);
+      padding: 10px 2px;
+    }
+    .receive-leg-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--sb-border);
+      border-radius: var(--sb-radius);
+      margin-bottom: 8px;
+      background: var(--sb-surface);
+    }
+    .receive-leg-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+    .receive-leg-label { font-size: 12.5px; font-weight: 600; color: var(--sb-text); flex: 1; }
+    .receive-leg-input {
+      width: 110px;
+      padding: 6px 10px;
+      border: 1px solid var(--sb-border);
+      border-radius: 6px;
+      background: var(--sb-bg);
+      color: var(--sb-text);
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    .receive-leg-remove {
+      border: none;
+      background: transparent;
+      color: var(--sb-text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 4px 6px;
+      flex-shrink: 0;
+    }
+    .receive-leg-remove:hover { color: #ef4444; }
+    .receive-remaining-note {
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .diff-zero { color: var(--sb-text-muted); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+  SIDEBAR (mantida)
+  ============================================================ -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-header">
+      <div class="sb-brand">
+        <div class="sb-brand-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="sb-brand-title">
+          <h2>Clinic Chek</h2>
+          <small>Painel de Recepção</small>
+        </div>
+      </div>
+      <button class="sb-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name" id="sidebarName">Carregando...</div>
+      <div class="role" id="sidebarRole">Atendente</div>
+      <div class="clinic"><i class="fas fa-hospital"></i> <span id="sidebarClinic">Clínica: --</span></div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="sb-group open" data-group="dashboard-grupo">
+        <button class="sb-group-btn" type="button"><span>Painel</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item active" data-section="dashboard" href="#">
+            <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sb-group open" data-group="agenda-grupo">
+        <button class="sb-group-btn" type="button"><span>Agenda</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" data-section="calendario" href="#">
+            <i class="fas fa-calendar-alt"></i> <span>Calendário</span>
+          </a>
+          <a class="nav-item" data-section="marcar" href="#">
+            <i class="fas fa-plus-circle"></i> <span>Marcar Consulta</span>
+          </a>
+          <a class="nav-item" data-section="recorrencia" href="#">
+            <i class="fas fa-sync-alt"></i> <span>Recorrência</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sb-group open" data-group="financeiro-grupo">
+        <button class="sb-group-btn" type="button"><span>Financeiro</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-section="caixa" data-page-codes="financeiro.caixa" href="#">
+            <i class="fas fa-cash-register"></i> <span>Caixa</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sb-group open" data-group="estoque-grupo">
+        <button class="sb-group-btn" type="button"><span>Estoque</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page-codes="estoque" href="/medico/estoque">
+            <i class="fas fa-boxes-stacked"></i> <span>Estoque</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sb-group open" data-group="minha-conta-grupo">
+        <button class="sb-group-btn" type="button"><span>Minha Conta</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" href="/medico/perfil">
+            <i class="fas fa-id-badge"></i> <span>Meu Perfil</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sb-group open" data-group="config-grupo">
+        <button class="sb-group-btn" type="button"><span>Configurações</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" data-section="convidados" href="#">
+            <i class="fas fa-user-plus"></i> <span>Convidados e Lembretes</span>
+          </a>
+          <a class="nav-item" data-section="bloqueios" href="#">
+            <i class="fas fa-lock"></i> <span>Bloqueios</span>
+          </a>
+          <a class="nav-item" data-section="cores" href="#">
+            <i class="fas fa-palette"></i> <span>Cores por Médico</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sb-group open" data-group="extra-grupo">
+        <button class="sb-group-btn" type="button"><span>Acesso Extra</span><span class="caret">▶</span></button>
+        <div class="sb-group-list" id="extraAccessGroupList">
+          <a class="nav-item" hidden data-page-codes="agenda,agenda.consultations" href="/medico/agenda">
+            <i class="fas fa-user-md"></i> <span>Agenda do Médico</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span class="sb-toggle-label"><i class="fas fa-moon"></i> Tema</span>
+        <div class="toggle-switch" id="themeToggle" role="button" tabindex="0" aria-label="Alternar tema">
+          <div class="slider"></div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+  MAIN — CONTEÚDO
+  ============================================================ -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="topbarTitle">Dashboard</h1>
+        <div class="meta" id="topbarMeta">Visão geral dos agendamentos e gráficos</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline btn-sm" id="openCalendarPopupBtn" title="Abrir calendário flutuante">
+          <i class="fas fa-calendar-alt"></i> Calendário popup
+        </button>
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ========== SEÇÃO DASHBOARD ========== -->
+      <div class="section active" id="secDashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="label">Consultas Hoje</div>
+            <div class="value" id="statHoje">0</div>
+            <div class="sub">agendadas para hoje</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Esta Semana</div>
+            <div class="value" id="statSemana">0</div>
+            <div class="sub">próximos 7 dias</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Total Agenda</div>
+            <div class="value" id="statTotal">0</div>
+            <div class="sub">registros na agenda</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Concluídas</div>
+            <div class="value" id="statConcluidas">0</div>
+            <div class="sub">consultas realizadas</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h4><i class="fas fa-chart-bar" style="color:var(--sb-accent);"></i> Consultas nos próximos 7 dias</h4>
+            <canvas id="chartProximosDias"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4><i class="fas fa-chart-pie" style="color:var(--sb-accent);"></i> Consultas por profissional</h4>
+            <canvas id="chartPorMedico"></canvas>
+          </div>
+        </div>
+
+        <div class="pulse-grid">
+          <div class="pulse-card">
+            <div class="pulse-title"><i class="fas fa-heartbeat"></i> Pulso da Recepção</div>
+            <div class="pulse-row"><span>Consultas concluídas no filtro</span><strong id="receptionPulsePct">0%</strong></div>
+            <div class="pulse-progress"><i id="receptionPulseBar"></i></div>
+            <div class="pulse-row" style="margin-top:10px;"><span>Próxima consulta</span><strong id="receptionNext">Sem agenda</strong></div>
+          </div>
+          <div class="pulse-card">
+            <div class="pulse-title"><i class="fas fa-bolt"></i> Ações Rápidas</div>
+            <div class="quick-actions">
+              <button class="btn btn-outline btn-sm" onclick="showSection('secMarcar','Marcar Consulta','Agende uma nova consulta para o paciente','marcar')">Marcar Consulta</button>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('refreshBtn').click()">Atualizar Agenda</button>
+              <button class="btn btn-outline btn-sm" onclick="showSection('secCalendario','Calendário','Visualize e gerencie o calendário','calendario')">Ver Calendário</button>
+              <button class="btn btn-outline btn-sm" onclick="window.location.href='/medico/agenda'">Agenda Médico</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-list"></i> Agenda de Consultas</h3>
+            <div class="filter-bar">
+              <input type="date" id="fromDate">
+              <input type="date" id="toDate">
+              <select id="doctorFilter"><option value="">Todos os profissionais</option></select>
+              <button class="btn btn-outline btn-sm" id="filterBtn">Filtrar</button>
+              <button class="btn btn-teal btn-sm" id="refreshBtn"><i class="fas fa-sync-alt"></i> Atualizar</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:12px 18px;border-bottom:1px solid var(--sb-border);">
+            <div style="font-size:11px;color:var(--sb-text-muted);margin-bottom:6px;">Legenda de profissionais por cor</div>
+            <div class="color-legend" id="doctorColorLegend"></div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Data / Hora</th><th>Paciente</th><th>Profissional</th><th>Resumo</th><th>Status</th><th>Google</th></tr>
+                </thead>
+                <tbody id="agendaRows">
+                  <tr><td colspan="6" style="text-align:center;padding:20px;color:var(--sb-text-muted)">Carregando agenda...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SEÇÃO CALENDÁRIO ========== -->
+      <div class="section" id="secCalendario">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-calendar-alt"></i> Calendário da Recepção</h3>
+            <span style="font-size:11px;color:var(--sb-text-muted);">Visual de calendário para marcar e acompanhar consultas</span>
+          </div>
+          <div class="card-body">
+            <div id="receptionCalendar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SEÇÃO MARCAR CONSULTA (RESTRUTURADA) ========== -->
+      <div class="section" id="secMarcar">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-plus-circle"></i> Marcar Nova Consulta</h3>
+          </div>
+          <div class="card-body">
+            <!-- Card 1: Paciente e Profissional -->
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-user"></i> Paciente & Profissional</div>
+              <div class="form-grid">
+                <div class="form-group span2">
+                  <label>Buscar Paciente <span class="req">*</span></label>
+                  <div class="search-wrap" id="patientSearchWrap">
+                    <span class="search-ico"><i class="fas fa-search"></i></span>
+                    <input type="text" id="patientSearch" placeholder="Digite o nome do paciente para buscar..." autocomplete="off">
+                    <div class="search-spinner" id="searchSpinner"><span></span></div>
+                    <div class="search-results" id="searchResults"></div>
+                  </div>
+                  <div class="patient-selected" id="patientSelected">
+                    <span class="ps-name" id="patientSelectedName"></span>
+                    <button type="button" onclick="clearPatient()" title="Remover">✕</button>
+                  </div>
+                  <input type="hidden" id="patientId">
+                </div>
+                <div class="form-group span2">
+                  <label>Profissional <span class="req">*</span></label>
+                  <select id="doctorId" required>
+                    <option value="">Selecione o profissional</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Data, Duração e Resumo -->
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-clock"></i> Agendamento</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Data e Hora <span class="req">*</span></label>
+                  <input type="datetime-local" id="consultationAt" required>
+                </div>
+                <div class="form-group">
+                  <label>Duração (min)</label>
+                  <input type="number" id="durationMin" min="10" step="5" value="30">
+                </div>
+                <div class="form-group">
+                  <label>Modalidade</label>
+                  <label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:12px;height:38px;">
+                    <input type="checkbox" id="isTeleconsulta" style="width:16px;height:16px;">
+                    <i class="fas fa-video"></i> É teleconsulta (videochamada)
+                  </label>
+                </div>
+                <div class="form-group span2">
+                  <label>Resumo / Motivo da Consulta <span class="req">*</span></label>
+                  <textarea id="summary" placeholder="Descreva o motivo da consulta..." required></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: Detalhes (Cor, Lembretes, Convidados) -->
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-paint-brush"></i> Detalhes do Evento</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Cor do Evento</label>
+                  <input type="color" id="eventColor" value="#0f4c81">
+                </div>
+                <div class="form-group">
+                  <label>Lembretes (min, separados por vírgula)</label>
+                  <input type="text" id="eventReminders" placeholder="10,60,1440">
+                </div>
+                <div class="form-group span2">
+                  <label>Convidados (emails separados por vírgula)</label>
+                  <input type="text" id="eventGuests" placeholder="paciente@email.com, acompanhante@email.com">
+                </div>
+                <div class="form-group span2">
+                  <label>Observações</label>
+                  <textarea id="eventNotes" placeholder="Observações internas da consulta"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4: Recorrência -->
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-sync-alt"></i> Recorrência (opcional)</div>
+              <div class="form-grid" style="grid-template-columns:1fr .7fr .8fr .9fr;align-items:end;">
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:10px;">Frequência</label>
+                  <select id="recurrenceFreq">
+                    <option value="">Sem recorrência</option>
+                    <option value="DAILY">Diária</option>
+                    <option value="WEEKLY">Semanal</option>
+                    <option value="MONTHLY">Mensal</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:10px;">Intervalo</label>
+                  <input type="number" id="recurrenceInterval" min="1" value="1">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:10px;">Término</label>
+                  <select id="recurrenceEndType">
+                    <option value="count">Por ocorrências</option>
+                    <option value="until">Por data</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:10px;">Ocorrências</label>
+                  <input type="number" id="recurrenceCount" min="1" value="4">
+                </div>
+              </div>
+              <input type="datetime-local" id="recurrenceUntil" class="hidden" style="margin-top:8px;">
+            </div>
+
+            <!-- Card 5: Bloqueio de horário -->
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-lock"></i> Bloquear horário (indisponibilidade)</div>
+              <div class="form-grid" style="grid-template-columns:1.2fr 1fr 1fr auto;align-items:end;">
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:10px;">Médicos indisponíveis</label>
+                  <select id="blockDoctorIds" multiple size="4" style="min-height:96px;"></select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:10px;">Início</label>
+                  <input type="datetime-local" id="blockStartAt">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:10px;">Fim</label>
+                  <input type="datetime-local" id="blockEndAt">
+                </div>
+                <button class="btn btn-danger" type="button" id="saveBlockBtn" style="height:38px;">Bloquear</button>
+              </div>
+              <input type="text" id="blockReason" placeholder="Motivo da indisponibilidade (ex.: reunião, cirurgia, intervalo)" style="margin-top:8px;width:100%;">
+              <div class="alert-msg alert-ok" id="blockOk"></div>
+              <div class="alert-msg alert-err" id="blockErr"></div>
+            </div>
+
+            <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-solid" type="button" id="saveBtn">
+                <i class="fas fa-save"></i> Salvar Agendamento
+              </button>
+              <button class="btn btn-outline" type="button" id="clearFormBtn">Limpar</button>
+            </div>
+            <div class="alert-msg alert-ok" id="saveOk"></div>
+            <div class="alert-msg alert-err" id="saveErr"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SEÇÃO RECORRÊNCIA (RESTRUTURADA) ========== -->
+      <div class="section" id="secRecorrencia">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-sync-alt"></i> Tela de Recorrência</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-user"></i> Paciente & Profissional</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Paciente</label><select id="recPatientId"><option value="">Selecione...</option></select></div>
+                <div class="form-group"><label>Profissional</label><select id="recDoctorId"><option value="">Selecione...</option></select></div>
+              </div>
+            </div>
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-clock"></i> Detalhes do Agendamento</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Data e Hora Inicial</label><input type="datetime-local" id="recConsultationAt"></div>
+                <div class="form-group"><label>Duração (min)</label><input type="number" id="recDuration" min="10" step="5" value="30"></div>
+                <div class="form-group span2"><label>Resumo</label><textarea id="recSummary"></textarea></div>
+              </div>
+            </div>
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-sync-alt"></i> Configuração da Recorrência</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Frequência</label><select id="recFrequency"><option value="DAILY">Diária</option><option value="WEEKLY">Semanal</option><option value="MONTHLY">Mensal</option></select></div>
+                <div class="form-group"><label>Intervalo</label><input type="number" id="recInterval" min="1" value="1"></div>
+                <div class="form-group"><label>Término</label><select id="recEndType"><option value="count">Por ocorrências</option><option value="until">Por data</option></select></div>
+                <div class="form-group"><label>Ocorrências</label><input type="number" id="recCount" min="1" value="4"></div>
+                <div class="form-group span2 hidden" id="recUntilWrap"><label>Data final</label><input type="datetime-local" id="recUntil"></div>
+              </div>
+            </div>
+            <div style="margin-top:12px;"><button class="btn btn-solid" type="button" id="saveRecurringBtn">Criar Série Recorrente</button></div>
+            <div class="alert-msg alert-ok" id="recOk"></div>
+            <div class="alert-msg alert-err" id="recErr"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SEÇÃO CONVIDADOS E LEMBRETES ========== -->
+      <div class="section" id="secConvidados">
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-user-plus"></i> Convidados e Lembretes</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group span2"><label>Consulta</label><select id="guestConsultationId"><option value="">Selecione uma consulta...</option></select></div>
+              <div class="form-group span2"><label>Convidados (emails)</label><input type="text" id="guestEmails"></div>
+              <div class="form-group span2"><label>Lembretes (min)</label><input type="text" id="guestReminders" placeholder="10,60,1440"></div>
+              <div class="form-group span2"><label>Observações</label><textarea id="guestNotes"></textarea></div>
+              <div class="form-group"><label>Cor</label><input type="color" id="guestColor" value="#0f4c81"></div>
+              <div class="form-group"><label>Escopo</label><select id="guestScope"><option value="single">Apenas este evento</option><option value="series">Série inteira</option></select></div>
+            </div>
+            <div style="margin-top:12px;"><button class="btn btn-solid" type="button" id="saveGuestsBtn">Salvar Convidados e Lembretes</button></div>
+            <div class="alert-msg alert-ok" id="guestOk"></div>
+            <div class="alert-msg alert-err" id="guestErr"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SEÇÃO BLOQUEIOS (RESTRUTURADA) ========== -->
+      <div class="section" id="secBloqueios">
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-lock"></i> Bloqueios</h3></div>
+          <div class="card-body">
+            <div class="form-section-card">
+              <div class="section-title"><i class="fas fa-user-md"></i> Médicos Indisponíveis</div>
+              <div class="form-grid">
+                <div class="form-group span2"><label>Selecione os médicos</label><select id="screenBlockDoctorIds" multiple size="6" style="min-height:130px;"></select></div>
+                <div class="form-group"><label>Início</label><input type="datetime-local" id="screenBlockStartAt"></div>
+                <div class="form-group"><label>Fim</label><input type="datetime-local" id="screenBlockEndAt"></div>
+                <div class="form-group span2"><label>Motivo</label><input type="text" id="screenBlockReason"></div>
+              </div>
+            </div>
+            <div style="margin-top:12px;"><button class="btn btn-danger" type="button" id="saveBlockScreenBtn">Salvar Bloqueio</button></div>
+            <div class="alert-msg alert-ok" id="screenBlockOk"></div>
+            <div class="alert-msg alert-err" id="screenBlockErr"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SEÇÃO CORES POR MÉDICO ========== -->
+      <div class="section" id="secCores">
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-palette"></i> Cores por Médico</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group"><label>Médico</label><select id="colorDoctorId"><option value="">Selecione...</option></select></div>
+              <div class="form-group"><label>Cor padrão</label><input type="color" id="colorDoctorHex" value="#0f4c81"></div>
+            </div>
+            <div style="margin-top:12px;">
+              <button class="btn btn-solid" type="button" id="saveDoctorColorBtn">Salvar Cor</button>
+              <button class="btn btn-outline" type="button" id="resetDoctorColorBtn">Remover Cor</button>
+            </div>
+            <div class="alert-msg alert-ok" id="colorOk"></div>
+            <div class="alert-msg alert-err" id="colorErr"></div>
+            <div style="margin-top:14px;font-size:11px;color:var(--sb-text-muted);">Preview de cores</div>
+            <div class="color-legend" id="doctorColorLegendScreen"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="secCaixa">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-cash-register"></i> Sessão de Caixa</h3>
+            <div class="flex gap-8">
+              <button class="btn btn-outline btn-sm" type="button" id="rcSessionsHistoryBtn"><i class="fas fa-history"></i> Histórico de Caixa</button>
+              <div id="rcSessionActionsWrap"></div>
+            </div>
+          </div>
+          <div class="card-body" id="rcSessionBody">
+            <div class="empty-state">Carregando...</div>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="stat-card">
+            <div class="label">A Receber</div>
+            <div class="value" id="rcStatPendingAmount">R$ 0,00</div>
+            <div class="sub"><span id="rcStatPendingCount">0</span> lançamento(s)</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Recebido Nesta Sessão</div>
+            <div class="value" id="rcStatPaidAmount">R$ 0,00</div>
+            <div class="sub">Todas as formas de pagamento</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Valor de Abertura</div>
+            <div class="value" id="rcStatOpeningAmount">R$ 0,00</div>
+            <div class="sub">Fundo de troco</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-list"></i> A Receber</h3>
+            <button class="btn btn-solid btn-sm" type="button" id="rcOpenNewChargeBtn"><i class="fas fa-plus"></i> Novo Lançamento</button>
+          </div>
+          <div class="card-body">
+            <div class="flex gap-8" style="margin-bottom:14px;">
+              <input type="text" id="rcSearchPendingInput" placeholder="Buscar paciente..." style="flex:1;max-width:320px;">
+              <button class="btn btn-outline btn-sm" type="button" id="rcRefreshPendingBtn"><i class="fas fa-sync"></i></button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Paciente</th>
+                    <th>Procedimento / Descrição</th>
+                    <th>Médico</th>
+                    <th>Origem</th>
+                    <th>Valor</th>
+                    <th>Criado em</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="rcPendingTbody">
+                  <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-receipt"></i> Recebidos / Cancelados</h3>
+            <select id="rcHistoryStatusFilter" style="padding:6px 10px;border-radius:8px;border:1px solid var(--sb-border);background:var(--sb-surface);color:var(--sb-text);font-size:12px;">
+              <option value="PAID">Pagos</option>
+              <option value="CANCELED">Cancelados</option>
+              <option value="ALL">Todos</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Paciente</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Forma Pgto.</th>
+                    <th>Recebido / Cancelado em</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="rcHistoryTbody">
+                  <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================================
+  MODAL DE EDIÇÃO DE EVENTO
+  ============================================================ -->
+  <div class="modal-backdrop" id="eventModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h4 id="eventModalTitle">Evento</h4>
+        <button class="modal-close" type="button" id="closeEventModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="consultationEditor">
+          <div class="kv"><b>Paciente:</b> <span id="eventPatient">-</span></div>
+          <div class="kv"><b>Profissional:</b> <span id="eventDoctor">-</span></div>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="form-group span2"><label>Resumo</label><textarea id="eventSummaryInput"></textarea></div>
+            <div class="form-group"><label>Data e hora</label><input type="datetime-local" id="eventStartInput"></div>
+            <div class="form-group"><label>Duração (min)</label><input type="number" id="eventDurationInput" min="10" step="5"></div>
+            <div class="form-group"><label>Cor</label><input type="color" id="eventColorInput"></div>
+            <div class="form-group"><label>Lembretes (min)</label><input type="text" id="eventRemindersInput"></div>
+            <div class="form-group span2"><label>Convidados</label><input type="text" id="eventGuestsInput"></div>
+            <div class="form-group span2"><label>Observações</label><textarea id="eventNotesInput"></textarea></div>
+            <div class="form-group span2"><label>Editar</label><select id="eventEditScope"><option value="single">Apenas este evento</option><option value="series">Série inteira</option></select></div>
+          </div>
+        </div>
+        <div id="unavailabilityEditor" class="hidden">
+          <div class="kv"><b>Profissional:</b> <span id="blockDoctorName">-</span></div>
+          <div class="kv"><b>Início:</b> <span id="blockStartsAt">-</span></div>
+          <div class="kv"><b>Fim:</b> <span id="blockEndsAt">-</span></div>
+          <div class="kv"><b>Motivo:</b> <span id="blockReasonText">Não informado</span></div>
+        </div>
+        <div class="alert-msg alert-ok" id="eventModalOk"></div>
+        <div class="alert-msg alert-err" id="eventModalErr"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline hidden" type="button" id="openTabletBtn">Abrir Tablet do Paciente</button>
+        <button class="btn btn-danger hidden" type="button" id="deleteBlockBtn">Remover Bloqueio</button>
+        <button class="btn btn-danger hidden" type="button" id="deleteEventBtn">Excluir Consulta</button>
+        <button class="btn btn-solid hidden" type="button" id="saveEventChangesBtn">Salvar Alterações</button>
+        <button class="btn btn-outline" type="button" id="cancelEventBtn">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+  MODAIS DO CAIXA
+  ============================================================ -->
+  <div class="modal-backdrop" id="rcOpenSessionModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h4>Abrir Caixa</h4>
+        <button class="modal-close" type="button" onclick="closeRcOpenSessionModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Valor de abertura (fundo de troco)</label>
+            <input type="number" id="rcOpeningAmountInput" min="0" step="0.01" value="0">
+          </div>
+        </div>
+        <div class="alert-msg alert-err" id="rcOpenSessionErr"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" onclick="closeRcOpenSessionModal()">Cancelar</button>
+        <button class="btn btn-solid" type="button" id="rcConfirmOpenSessionBtn"><i class="fas fa-door-open"></i> Abrir Caixa</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="rcCloseSessionModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h4>Fechar Caixa</h4>
+        <button class="modal-close" type="button" onclick="closeRcCloseSessionModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="rcCloseSessionSummary" style="font-size:12.5px;color:var(--sb-text-muted);margin-bottom:14px;line-height:1.7;"></div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Valor conferido em caixa (dinheiro) *</label>
+            <input type="number" id="rcClosingAmountInput" min="0" step="0.01" placeholder="0,00">
+          </div>
+          <div class="form-group span2">
+            <label>Observações</label>
+            <textarea id="rcClosingNotesInput" rows="2" placeholder="Opcional"></textarea>
+          </div>
+        </div>
+        <div class="alert-msg alert-err" id="rcCloseSessionErr"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" onclick="closeRcCloseSessionModal()">Cancelar</button>
+        <button class="btn btn-danger" type="button" id="rcConfirmCloseSessionBtn"><i class="fas fa-door-closed"></i> Fechar Caixa</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="rcMovementModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h4 id="rcMovementModalTitle">Registrar Movimentação</h4>
+        <button class="modal-close" type="button" onclick="closeRcMovementModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Valor (R$) *</label>
+            <input type="number" id="rcMovementAmountInput" min="0" step="0.01" placeholder="0,00">
+          </div>
+          <div class="form-group span2">
+            <label>Motivo</label>
+            <input type="text" id="rcMovementReasonInput" placeholder="Ex: Depósito no banco">
+          </div>
+        </div>
+        <div class="alert-msg alert-err" id="rcMovementErr"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" onclick="closeRcMovementModal()">Cancelar</button>
+        <button class="btn btn-solid" type="button" id="rcConfirmMovementBtn">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="rcNewChargeModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h4>Novo Lançamento</h4>
+        <button class="modal-close" type="button" onclick="closeRcNewChargeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group span2" style="position:relative;">
+            <label>Paciente *</label>
+            <input type="text" id="rcChargePatientSearch" placeholder="Digite para buscar o paciente..." autocomplete="off">
+            <input type="hidden" id="rcChargePatientId">
+            <div id="rcChargePatientResults" style="display:none;position:absolute;top:64px;left:0;right:0;background:var(--sb-surface);border:1px solid var(--sb-border);border-radius:var(--sb-radius);box-shadow:var(--sb-shadow-hover);max-height:220px;overflow-y:auto;z-index:20;"></div>
+          </div>
+          <div class="form-group span2">
+            <label>Médico</label>
+            <select id="rcChargeDoctorSelect"><option value="">— Não vincular a um médico —</option></select>
+          </div>
+          <div class="form-group span2">
+            <label>Tipo de Procedimento (opcional)</label>
+            <select id="rcChargeProcedureTypeSelect"><option value="">— Lançamento manual (sem tipo cadastrado) —</option></select>
+          </div>
+          <div class="form-group span2">
+            <label>Descrição *</label>
+            <input type="text" id="rcChargeDescriptionInput" placeholder="Ex: Consulta de retorno">
+          </div>
+          <div class="form-group">
+            <label>Valor (R$) *</label>
+            <input type="number" id="rcChargeAmountInput" min="0" step="0.01" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label>Desconto (R$)</label>
+            <input type="number" id="rcChargeDiscountInput" min="0" step="0.01" value="0">
+          </div>
+          <div class="form-group span2">
+            <label>Observações</label>
+            <textarea id="rcChargeNotesInput" rows="2" placeholder="Opcional"></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:8px;padding:14px;border-radius:var(--sb-radius);background:rgba(255,255,255,0.03);border:1px solid var(--sb-border);">
+          <div style="font-size:12px;color:var(--sb-text-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+            <i class="fas fa-shield-alt"></i> <strong>Autorização do proprietário da clínica</strong> — obrigatória para lançamentos manuais
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>E-mail do proprietário *</label>
+              <input type="email" id="rcOwnerEmailInput" placeholder="owner@clinica.com" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label>Senha do proprietário *</label>
+              <input type="password" id="rcOwnerPasswordInput" placeholder="••••••••" autocomplete="off">
+            </div>
+          </div>
+        </div>
+
+        <div class="alert-msg alert-err" id="rcNewChargeErr"></div>
+        <div class="alert-msg alert-ok" id="rcNewChargeOk"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" onclick="closeRcNewChargeModal()">Cancelar</button>
+        <button class="btn btn-solid" type="button" id="rcConfirmNewChargeBtn"><i class="fas fa-plus"></i> Lançar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="rcReceiveModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h4>Receber Pagamento</h4>
+        <button class="modal-close" type="button" onclick="closeRcReceiveModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="rcReceiveSummary" style="font-size:13px;color:var(--sb-text-muted);margin-bottom:16px;"></div>
+        <label style="font-size:12px;font-weight:600;color:var(--sb-text-muted);text-transform:uppercase;letter-spacing:.3px;">Forma(s) de pagamento *</label>
+        <div style="font-size:11.5px;color:var(--sb-text-muted);margin:4px 0 2px;">Clique para adicionar — dá pra combinar mais de uma, como em um PDV.</div>
+        <div class="payment-methods" id="rcPaymentMethodButtons"></div>
+        <div id="rcReceiveLegsWrap" style="margin-top:14px;"></div>
+        <div id="rcReceiveRemaining" class="receive-remaining-note"></div>
+        <div class="form-grid" style="margin-top:14px;">
+          <div class="form-group span2">
+            <label>Observações</label>
+            <input type="text" id="rcReceiveNotesInput" placeholder="Opcional">
+          </div>
+        </div>
+        <div class="alert-msg alert-err" id="rcReceiveErr"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" onclick="closeRcReceiveModal()">Cancelar</button>
+        <button class="btn btn-teal" type="button" id="rcConfirmReceiveBtn"><i class="fas fa-check"></i> Confirmar Recebimento</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="rcSessionsHistoryModal">
+    <div class="modal-card" style="max-width:760px;">
+      <div class="modal-head">
+        <h4>Histórico de Caixa</h4>
+        <button class="modal-close" type="button" onclick="closeRcSessionsHistoryModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Aberto em</th>
+                <th>Fechado em</th>
+                <th>Aberto por</th>
+                <th>Abertura</th>
+                <th>Recebido</th>
+                <th>Diferença</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="rcSessionsHistoryTbody">
+              <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" onclick="closeRcSessionsHistoryModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+  CALENDAR POPUP ARRASTÁVEL (NOVO)
+  ============================================================ -->
+  <div class="calendar-popup-floating hidden" id="calendarPopupFloating">
+    <div class="popup-drag-handle" id="popupDragHandle">
+      <span><i class="fas fa-calendar-alt"></i> Calendário</span>
+      <div class="popup-actions">
+        <button id="pinPopupBtn" title="Fixar popup (não fecha ao clicar fora)"><i class="fas fa-thumbtack"></i></button>
+        <button id="detachPopupBtn" title="Destacar em janela separada"><i class="fas fa-external-link-alt"></i></button>
+        <button id="minimizeFloatingBtn" title="Minimizar"><i class="fas fa-window-minimize"></i></button>
+        <button id="closeFloatingPopupBtn" title="Fechar"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div style="padding:8px;">
+      <div id="popupCalendar"></div>
+    </div>
+  </div>
+  <div class="calendar-minimized-bar" id="calendarMinimizedBar">
+    <i class="fas fa-calendar-alt"></i> Calendário <span style="font-size:10px;">(clique para expandir)</span>
+  </div>
+
+  <!-- ============================================================
+  SCRIPTS
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // SIDEBAR (idêntica à original)
+    // ============================================================
+    (function initSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      if (isCollapsed) sidebar.classList.add('collapsed');
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.innerWidth <= 992) {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+          document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        } else {
+          isCollapsed = !isCollapsed;
+          sidebar.classList.toggle('collapsed', isCollapsed);
+          localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      const themeToggle = document.getElementById('themeToggle');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      document.querySelectorAll('.sb-group-btn').forEach((btn) => {
+        btn.addEventListener('click', function() {
+          const group = this.closest('.sb-group');
+          if (group) group.classList.toggle('open');
+        });
+      });
+
+      document.querySelectorAll('.nav-item[data-section]').forEach((item) => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const sec = this.dataset.section;
+          const titles = {
+            dashboard: ['Dashboard', 'Visão geral dos agendamentos e gráficos'],
+            calendario: ['Calendário', 'Visualize e gerencie o calendário de consultas'],
+            marcar: ['Marcar Consulta', 'Agende uma nova consulta para o paciente'],
+            recorrencia: ['Recorrência', 'Tela dedicada para criar séries recorrentes'],
+            caixa: ['Caixa', 'Controle financeiro de procedimentos e consultas'],
+            convidados: ['Convidados e Lembretes', 'Tela dedicada para notificações e convidados'],
+            bloqueios: ['Bloqueios', 'Tela dedicada de indisponibilidade dos médicos'],
+            cores: ['Cores por Médico', 'Tela dedicada para personalizar cores no calendário'],
+          };
+          const [title, meta] = titles[sec] || [sec, ''];
+          showSection('sec' + sec.charAt(0).toUpperCase() + sec.slice(1), title, meta, sec);
+        });
+      });
+
+      const receptionToken = localStorage.getItem('receptionToken');
+      const doctorToken = localStorage.getItem('doctorToken');
+      const token = receptionToken || doctorToken;
+      const isDoctorSession = !receptionToken && !!doctorToken;
+      const userData = JSON.parse(localStorage.getItem(isDoctorSession ? 'doctorData' : 'receptionData') || '{}');
+      const nameEl = document.getElementById('sidebarName');
+      const roleEl = document.getElementById('sidebarRole');
+      const clinicEl = document.getElementById('sidebarClinic');
+      if (nameEl) nameEl.textContent = userData.name || 'Atendente';
+      if (roleEl) roleEl.textContent = isDoctorSession ? 'Médico' : 'Atendente';
+      if (clinicEl) clinicEl.textContent = 'Clínica: ' + (userData.clinicName || '--');
+
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('receptionToken'); localStorage.removeItem('receptionData');
+        localStorage.removeItem('doctorToken'); localStorage.removeItem('doctorData');
+        window.location.href = isDoctorSession ? '/medico/login' : '/recepcao/login';
+      });
+    })();
+
+    // ============================================================
+    // POPUP ARRASTÁVEL
+    // ============================================================
+    (function initDraggablePopup() {
+      const popup = document.getElementById('calendarPopupFloating');
+      const handle = document.getElementById('popupDragHandle');
+      const minimizeBtn = document.getElementById('minimizeFloatingBtn');
+      const closeBtn = document.getElementById('closeFloatingPopupBtn');
+      const pinBtn = document.getElementById('pinPopupBtn');
+      const detachBtn = document.getElementById('detachPopupBtn');
+      const minimizedBar = document.getElementById('calendarMinimizedBar');
+      const openBtn = document.getElementById('openCalendarPopupBtn');
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+      let isPinned = false;
+
+      function openPopup() {
+        popup.classList.remove('hidden');
+        minimizedBar.classList.remove('show');
+        initPopupCalendar();
+        if (popupCalendar) syncReceptionCalendar(currentAgendaItems, popupCalendar);
+      }
+
+      function closePopup() {
+        if (isPinned) return;
+        popup.classList.add('hidden');
+      }
+
+      function minimizePopup() {
+        popup.classList.add('hidden');
+        minimizedBar.classList.add('show');
+      }
+
+      openBtn.addEventListener('click', openPopup);
+      closeBtn.addEventListener('click', closePopup);
+      minimizeBtn.addEventListener('click', minimizePopup);
+      minimizedBar.addEventListener('click', openPopup);
+      pinBtn.addEventListener('click', function() {
+        isPinned = !isPinned;
+        pinBtn.classList.toggle('pin-active', isPinned);
+        popup.classList.toggle('pinned', isPinned);
+      });
+
+      // Arrastar
+      handle.addEventListener('mousedown', function(e) {
+        if (e.target.tagName === 'BUTTON') return;
+        isDragging = true;
+        popup.classList.add('dragging');
+        const rect = popup.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        popup.style.transform = 'none';
+        popup.style.left = initialLeft + 'px';
+        popup.style.top = initialTop + 'px';
+        e.preventDefault();
+      });
+
+      window.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        popup.style.left = (initialLeft + dx) + 'px';
+        popup.style.top = (initialTop + dy) + 'px';
+      });
+
+      window.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          popup.classList.remove('dragging');
+        }
+      });
+
+      // Fechar ao clicar fora (se não estiver pinado)
+      document.addEventListener('mousedown', function(e) {
+        if (!popup.classList.contains('hidden') && !isPinned) {
+          if (!popup.contains(e.target) && e.target !== openBtn && !minimizedBar.contains(e.target)) {
+            closePopup();
+          }
+        }
+      });
+
+      // Destacar em janela separada
+      detachBtn.addEventListener('click', function() {
+        openCalendarInNewWindow();
+        popup.classList.add('hidden');
+      });
+    })();
+
+    // ============================================================
+    // LÓGICA DO RECEPCIONISTA (mantida)
+    // ============================================================
+    const receptionToken = localStorage.getItem('receptionToken');
+    const doctorToken = localStorage.getItem('doctorToken');
+    const token = receptionToken || doctorToken;
+    const isDoctorSession = !receptionToken && !!doctorToken;
+    if (!token) window.location.href = '/recepcao/login';
+
+    const h = { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token };
+    let allDoctors = [];
+    let searchTimeout = null;
+    let receptionCalendar = null;
+    let popupCalendar = null;
+    let currentAgendaItems = [];
+    let currentUnavailabilityItems = [];
+    let selectedCalendarEvent = null;
+    let customDoctorColors = {};
+    let chartProximosDias = null;
+    let chartPorMedico = null;
+
+    function fmtDate(v){ if(!v) return '-'; return new Date(v).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}); }
+    function esc(v){ return String(v||'').replace(/[&<>"']/g,(s)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+    function normalizeConsultationAt(v){
+      if (!v) return v;
+      const s = String(v).trim();
+      if (/[+-]\d{2}:\d{2}$/.test(s) || s.endsWith('Z')) return s;
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) return s + ':00-03:00';
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)) return s + '-03:00';
+      return s;
+    }
+
+    async function parseApiJson(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try { return JSON.parse(text); }
+      catch { throw new Error('Resposta inválida da API.'); }
+    }
+
+    function parseCsvEmails(value) {
+      return [...new Set(String(value || '').split(',').map(v => v.trim().toLowerCase()).filter(v => /.+@.+\..+/.test(v)))];
+    }
+
+    function parseReminderMinutes(value) {
+      return [...new Set(String(value || '').split(',').map(v => Number(v.trim())).filter(n => Number.isFinite(n) && n >= 0 && n <= 10080).map(n => Math.round(n)))].sort((a,b)=>a-b);
+    }
+
+    function parseRecurrenceFromForm() {
+      const frequency = document.getElementById('recurrenceFreq').value;
+      if (!frequency) return null;
+      const interval = Math.max(1, Number(document.getElementById('recurrenceInterval').value || 1));
+      const endType = document.getElementById('recurrenceEndType').value;
+      const payload = { frequency, interval, endType };
+      if (endType === 'until') payload.until = normalizeConsultationAt(document.getElementById('recurrenceUntil').value);
+      else payload.count = Math.max(1, Number(document.getElementById('recurrenceCount').value || 1));
+      return payload;
+    }
+
+    function toInputDateTimeValue(dateLike) {
+      const d = new Date(dateLike);
+      if (Number.isNaN(d.getTime())) return '';
+      const tz = d.getTimezoneOffset() * 60000;
+      return new Date(d.getTime() - tz).toISOString().slice(0, 16);
+    }
+
+    const DOCTOR_COLORS = ['#0f4c81','#0d9488','#7c3aed','#b45309','#be123c','#0f766e','#4338ca','#92400e','#6d28d9','#1d4ed8'];
+    try { customDoctorColors = JSON.parse(localStorage.getItem('receptionDoctorColors') || '{}') || {}; } catch { customDoctorColors = {}; }
+
+    function doctorColor(doctorId) {
+      const forced = customDoctorColors[String(doctorId || '')];
+      if (forced && /^#[0-9a-fA-F]{6}$/.test(forced)) return forced;
+      const raw = String(doctorId || '0');
+      let hash = 0;
+      for (let i = 0; i < raw.length; i += 1) hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+      const idx = Math.abs(hash) % DOCTOR_COLORS.length;
+      return DOCTOR_COLORS[idx];
+    }
+
+    function showSection(secId, title, meta, navId) {
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      document.querySelectorAll('.nav-item[data-section]').forEach(n=>n.classList.remove('active'));
+      document.getElementById(secId).classList.add('active');
+      if (navId) document.querySelector(`.nav-item[data-section="${navId}"]`)?.classList.add('active');
+      document.getElementById('topbarTitle').textContent = title;
+      document.getElementById('topbarMeta').textContent = meta;
+      if (secId === 'secCalendario') {
+        initReceptionCalendar();
+      }
+      if (secId === 'secCaixa') {
+        initCashierSection();
+      }
+    }
+
+    // ===== GRÁFICOS DO DASHBOARD =====
+    function updateCharts(items) {
+      const now = new Date();
+      const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+      const contagemDias = Array(7).fill(0);
+      items.forEach(i => {
+        const d = new Date(i.consultation_at);
+        if (d >= now) {
+          const diffDays = Math.floor((d - now) / (1000*60*60*24));
+          if (diffDays >= 0 && diffDays < 7) {
+            contagemDias[(now.getDay() + diffDays) % 7]++;
+          }
+        }
+      });
+      const labelsDias = Array.from({length:7}, (_,i) => {
+        const d = new Date(now);
+        d.setDate(d.getDate() + i);
+        return diasSemana[d.getDay()] + ' ' + d.getDate();
+      });
+      const ctx1 = document.getElementById('chartProximosDias')?.getContext('2d');
+      if (ctx1) {
+        if (chartProximosDias) chartProximosDias.destroy();
+        chartProximosDias = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: labelsDias,
+            datasets: [{
+              label: 'Consultas',
+              data: contagemDias,
+              backgroundColor: 'rgba(37, 99, 235, 0.7)',
+              borderRadius: 6,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+          }
+        });
+      }
+
+      const medicoMap = {};
+      items.forEach(i => {
+        const nome = i.doctor_name || 'Desconhecido';
+        medicoMap[nome] = (medicoMap[nome] || 0) + 1;
+      });
+      const medicosLabels = Object.keys(medicoMap);
+      const medicosData = Object.values(medicoMap);
+      const ctx2 = document.getElementById('chartPorMedico')?.getContext('2d');
+      if (ctx2) {
+        if (chartPorMedico) chartPorMedico.destroy();
+        chartPorMedico = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: medicosLabels,
+            datasets: [{
+              data: medicosData,
+              backgroundColor: medicosLabels.map((_,i) => DOCTOR_COLORS[i % DOCTOR_COLORS.length]),
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+          }
+        });
+      }
+    }
+
+    // ===== CALENDÁRIO DA SEÇÃO =====
+    function initReceptionCalendar() {
+      if (receptionCalendar) return;
+      const el = document.getElementById('receptionCalendar');
+      if (!el || typeof FullCalendar === 'undefined') return;
+      receptionCalendar = new FullCalendar.Calendar(el, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        height: 'auto',
+        selectable: true,
+        editable: true,
+        eventStartEditable: true,
+        eventDurationEditable: true,
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+        },
+        buttonText: { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista' },
+        eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+        select: (info) => {
+          showSection('secMarcar','Marcar Consulta','Agende uma nova consulta para o paciente','marcar');
+          document.getElementById('consultationAt').value = toInputDateTimeValue(info.start);
+          document.getElementById('blockStartAt').value = toInputDateTimeValue(info.start);
+          document.getElementById('blockEndAt').value = toInputDateTimeValue(info.end || new Date(info.start.getTime() + 30 * 60000));
+          receptionCalendar.unselect();
+        },
+        eventClick: (info) => {
+          openEventModal(info.event);
+        },
+        eventDrop: async (info) => { await handleCalendarMove(info, receptionCalendar); },
+        eventResize: async (info) => { await handleCalendarMove(info, receptionCalendar); },
+      });
+      receptionCalendar.render();
+      syncReceptionCalendar(currentAgendaItems, receptionCalendar);
+    }
+
+    // ===== CALENDÁRIO POPUP =====
+    function initPopupCalendar() {
+      if (popupCalendar) return;
+      const el = document.getElementById('popupCalendar');
+      if (!el || typeof FullCalendar === 'undefined') return;
+      popupCalendar = new FullCalendar.Calendar(el, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        height: 'auto',
+        selectable: true,
+        editable: true,
+        eventStartEditable: true,
+        eventDurationEditable: true,
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+        },
+        buttonText: { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista' },
+        eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+        select: (info) => {
+          showSection('secMarcar','Marcar Consulta','Agende uma nova consulta para o paciente','marcar');
+          document.getElementById('consultationAt').value = toInputDateTimeValue(info.start);
+        },
+        eventClick: (info) => {
+          openEventModal(info.event);
+        },
+        eventDrop: async (info) => { await handleCalendarMove(info, popupCalendar); },
+        eventResize: async (info) => { await handleCalendarMove(info, popupCalendar); },
+      });
+      popupCalendar.render();
+      syncReceptionCalendar(currentAgendaItems, popupCalendar);
+    }
+
+    function syncReceptionCalendar(items, cal) {
+      if (!cal) return;
+      cal.removeAllEvents();
+      items.forEach((i) => {
+        const dur = Number(i.duration_min || 30);
+        const start = new Date(i.consultation_at);
+        const end = new Date(start.getTime() + dur * 60 * 1000);
+        cal.addEvent({
+          id: String(i.id),
+          title: `${i.patient_name || 'Paciente'} - ${i.doctor_name || 'Médico'}`,
+          start,
+          end,
+          color: i.color_hex || doctorColor(i.doctor_id),
+          editable: true,
+          extendedProps: {
+            kind: 'consultation',
+            consultationId: i.id,
+            patientId: i.patient_id || null,
+            patientName: i.patient_name || '',
+            doctorName: i.doctor_name || '',
+            summary: i.summary || '',
+            durationMin: dur,
+            notes: i.notes || '',
+            guests: Array.isArray(i.guests_json) ? i.guests_json : [],
+            reminders: Array.isArray(i.reminders_json) ? i.reminders_json : [],
+            colorHex: i.color_hex || '',
+            seriesId: i.series_id || null,
+          },
+        });
+      });
+
+      currentUnavailabilityItems.forEach((u) => {
+        cal.addEvent({
+          id: `un-${u.id}`,
+          title: `Indisponível: ${u.doctor_name || 'Médico'}${u.reason ? ` (${u.reason})` : ''}`,
+          start: new Date(u.starts_at),
+          end: new Date(u.ends_at),
+          color: '#c53030',
+          editable: false,
+          extendedProps: {
+            kind: 'unavailability',
+            unavailabilityId: u.id,
+            doctorName: u.doctor_name || '',
+            reason: u.reason || '',
+            startsAt: u.starts_at,
+            endsAt: u.ends_at,
+          },
+        });
+      });
+    }
+
+    async function handleCalendarMove(info, cal) {
+      const ev = info.event;
+      if (ev.extendedProps?.kind !== 'consultation') {
+        info.revert();
+        return;
+      }
+      const newStart = normalizeConsultationAt(toInputDateTimeValue(ev.start));
+      const durationMin = ev.end && ev.start ? Math.max(10, Math.round((ev.end.getTime() - ev.start.getTime()) / 60000)) : 30;
+      let scope = 'single';
+      if (ev.extendedProps?.seriesId) {
+        const applySeries = confirm('Aplicar a mudança para a série inteira?\nOK = série inteira | Cancelar = apenas esta ocorrência');
+        scope = applySeries ? 'series' : 'single';
+      }
+      try {
+        const res = await fetch(`/api/reception/agenda/${ev.extendedProps.consultationId}`, {
+          method: 'PUT',
+          headers: h,
+          body: JSON.stringify({ consultationAt: newStart, durationMin, scope }),
+        });
+        const data = await parseApiJson(res);
+        if (!res.ok) throw new Error(data.error || 'Falha ao mover consulta.');
+        await loadAgenda();
+      } catch (e) {
+        info.revert();
+        alert(e.message || 'Erro ao atualizar horário da consulta.');
+      }
+    }
+
+    // ===== JANELA SEPARADA =====
+    function openCalendarInNewWindow() {
+      const eventsData = {
+        items: currentAgendaItems.map(i => ({
+          id: i.id,
+          title: `${i.patient_name || 'Paciente'} - ${i.doctor_name || 'Médico'}`,
+          start: i.consultation_at,
+          duration: i.duration_min || 30,
+          color: i.color_hex || doctorColor(i.doctor_id),
+        })),
+        unavailability: currentUnavailabilityItems.map(u => ({
+          id: `un-${u.id}`,
+          title: `Indisponível: ${u.doctor_name || 'Médico'}${u.reason ? ` (${u.reason})` : ''}`,
+          start: u.starts_at,
+          end: u.ends_at,
+          color: '#c53030',
+        })),
+      };
+      const w = window.open('', '_blank', 'width=420,height=520,resizable=yes,scrollbars=yes');
+      if (!w) { alert('Permita pop-ups para destacar o calendário.'); return; }
+      w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Calendário Flutuante</title>
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"><\/script>
+        <style>body{margin:0;font-family:Inter,sans-serif;background:#fff;}.fc .fc-event{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,0.4)!important;box-shadow:0 2px 6px rgba(0,0,0,0.2)!important;font-weight:500!important;}<\/style></head><body>
+        <div id="detachedCalendar"></div>
+        <script>
+          const eventsData = ${JSON.stringify(eventsData)};
+          document.addEventListener('DOMContentLoaded', function() {
+            const cal = new FullCalendar.Calendar(document.getElementById('detachedCalendar'), {
+              initialView: 'dayGridMonth', locale: 'pt-br', height: 'auto',
+              headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+              buttonText: { today: 'Hoje', month: 'Mês', week: 'Semana' },
+              events: eventsData.items.map(i => ({ ...i, end: new Date(new Date(i.start).getTime() + (i.duration||30)*60000).toISOString() }))
+                .concat(eventsData.unavailability.map(u => ({ ...u, editable: false }))),
+            });
+            cal.render();
+          });
+        <\/script></body></html>`);
+      w.document.close();
+    }
+
+    // ===== MODAL DE EVENTO =====
+    function openEventModal(event) {
+      selectedCalendarEvent = event;
+      resetEventModalAlerts();
+      const kind = event.extendedProps?.kind;
+      const consultationEditor = document.getElementById('consultationEditor');
+      const unavailabilityEditor = document.getElementById('unavailabilityEditor');
+      const saveBtn = document.getElementById('saveEventChangesBtn');
+      const delBtn = document.getElementById('deleteEventBtn');
+      const delBlockBtn = document.getElementById('deleteBlockBtn');
+      const tabletBtn = document.getElementById('openTabletBtn');
+
+      if (kind === 'unavailability') {
+        document.getElementById('eventModalTitle').textContent = 'Detalhes da indisponibilidade';
+        consultationEditor.classList.add('hidden');
+        unavailabilityEditor.classList.remove('hidden');
+        saveBtn.classList.add('hidden');
+        delBtn.classList.add('hidden');
+        delBlockBtn.classList.remove('hidden');
+        tabletBtn.classList.add('hidden');
+        document.getElementById('blockDoctorName').textContent = event.extendedProps?.doctorName || '-';
+        document.getElementById('blockStartsAt').textContent = fmtDate(event.extendedProps?.startsAt || event.start);
+        document.getElementById('blockEndsAt').textContent = fmtDate(event.extendedProps?.endsAt || event.end);
+        document.getElementById('blockReasonText').textContent = event.extendedProps?.reason || 'Não informado';
+      } else {
+        document.getElementById('eventModalTitle').textContent = 'Editar consulta';
+        consultationEditor.classList.remove('hidden');
+        unavailabilityEditor.classList.add('hidden');
+        saveBtn.classList.remove('hidden');
+        delBtn.classList.remove('hidden');
+        delBlockBtn.classList.add('hidden');
+        document.getElementById('eventPatient').textContent = event.extendedProps?.patientName || '-';
+        document.getElementById('eventDoctor').textContent = event.extendedProps?.doctorName || '-';
+        document.getElementById('eventSummaryInput').value = event.extendedProps?.summary || '';
+        document.getElementById('eventStartInput').value = toInputDateTimeValue(event.start);
+        document.getElementById('eventColorInput').value = event.extendedProps?.colorHex || '#0f4c81';
+        document.getElementById('eventGuestsInput').value = (event.extendedProps?.guests || []).join(', ');
+        document.getElementById('eventRemindersInput').value = (event.extendedProps?.reminders || []).join(',');
+        document.getElementById('eventNotesInput').value = event.extendedProps?.notes || '';
+        document.getElementById('eventEditScope').value = event.extendedProps?.seriesId ? 'series' : 'single';
+        const durationFromEvent = event.end && event.start
+          ? Math.max(10, Math.round((event.end.getTime() - event.start.getTime()) / 60000))
+          : Number(event.extendedProps?.durationMin || 30);
+        document.getElementById('eventDurationInput').value = durationFromEvent;
+        tabletBtn.classList.remove('hidden');
+      }
+      document.getElementById('eventModal').classList.add('show');
+    }
+
+    function closeEventModal() {
+      document.getElementById('eventModal').classList.remove('show');
+      selectedCalendarEvent = null;
+      resetEventModalAlerts();
+    }
+
+    function resetEventModalAlerts() {
+      document.getElementById('eventModalOk').style.display = 'none';
+      document.getElementById('eventModalErr').style.display = 'none';
+    }
+
+    document.getElementById('closeEventModal').addEventListener('click', closeEventModal);
+    document.getElementById('cancelEventBtn').addEventListener('click', closeEventModal);
+    document.getElementById('eventModal').addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'eventModal') closeEventModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeEventModal();
+    });
+
+    document.getElementById('saveEventChangesBtn').addEventListener('click', async () => {
+      if (!selectedCalendarEvent || selectedCalendarEvent.extendedProps?.kind !== 'consultation') return;
+      const ok = document.getElementById('eventModalOk');
+      const err = document.getElementById('eventModalErr');
+      resetEventModalAlerts();
+      const summary = (document.getElementById('eventSummaryInput').value || '').trim();
+      const startAt = normalizeConsultationAt(document.getElementById('eventStartInput').value);
+      const durationMin = Math.max(10, Number(document.getElementById('eventDurationInput').value || 30));
+      const notes = (document.getElementById('eventNotesInput').value || '').trim();
+      const colorHex = document.getElementById('eventColorInput').value || null;
+      const guests = parseCsvEmails(document.getElementById('eventGuestsInput').value || '');
+      const reminders = parseReminderMinutes(document.getElementById('eventRemindersInput').value || '');
+      const scope = document.getElementById('eventEditScope').value || 'single';
+      if (!summary || !startAt) {
+        err.textContent = 'Resumo e data/hora são obrigatórios.';
+        err.style.display = 'block';
+        return;
+      }
+      const res = await fetch(`/api/reception/agenda/${selectedCalendarEvent.extendedProps.consultationId}`, {
+        method: 'PUT',
+        headers: h,
+        body: JSON.stringify({ consultationAt: startAt, summary, durationMin, notes, colorHex, guests, reminders, scope }),
+      });
+      const data = await parseApiJson(res);
+      if (!res.ok) {
+        err.textContent = data.error || 'Falha ao salvar alterações.';
+        err.style.display = 'block';
+        return;
+      }
+      ok.textContent = 'Consulta atualizada com sucesso.';
+      ok.style.display = 'block';
+      await loadAgenda();
+      setTimeout(closeEventModal, 500);
+    });
+
+    document.getElementById('deleteEventBtn').addEventListener('click', async () => {
+      if (!selectedCalendarEvent || selectedCalendarEvent.extendedProps?.kind !== 'consultation') return;
+      if (!confirm('Tem certeza que deseja excluir esta consulta?')) return;
+      const err = document.getElementById('eventModalErr');
+      const scope = document.getElementById('eventEditScope').value || 'single';
+      const res = await fetch(`/api/reception/agenda/${selectedCalendarEvent.extendedProps.consultationId}?scope=${encodeURIComponent(scope)}`, {
+        method: 'DELETE',
+        headers: h,
+      });
+      let data = {};
+      try { data = await parseApiJson(res); } catch {}
+      if (!res.ok) {
+        err.textContent = data.error || 'Falha ao excluir consulta.';
+        err.style.display = 'block';
+        return;
+      }
+      await loadAgenda();
+      closeEventModal();
+    });
+
+    document.getElementById('deleteBlockBtn').addEventListener('click', async () => {
+      if (!selectedCalendarEvent || selectedCalendarEvent.extendedProps?.kind !== 'unavailability') return;
+      if (!confirm('Remover este bloqueio de indisponibilidade?')) return;
+      const err = document.getElementById('eventModalErr');
+      const res = await fetch(`/api/reception/agenda/unavailability/${selectedCalendarEvent.extendedProps.unavailabilityId}`, {
+        method: 'DELETE',
+        headers: h,
+      });
+      let data = {};
+      try { data = await parseApiJson(res); } catch {}
+      if (!res.ok) {
+        err.textContent = data.error || 'Falha ao remover bloqueio.';
+        err.style.display = 'block';
+        return;
+      }
+      await loadAgenda();
+      closeEventModal();
+    });
+
+    document.getElementById('openTabletBtn').addEventListener('click', async () => {
+      if (!selectedCalendarEvent || selectedCalendarEvent.extendedProps?.kind !== 'consultation') return;
+      const patientId = selectedCalendarEvent.extendedProps?.patientId;
+      const consultationId = selectedCalendarEvent.extendedProps?.consultationId;
+      if (!patientId) { alert('Não foi possível identificar o paciente desta consulta.'); return; }
+      const btn = document.getElementById('openTabletBtn');
+      const originalLabel = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Abrindo...';
+      try {
+        const res = await fetch('/api/reception/tablet-sessions', {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify({ patientId, consultationId, intakeMode: 'PREFILLED' }),
+        });
+        const data = await parseApiJson(res);
+        if (!res.ok) throw new Error(data.error || 'Falha ao abrir o tablet do paciente.');
+        window.open(data.url, '_blank', 'noopener');
+      } catch (error) {
+        alert(error.message || 'Falha ao abrir o tablet do paciente.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      }
+    });
+
+    // ===== BUSCA DE PACIENTE =====
+    const patientSearch = document.getElementById('patientSearch');
+    const searchResults = document.getElementById('searchResults');
+    const searchSpinner = document.getElementById('searchSpinner');
+    const patientSelected = document.getElementById('patientSelected');
+
+    patientSearch.addEventListener('input', () => {
+      const q = patientSearch.value.trim();
+      searchResults.innerHTML = '';
+      searchResults.classList.remove('show');
+      clearTimeout(searchTimeout);
+      if (q.length < 2) return;
+      searchSpinner.classList.add('active');
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/reception/patients?search=${encodeURIComponent(q)}`, { headers: h });
+          const patients = res.ok ? await res.json() : [];
+          searchSpinner.classList.remove('active');
+          if (!patients.length) {
+            searchResults.innerHTML = '<div class="no-result">Nenhum paciente encontrado</div>';
+          } else {
+            searchResults.innerHTML = patients.slice(0,8).map(p=>`
+              <div class="search-item" onclick="selectPatient('${esc(p.id)}','${esc(p.name)}','${esc(p.phone||'')}')">
+                <i class="fas fa-user" style="color:var(--sb-accent);"></i>
+                <div><div class="s-name">${esc(p.name)}</div><div class="s-meta">${esc(p.phone||p.email||'')}</div></div>
+              </div>`).join('');
+          }
+          searchResults.classList.add('show');
+        } catch { searchSpinner.classList.remove('active'); }
+      }, 350);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('patientSearchWrap').contains(e.target)) {
+        searchResults.classList.remove('show');
+      }
+    });
+
+    window.selectPatient = function(id, name, phone) {
+      document.getElementById('patientId').value = id;
+      document.getElementById('patientSelectedName').textContent = name + (phone ? ' — ' + phone : '');
+      patientSelected.classList.add('show');
+      patientSearch.value = '';
+      searchResults.classList.remove('show');
+      patientSearch.style.display = 'none';
+    };
+
+    window.clearPatient = function() {
+      document.getElementById('patientId').value = '';
+      patientSelected.classList.remove('show');
+      patientSearch.style.display = '';
+      patientSearch.value = '';
+      patientSearch.focus();
+    };
+
+    // ===== CARREGAR PROFISSIONAIS =====
+    async function loadDoctors() {
+      const res = await fetch('/api/reception/doctors', { headers: h });
+      if (!res.ok) return;
+      allDoctors = await res.json();
+      const sel = document.getElementById('doctorId');
+      const filter = document.getElementById('doctorFilter');
+      const block = document.getElementById('blockDoctorIds');
+      const recDoctors = document.getElementById('recDoctorId');
+      const screenBlock = document.getElementById('screenBlockDoctorIds');
+      const colorDoctor = document.getElementById('colorDoctorId');
+      const opts = allDoctors.map(d=>`<option value="${esc(d.id)}">${esc(d.name)}${d.crm?' — '+esc(d.crm):''}</option>`).join('');
+      sel.innerHTML = '<option value="">Selecione o profissional</option>' + opts;
+      filter.innerHTML = '<option value="">Todos os profissionais</option>' + opts;
+      block.innerHTML = opts;
+      recDoctors.innerHTML = '<option value="">Selecione...</option>' + opts;
+      screenBlock.innerHTML = opts;
+      colorDoctor.innerHTML = '<option value="">Selecione...</option>' + opts;
+
+      const legend = document.getElementById('doctorColorLegend');
+      if (legend) legend.innerHTML = allDoctors.map(d => `<span class="color-chip"><i class="color-dot" style="background:${doctorColor(d.id)}"></i>${esc(d.name)}</span>`).join('');
+      const legendScreen = document.getElementById('doctorColorLegendScreen');
+      if (legendScreen) legendScreen.innerHTML = allDoctors.map(d => `<span class="color-chip"><i class="color-dot" style="background:${doctorColor(d.id)}"></i>${esc(d.name)}</span>`).join('');
+
+      const recPatient = document.getElementById('recPatientId');
+      const resPatients = await fetch('/api/reception/patients', { headers: h });
+      const patients = resPatients.ok ? await resPatients.json() : [];
+      recPatient.innerHTML = '<option value="">Selecione...</option>' + patients.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+    }
+
+    function refreshConsultationSelectors(items) {
+      const sel = document.getElementById('guestConsultationId');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Selecione uma consulta...</option>' + items.map(i => {
+        const txt = `${fmtDate(i.consultation_at)} - ${i.patient_name || '-'} - ${i.doctor_name || '-'}`;
+        return `<option value="${esc(i.id)}">${esc(txt)}</option>`;
+      }).join('');
+    }
+
+    // ===== CARREGAR INDISPONIBILIDADE =====
+    async function loadUnavailability() {
+      const params = new URLSearchParams();
+      const f = document.getElementById('fromDate').value;
+      const t = document.getElementById('toDate').value;
+      const d = document.getElementById('doctorFilter').value;
+      if(f) params.set('from',f+'T00:00:00');
+      if(t) params.set('to',t+'T23:59:59');
+      if(d) params.set('doctorId',d);
+      const res = await fetch('/api/reception/agenda/unavailability?'+params.toString(), { headers: h });
+      if (!res.ok) { currentUnavailabilityItems = []; return; }
+      currentUnavailabilityItems = await parseApiJson(res);
+    }
+
+    // ===== CARREGAR AGENDA =====
+    async function loadAgenda() {
+      const rows = document.getElementById('agendaRows');
+      rows.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--sb-text-muted)"><span class="spin" style="border-top-color:var(--sb-accent);border-color:var(--sb-border);"></span> Carregando...</td></tr>';
+      const params = new URLSearchParams();
+      const f = document.getElementById('fromDate').value;
+      const t = document.getElementById('toDate').value;
+      const d = document.getElementById('doctorFilter').value;
+      if(f) params.set('from',f+'T00:00:00');
+      if(t) params.set('to',t+'T23:59:59');
+      if(d) params.set('doctorId',d);
+      try {
+        const res = await fetch('/api/reception/agenda?'+params.toString(),{headers:h});
+        if (!res.ok) throw new Error();
+        const items = await parseApiJson(res);
+        currentAgendaItems = items;
+        refreshConsultationSelectors(items);
+        await loadUnavailability();
+
+        if (receptionCalendar) syncReceptionCalendar(items, receptionCalendar);
+        if (popupCalendar) syncReceptionCalendar(items, popupCalendar);
+
+        updateCharts(items);
+
+        const now = new Date();
+        const hoje = items.filter(i=>new Date(i.consultation_at).toDateString()===now.toDateString()).length;
+        const semana = items.filter(i=>{ const d=new Date(i.consultation_at); return d>=now && d<new Date(now.getTime()+7*24*3600000); }).length;
+        const concluidas = items.filter(i=>new Date(i.consultation_at) < now).length;
+        const proxima = items.filter(i => new Date(i.consultation_at) >= now).sort((a,b)=> new Date(a.consultation_at) - new Date(b.consultation_at))[0];
+        const conclPct = items.length ? Math.round((concluidas / items.length) * 100) : 0;
+
+        document.getElementById('receptionPulsePct').textContent = conclPct + '%';
+        document.getElementById('receptionPulseBar').style.width = conclPct + '%';
+        document.getElementById('receptionNext').textContent = proxima ? fmtDate(proxima.consultation_at) : 'Sem agenda';
+        document.getElementById('statHoje').textContent = hoje;
+        document.getElementById('statSemana').textContent = semana;
+        document.getElementById('statTotal').textContent = items.length;
+        document.getElementById('statConcluidas').textContent = concluidas;
+
+        if (!items.length) { rows.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--sb-text-muted)">Nenhuma consulta encontrada.</td></tr>'; return; }
+        rows.innerHTML = items.map(i=>{
+          const done = new Date(i.consultation_at) < now;
+          const gcalCell = i.google_event_id
+            ? '<span style="font-size:11px;color:#10b981;font-weight:600;">✓ Calendário</span>'
+            : `<a class="btn btn-outline btn-sm" href="${i.google_calendar_link}" target="_blank" rel="noopener" title="Adicionar manualmente ao Google Calendar">+ Google</a>`;
+          return `<tr>
+            <td>${esc(fmtDate(i.consultation_at))}<br><span class="badge ${done?'badge-done':'badge-up'}">${done?'Realizada':'Agendada'}</span></td>
+            <td><strong>${esc(i.patient_name||'-')}</strong></td>
+            <td>${esc(i.doctor_name||'-')}${i.crm?'<br><small style="color:var(--sb-text-muted)">'+esc(i.crm)+'</small>':''}</td>
+            <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(i.summary||'-')}</td>
+            <td>${done?'<span class="badge badge-done">Concluída</span>':'<span class="badge badge-up">Confirmada</span>'}${i.modality==='TELECONSULTA'?'<br><span class="badge" style="background:#e0f2fe;color:#075985;margin-top:4px;"><i class="fas fa-video"></i> Teleconsulta</span>':''}</td>
+            <td>${gcalCell}</td>
+          </tr>`;
+        }).join('');
+      } catch (e) {
+        rows.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:#ef4444;">${esc(e.message || 'Erro ao carregar agenda.')}</td></tr>`;
+      }
+    }
+
+    // ===== BLOQUEIOS =====
+    async function saveUnavailability() {
+      return saveUnavailabilityByIds({
+        doctorIdsId: 'blockDoctorIds',
+        startsAtId: 'blockStartAt',
+        endsAtId: 'blockEndAt',
+        reasonId: 'blockReason',
+        okId: 'blockOk',
+        errId: 'blockErr',
+        btnId: 'saveBlockBtn',
+      });
+    }
+
+    async function saveUnavailabilityByIds(cfg) {
+      const ok = document.getElementById(cfg.okId);
+      const err = document.getElementById(cfg.errId);
+      const btn = document.getElementById(cfg.btnId);
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      const doctorIds = Array.from(document.getElementById(cfg.doctorIdsId).selectedOptions || []).map(o => o.value).filter(Boolean);
+      const startsAt = normalizeConsultationAt(document.getElementById(cfg.startsAtId).value);
+      const endsAt = normalizeConsultationAt(document.getElementById(cfg.endsAtId).value);
+      const reason = (document.getElementById(cfg.reasonId).value || '').trim();
+      if (!doctorIds.length || !startsAt || !endsAt) {
+        err.textContent = 'Selecione ao menos um médico e informe início/fim da indisponibilidade.';
+        err.style.display = 'block';
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span>Bloqueando...';
+      try {
+        const res = await fetch('/api/reception/agenda/unavailability', {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify({ doctorIds, startsAt, endsAt, reason }),
+        });
+        const data = await parseApiJson(res);
+        if (!res.ok) throw new Error(data.error || 'Falha ao bloquear horário.');
+        ok.textContent = 'Indisponibilidade registrada com sucesso.';
+        ok.style.display = 'block';
+        document.getElementById(cfg.reasonId).value = '';
+        await loadAgenda();
+      } catch (e) {
+        err.textContent = e.message || 'Erro ao bloquear horário.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.innerHTML = 'Bloquear';
+    }
+
+    document.getElementById('saveBlockBtn').addEventListener('click', saveUnavailability);
+    document.getElementById('saveBlockScreenBtn').addEventListener('click', () => saveUnavailabilityByIds({
+      doctorIdsId: 'screenBlockDoctorIds',
+      startsAtId: 'screenBlockStartAt',
+      endsAtId: 'screenBlockEndAt',
+      reasonId: 'screenBlockReason',
+      okId: 'screenBlockOk',
+      errId: 'screenBlockErr',
+      btnId: 'saveBlockScreenBtn',
+    }));
+
+    // ===== RECORRÊNCIA =====
+    document.getElementById('saveRecurringBtn').addEventListener('click', async () => {
+      const ok = document.getElementById('recOk');
+      const err = document.getElementById('recErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      const payload = {
+        patientId: document.getElementById('recPatientId').value,
+        doctorId: document.getElementById('recDoctorId').value,
+        consultationAt: normalizeConsultationAt(document.getElementById('recConsultationAt').value),
+        durationMin: Number(document.getElementById('recDuration').value || 30),
+        summary: (document.getElementById('recSummary').value || '').trim(),
+        recurrence: {
+          frequency: document.getElementById('recFrequency').value,
+          interval: Math.max(1, Number(document.getElementById('recInterval').value || 1)),
+          endType: document.getElementById('recEndType').value,
+          count: Math.max(1, Number(document.getElementById('recCount').value || 1)),
+          until: normalizeConsultationAt(document.getElementById('recUntil').value),
+        },
+      };
+      if (!payload.patientId || !payload.doctorId || !payload.consultationAt || !payload.summary) {
+        err.textContent = 'Preencha paciente, médico, data/hora e resumo.';
+        err.style.display = 'block';
+        return;
+      }
+      const res = await fetch('/api/reception/agenda', { method: 'POST', headers: h, body: JSON.stringify(payload) });
+      const data = await parseApiJson(res);
+      if (!res.ok) {
+        err.textContent = data.error || 'Falha ao criar recorrência.';
+        err.style.display = 'block';
+        return;
+      }
+      ok.textContent = `Série criada com sucesso (${data.created_count || 1} ocorrências).`;
+      ok.style.display = 'block';
+      await loadAgenda();
+    });
+
+    document.getElementById('recEndType').addEventListener('change', (e) => {
+      document.getElementById('recUntilWrap').classList.toggle('hidden', e.target.value !== 'until');
+    });
+
+    // ===== CONVIDADOS E LEMBRETES =====
+    document.getElementById('guestConsultationId').addEventListener('change', function() {
+      const id = this.value;
+      const found = currentAgendaItems.find(i => String(i.id) === String(id));
+      if (!found) return;
+      document.getElementById('guestEmails').value = Array.isArray(found.guests_json) ? found.guests_json.join(', ') : '';
+      document.getElementById('guestReminders').value = Array.isArray(found.reminders_json) ? found.reminders_json.join(',') : '';
+      document.getElementById('guestNotes').value = found.notes || '';
+      document.getElementById('guestColor').value = found.color_hex || '#0f4c81';
+      document.getElementById('guestScope').value = found.series_id ? 'series' : 'single';
+    });
+
+    document.getElementById('saveGuestsBtn').addEventListener('click', async () => {
+      const ok = document.getElementById('guestOk');
+      const err = document.getElementById('guestErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      const id = document.getElementById('guestConsultationId').value;
+      if (!id) { err.textContent = 'Selecione uma consulta.'; err.style.display = 'block'; return; }
+      const payload = {
+        guests: parseCsvEmails(document.getElementById('guestEmails').value || ''),
+        reminders: parseReminderMinutes(document.getElementById('guestReminders').value || ''),
+        notes: (document.getElementById('guestNotes').value || '').trim(),
+        colorHex: document.getElementById('guestColor').value || null,
+        scope: document.getElementById('guestScope').value || 'single',
+      };
+      const res = await fetch(`/api/reception/agenda/${id}`, { method: 'PUT', headers: h, body: JSON.stringify(payload) });
+      const data = await parseApiJson(res);
+      if (!res.ok) { err.textContent = data.error || 'Falha ao salvar convidados/lembretes.'; err.style.display = 'block'; return; }
+      ok.textContent = `Atualização concluída (escopo: ${payload.scope === 'series' ? 'série' : 'evento'}).`;
+      ok.style.display = 'block';
+      await loadAgenda();
+    });
+
+    // ===== CORES POR MÉDICO =====
+    document.getElementById('saveDoctorColorBtn').addEventListener('click', function() {
+      const ok = document.getElementById('colorOk');
+      const err = document.getElementById('colorErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      const doctorId = document.getElementById('colorDoctorId').value;
+      const color = document.getElementById('colorDoctorHex').value;
+      if (!doctorId) { err.textContent = 'Selecione um médico.'; err.style.display = 'block'; return; }
+      customDoctorColors[String(doctorId)] = color;
+      localStorage.setItem('receptionDoctorColors', JSON.stringify(customDoctorColors));
+      ok.textContent = 'Cor do médico salva com sucesso.';
+      ok.style.display = 'block';
+      loadDoctors();
+      syncReceptionCalendar(currentAgendaItems, receptionCalendar);
+      if (popupCalendar) syncReceptionCalendar(currentAgendaItems, popupCalendar);
+    });
+
+    document.getElementById('resetDoctorColorBtn').addEventListener('click', function() {
+      const doctorId = document.getElementById('colorDoctorId').value;
+      if (!doctorId) return;
+      delete customDoctorColors[String(doctorId)];
+      localStorage.setItem('receptionDoctorColors', JSON.stringify(customDoctorColors));
+      loadDoctors();
+      syncReceptionCalendar(currentAgendaItems, receptionCalendar);
+      if (popupCalendar) syncReceptionCalendar(currentAgendaItems, popupCalendar);
+    });
+
+    // ===== SALVAR AGENDAMENTO =====
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('saveBtn');
+      const ok = document.getElementById('saveOk');
+      const err = document.getElementById('saveErr');
+      ok.style.display='none'; err.style.display='none';
+      const patientId = document.getElementById('patientId').value;
+      const doctorId = document.getElementById('doctorId').value;
+      const consultationAt = normalizeConsultationAt(document.getElementById('consultationAt').value);
+      const summary = document.getElementById('summary').value.trim();
+      const notes = (document.getElementById('eventNotes').value || '').trim();
+      const colorHex = document.getElementById('eventColor').value || null;
+      const guests = parseCsvEmails(document.getElementById('eventGuests').value || '');
+      const reminders = parseReminderMinutes(document.getElementById('eventReminders').value || '');
+      const recurrence = parseRecurrenceFromForm();
+      if (!patientId) { err.textContent='Selecione um paciente.'; err.style.display='block'; return; }
+      if (!doctorId) { err.textContent='Selecione um profissional.'; err.style.display='block'; return; }
+      if (!consultationAt) { err.textContent='Informe data e hora.'; err.style.display='block'; return; }
+      if (!summary) { err.textContent='Informe o motivo da consulta.'; err.style.display='block'; return; }
+      btn.disabled=true; btn.innerHTML='<span class="spin"></span>Salvando...';
+      try {
+        const dur = parseInt(document.getElementById('durationMin').value)||30;
+        const modality = document.getElementById('isTeleconsulta').checked ? 'TELECONSULTA' : 'PRESENCIAL';
+        const res = await fetch('/api/reception/agenda',{method:'POST',headers:h,body:JSON.stringify({
+          patientId, doctorId, consultationAt, summary, notes, colorHex, guests, reminders, recurrence, durationMin:dur, modality,
+        })});
+        const d = await parseApiJson(res);
+        if (!res.ok) {
+          if (res.status === 409) throw new Error(d.error || 'Conflito de horário.');
+          throw new Error(d.error||'Falha ao salvar');
+        }
+        ok.textContent = d.recurring
+          ? `Série criada com sucesso (${d.created_count} ocorrências).`
+          : (modality === 'TELECONSULTA'
+              ? `Consulta agendada! Link da teleconsulta ${d.teleconsultation?.emailEnviado ? 'enviado por e-mail ao paciente' : 'gerado — copie na Agenda para enviar manualmente'}.`
+              : 'Consulta agendada com sucesso!');
+        ok.style.display='block';
+        clearPatient();
+        document.getElementById('consultationAt').value='';
+        document.getElementById('summary').value='';
+        document.getElementById('doctorId').value='';
+        document.getElementById('eventNotes').value='';
+        document.getElementById('eventGuests').value='';
+        document.getElementById('isTeleconsulta').checked=false;
+        document.getElementById('eventReminders').value='';
+        document.getElementById('recurrenceFreq').value='';
+        document.getElementById('recurrenceCount').value='4';
+        document.getElementById('recurrenceUntil').value='';
+        document.getElementById('recurrenceUntil').classList.add('hidden');
+        await loadAgenda();
+      } catch(e) { err.textContent=e.message||'Erro ao salvar.'; err.style.display='block'; }
+      btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Salvar Agendamento';
+    });
+
+    document.getElementById('clearFormBtn').addEventListener('click',()=>{
+      clearPatient();
+      document.getElementById('consultationAt').value='';
+      document.getElementById('summary').value='';
+      document.getElementById('doctorId').value='';
+      document.getElementById('eventNotes').value='';
+      document.getElementById('eventGuests').value='';
+      document.getElementById('eventReminders').value='';
+      document.getElementById('recurrenceFreq').value='';
+      document.getElementById('recurrenceInterval').value='1';
+      document.getElementById('recurrenceEndType').value='count';
+      document.getElementById('recurrenceCount').value='4';
+      document.getElementById('recurrenceUntil').value='';
+      document.getElementById('recurrenceUntil').classList.add('hidden');
+      document.getElementById('saveOk').style.display='none';
+      document.getElementById('saveErr').style.display='none';
+    });
+
+    document.getElementById('filterBtn').addEventListener('click', loadAgenda);
+    document.getElementById('refreshBtn').addEventListener('click', loadAgenda);
+    document.getElementById('recurrenceEndType').addEventListener('change', (e) => {
+      const until = document.getElementById('recurrenceUntil');
+      const isUntil = e.target.value === 'until';
+      until.classList.toggle('hidden', !isUntil);
+      document.getElementById('recurrenceCount').classList.toggle('hidden', isUntil);
+    });
+
+
+    // ============================================================
+    // CAIXA (recepção)
+    // ============================================================
+    const RC_PAYMENT_METHOD_LABELS = {
+      DINHEIRO: { label: 'Dinheiro', icon: 'fa-money-bill-wave' },
+      CARTAO_DEBITO: { label: 'Cartão Débito', icon: 'fa-credit-card' },
+      CARTAO_CREDITO: { label: 'Cartão Crédito', icon: 'fa-credit-card' },
+      PIX: { label: 'PIX', icon: 'fa-bolt' },
+      CONVENIO: { label: 'Convênio', icon: 'fa-file-invoice' },
+      MISTO: { label: 'Misto', icon: 'fa-layer-group' },
+    };
+    // Formas "reais" que podem compor um recebimento — MISTO nunca é uma perna,
+    // é so o marcador do lancamento quando ele usa mais de uma forma.
+    const RC_SPLITTABLE_PAYMENT_METHODS = Object.keys(RC_PAYMENT_METHOD_LABELS).filter((m) => m !== 'MISTO');
+    function rcPaymentBreakdownLabel(row){
+      if (Array.isArray(row.payments) && row.payments.length > 1) {
+        return row.payments.map((p) => `${RC_PAYMENT_METHOD_LABELS[p.method]?.label || p.method} (${rcFmtMoney(p.amount)})`).join(' + ');
+      }
+      return RC_PAYMENT_METHOD_LABELS[row.payment_method]?.label || row.payment_method || '—';
+    }
+    let rcCurrentSession = null;
+    let rcProcedureTypesById = {};
+    let rcReceiveTxId = null;
+    let rcReceiveAmount = 0;
+    let rcReceiveLegs = []; // [{ method, amount }]
+    let rcInitialized = false;
+
+    function rcFmtMoney(v){ return Number(v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }); }
+    function rcOriginLabel(o){ return o === 'AUTO_SIGNATURE' ? 'Assinatura' : 'Manual'; }
+    function rcStatusBadge(s){
+      if (s === 'PENDING') return '<span class="badge badge-yellow">Pendente</span>';
+      if (s === 'PAID') return '<span class="badge badge-green">Pago</span>';
+      if (s === 'CANCELED') return '<span class="badge badge-red">Cancelado</span>';
+      return '<span class="badge badge-gray">' + esc(s) + '</span>';
+    }
+    async function rcApiGet(url){
+      const res = await fetch(url, { headers: h });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'Falha na requisição.');
+      return data;
+    }
+    async function rcApiSend(url, method, body){
+      const res = await fetch(url, { method, headers: h, body: body != null ? JSON.stringify(body) : undefined });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'Falha na requisição.');
+      return data;
+    }
+
+    function initCashierSection(){
+      if (rcInitialized) {
+        rcLoadSession(); rcLoadPending(); rcLoadHistory();
+        return;
+      }
+      rcInitialized = true;
+      document.getElementById('rcSessionsHistoryBtn').addEventListener('click', openRcSessionsHistoryModal);
+      document.getElementById('rcOpenNewChargeBtn').addEventListener('click', openRcNewChargeModal);
+      document.getElementById('rcRefreshPendingBtn').addEventListener('click', rcLoadPending);
+      document.getElementById('rcConfirmOpenSessionBtn').addEventListener('click', rcConfirmOpenSession);
+      document.getElementById('rcConfirmCloseSessionBtn').addEventListener('click', rcConfirmCloseSession);
+      document.getElementById('rcConfirmNewChargeBtn').addEventListener('click', rcConfirmNewCharge);
+      document.getElementById('rcConfirmReceiveBtn').addEventListener('click', rcConfirmReceive);
+      document.getElementById('rcHistoryStatusFilter').addEventListener('change', rcLoadHistory);
+      document.getElementById('rcChargeProcedureTypeSelect').addEventListener('change', (e) => {
+        const pt = rcProcedureTypesById[e.target.value];
+        if (pt) {
+          if (!document.getElementById('rcChargeDescriptionInput').value.trim()) {
+            document.getElementById('rcChargeDescriptionInput').value = pt.name;
+          }
+          if (pt.price != null) {
+            document.getElementById('rcChargeAmountInput').value = Number(pt.price).toFixed(2);
+          }
+        }
+      });
+      let rcPendingSearchTimer = null;
+      document.getElementById('rcSearchPendingInput').addEventListener('input', () => {
+        clearTimeout(rcPendingSearchTimer);
+        rcPendingSearchTimer = setTimeout(rcLoadPending, 350);
+      });
+      let rcPatientSearchTimer = null;
+      document.getElementById('rcChargePatientSearch').addEventListener('input', (e) => {
+        document.getElementById('rcChargePatientId').value = '';
+        const q = e.target.value.trim();
+        clearTimeout(rcPatientSearchTimer);
+        const resultsEl = document.getElementById('rcChargePatientResults');
+        if (q.length < 2) { resultsEl.style.display = 'none'; return; }
+        rcPatientSearchTimer = setTimeout(async () => {
+          try {
+            const rows = await rcApiGet(`/api/reception/patients?search=${encodeURIComponent(q)}`);
+            if (rows.length === 0) {
+              resultsEl.innerHTML = '<div class="patient-result-item">Nenhum paciente encontrado.</div>';
+            } else {
+              resultsEl.innerHTML = rows.map(p => `
+                <div class="patient-result-item" onclick='selectRcChargePatient(${JSON.stringify(p.id)}, ${JSON.stringify(p.name)})'>
+                  ${esc(p.name)}<small>${esc(p.phone || p.email || '')}</small>
+                </div>
+              `).join('');
+            }
+            resultsEl.style.display = 'block';
+          } catch (e) { /* silencioso */ }
+        }, 300);
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#rcChargePatientSearch') && !e.target.closest('#rcChargePatientResults')) {
+          const el = document.getElementById('rcChargePatientResults');
+          if (el) el.style.display = 'none';
+        }
+      });
+      document.querySelectorAll('#rcOpenSessionModal, #rcCloseSessionModal, #rcNewChargeModal, #rcReceiveModal, #rcSessionsHistoryModal, #rcMovementModal').forEach(overlay => {
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+      });
+
+      rcLoadSession();
+      rcLoadPending();
+      rcLoadHistory();
+    }
+
+    // ── SESSÃO DE CAIXA ──
+    async function rcLoadSession(){
+      try {
+        const data = await rcApiGet('/api/cashier/session/current');
+        rcCurrentSession = data.session;
+        rcRenderSession(data);
+      } catch (e) {
+        const el = document.getElementById('rcSessionBody');
+        if (el) el.innerHTML = '<div class="empty-state">Erro ao carregar sessão de caixa.</div>';
+      }
+    }
+
+    function rcRenderSession(data){
+      const { session, totals } = data;
+      const actionsWrap = document.getElementById('rcSessionActionsWrap');
+      const body = document.getElementById('rcSessionBody');
+      if (!body) return;
+
+      if (session) {
+        actionsWrap.innerHTML = `
+          <button class="btn btn-outline btn-sm" type="button" id="rcSangriaBtn"><i class="fas fa-arrow-up"></i> Sangria</button>
+          <button class="btn btn-outline btn-sm" type="button" id="rcAporteBtn"><i class="fas fa-arrow-down"></i> Aporte</button>
+          <button class="btn btn-danger btn-sm" type="button" id="rcCloseSessionBtn"><i class="fas fa-door-closed"></i> Fechar Caixa</button>
+        `;
+        body.innerHTML = `
+          <div class="session-row">
+            <div class="session-info">
+              <span class="dot open"></span>
+              <span class="label">Aberto por <strong>${esc(session.opened_by_name || '—')}</strong> em <strong>${fmtDate(session.opened_at)}</strong></span>
+            </div>
+            <div class="session-info">
+              <span class="label">Valor de abertura: <strong>${rcFmtMoney(session.opening_amount)}</strong></span>
+            </div>
+          </div>
+          <div id="rcMovementsList" style="margin-top:12px;"></div>`;
+        document.getElementById('rcCloseSessionBtn').addEventListener('click', openRcCloseSessionModal);
+        document.getElementById('rcSangriaBtn').addEventListener('click', () => openRcMovementModal('SANGRIA'));
+        document.getElementById('rcAporteBtn').addEventListener('click', () => openRcMovementModal('APORTE'));
+        rcLoadMovements(session.id);
+      } else {
+        actionsWrap.innerHTML = '<button class="btn btn-solid btn-sm" type="button" id="rcOpenSessionBtn"><i class="fas fa-door-open"></i> Abrir Caixa</button>';
+        body.innerHTML = '<div class="empty-state">Nenhum caixa aberto no momento. Abra o caixa para registrar recebimentos.</div>';
+        document.getElementById('rcOpenSessionBtn').addEventListener('click', openRcOpenSessionModal);
+      }
+
+      document.getElementById('rcStatPendingAmount').textContent = rcFmtMoney(totals.pendingAmount);
+      document.getElementById('rcStatPendingCount').textContent = totals.pendingCount;
+      document.getElementById('rcStatPaidAmount').textContent = rcFmtMoney(totals.paidTotal);
+      document.getElementById('rcStatOpeningAmount').textContent = session ? rcFmtMoney(session.opening_amount) : rcFmtMoney(0);
+    }
+
+    function openRcOpenSessionModal(){
+      document.getElementById('rcOpeningAmountInput').value = '0';
+      document.getElementById('rcOpenSessionErr').classList.remove('show');
+      document.getElementById('rcOpenSessionModal').classList.add('show');
+    }
+    function closeRcOpenSessionModal(){ document.getElementById('rcOpenSessionModal').classList.remove('show'); }
+
+    // ── SANGRIA / APORTE (recepcao) ──
+    async function rcLoadMovements(sessionId){
+      const el = document.getElementById('rcMovementsList');
+      if (!el) return;
+      try {
+        const rows = await rcApiGet(`/api/cashier/session/${sessionId}/movements`);
+        if (rows.length === 0) { el.innerHTML = ''; return; }
+        el.innerHTML = '<div style="font-size:12px;color:var(--sb-text-muted);margin-bottom:6px;">Movimentações desta sessão:</div>' +
+          rows.map(m => `
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--sb-border);">
+              <span>${m.type === 'SANGRIA' ? '<i class="fas fa-arrow-up" style="color:#ef4444;"></i> Sangria' : '<i class="fas fa-arrow-down" style="color:#10b981;"></i> Aporte'} — ${esc(m.reason || 'sem motivo informado')} <span style="color:var(--sb-text-muted);">(${esc(m.created_by_name || '—')})</span></span>
+              <strong>${rcFmtMoney(m.amount)}</strong>
+            </div>
+          `).join('');
+      } catch (e) { /* silencioso */ }
+    }
+
+    let rcMovementType = null;
+    function openRcMovementModal(type){
+      rcMovementType = type;
+      document.getElementById('rcMovementModalTitle').textContent = type === 'SANGRIA' ? 'Registrar Sangria' : 'Registrar Aporte';
+      document.getElementById('rcMovementAmountInput').value = '';
+      document.getElementById('rcMovementReasonInput').value = '';
+      document.getElementById('rcMovementErr').classList.remove('show');
+      document.getElementById('rcMovementModal').classList.add('show');
+    }
+    function closeRcMovementModal(){ document.getElementById('rcMovementModal').classList.remove('show'); }
+
+    document.getElementById('rcConfirmMovementBtn')?.addEventListener('click', async () => {
+      const errEl = document.getElementById('rcMovementErr');
+      errEl.classList.remove('show');
+      const amount = document.getElementById('rcMovementAmountInput').value;
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+        errEl.textContent = 'Informe um valor maior que zero.'; errEl.classList.add('show'); return;
+      }
+      try {
+        await rcApiSend(`/api/cashier/session/${rcCurrentSession.id}/movements`, 'POST', {
+          type: rcMovementType,
+          amount: Number(amount),
+          reason: document.getElementById('rcMovementReasonInput').value.trim() || null,
+        });
+        closeRcMovementModal();
+        await rcLoadSession();
+      } catch (e) {
+        errEl.textContent = e.message; errEl.classList.add('show');
+      }
+    });
+
+    async function rcConfirmOpenSession(){
+      const errEl = document.getElementById('rcOpenSessionErr');
+      errEl.classList.remove('show');
+      const btn = document.getElementById('rcConfirmOpenSessionBtn');
+      const openingAmount = document.getElementById('rcOpeningAmountInput').value || '0';
+      btn.disabled = true;
+      try {
+        await rcApiSend('/api/cashier/session/open', 'POST', { openingAmount: Number(openingAmount) });
+        closeRcOpenSessionModal();
+        await rcLoadSession();
+      } catch (e) {
+        errEl.textContent = e.message; errEl.classList.add('show');
+      }
+      btn.disabled = false;
+    }
+
+    async function openRcCloseSessionModal(){
+      if (!rcCurrentSession) return;
+      try {
+        const data = await rcApiGet('/api/cashier/session/current');
+        rcCurrentSession = data.session;
+        const totals = data.totals;
+        const opening = Number(rcCurrentSession.opening_amount || 0);
+        const cash = Number(totals.paidByMethod?.DINHEIRO || 0);
+        const expected = opening + cash;
+        const breakdown = Object.entries(totals.paidByMethod || {})
+          .map(([method, amt]) => `${RC_PAYMENT_METHOD_LABELS[method]?.label || method}: <strong>${rcFmtMoney(amt)}</strong>`)
+          .join(' &nbsp;·&nbsp; ') || 'Nenhum recebimento nesta sessão ainda.';
+        document.getElementById('rcCloseSessionSummary').innerHTML = `
+          Abertura: <strong>${rcFmtMoney(opening)}</strong> &nbsp;·&nbsp; Total recebido: <strong>${rcFmtMoney(totals.paidTotal)}</strong><br>
+          ${breakdown}<br><br>
+          Esperado em dinheiro (abertura + recebimentos em dinheiro): <strong>${rcFmtMoney(expected)}</strong>`;
+        document.getElementById('rcClosingAmountInput').value = '';
+        document.getElementById('rcClosingNotesInput').value = '';
+        document.getElementById('rcCloseSessionErr').classList.remove('show');
+        document.getElementById('rcCloseSessionModal').classList.add('show');
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+    function closeRcCloseSessionModal(){ document.getElementById('rcCloseSessionModal').classList.remove('show'); }
+
+    async function rcConfirmCloseSession(){
+      const errEl = document.getElementById('rcCloseSessionErr');
+      errEl.classList.remove('show');
+      const closingAmountInformed = document.getElementById('rcClosingAmountInput').value;
+      if (closingAmountInformed === '' || isNaN(Number(closingAmountInformed))) {
+        errEl.textContent = 'Informe o valor conferido em caixa.'; errEl.classList.add('show'); return;
+      }
+      const btn = document.getElementById('rcConfirmCloseSessionBtn');
+      btn.disabled = true;
+      try {
+        const updated = await rcApiSend(`/api/cashier/session/${rcCurrentSession.id}/close`, 'POST', {
+          closingAmountInformed: Number(closingAmountInformed),
+          notes: document.getElementById('rcClosingNotesInput').value.trim() || null,
+        });
+        closeRcCloseSessionModal();
+        const diff = Number(updated.closing_difference || 0);
+        const diffMsg = diff === 0 ? 'Caixa fechado sem diferença.' :
+          (diff > 0 ? `Caixa fechado com sobra de ${rcFmtMoney(diff)}.` : `Caixa fechado com falta de ${rcFmtMoney(Math.abs(diff))}.`);
+        alert(diffMsg);
+        await rcLoadSession();
+        await rcLoadHistory();
+      } catch (e) {
+        errEl.textContent = e.message; errEl.classList.add('show');
+      }
+      btn.disabled = false;
+    }
+
+    // ── A RECEBER ──
+    async function rcLoadPending(){
+      const tbody = document.getElementById('rcPendingTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Carregando...</td></tr>';
+      try {
+        const search = document.getElementById('rcSearchPendingInput').value.trim();
+        const url = '/api/cashier/transactions?status=PENDING' + (search ? `&search=${encodeURIComponent(search)}` : '');
+        const rows = await rcApiGet(url);
+        if (rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhum lançamento pendente.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map(r => `
+          <tr>
+            <td>${esc(r.patient_name)}</td>
+            <td>${esc(r.procedure_type_name || r.description)}</td>
+            <td>${esc(r.doctor_name || '—')}</td>
+            <td><span class="badge ${r.origin === 'AUTO_SIGNATURE' ? 'badge-blue' : 'badge-gray'}">${rcOriginLabel(r.origin)}</span></td>
+            <td>${rcFmtMoney(Number(r.amount) - Number(r.discount_amount||0))}</td>
+            <td>${fmtDate(r.created_at)}</td>
+            <td>
+              <button class="btn btn-teal btn-xs" type="button" onclick='openRcReceiveModal(${JSON.stringify(r.id)}, ${JSON.stringify(r.procedure_type_name || r.description)}, ${Number(r.amount) - Number(r.discount_amount||0)})'>
+                <i class="fas fa-hand-holding-usd"></i> Receber
+              </button>
+              <button class="btn btn-outline btn-xs" type="button" onclick="rcCancelCharge('${r.id}')" title="Cancelar lançamento">
+                <i class="fas fa-times"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${esc(e.message)}</td></tr>`;
+      }
+    }
+
+    async function rcCancelCharge(id){
+      if (!confirm('Cancelar este lançamento? Esta ação não pode ser desfeita.')) return;
+      try {
+        await rcApiSend(`/api/cashier/transactions/${id}/cancel`, 'POST', {});
+        await rcLoadPending();
+        await rcLoadHistory();
+        await rcLoadSession();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // ── HISTÓRICO ──
+    async function rcLoadHistory(){
+      const tbody = document.getElementById('rcHistoryTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Carregando...</td></tr>';
+      try {
+        const status = document.getElementById('rcHistoryStatusFilter').value;
+        const rows = await rcApiGet(`/api/cashier/transactions?status=${status}`);
+        const filtered = status === 'ALL' ? rows.filter(r => r.status !== 'PENDING') : rows;
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum registro encontrado.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = filtered.map(r => `
+          <tr>
+            <td>${esc(r.patient_name)}</td>
+            <td>${esc(r.procedure_type_name || r.description)}</td>
+            <td>${rcFmtMoney(Number(r.amount) - Number(r.discount_amount||0))}</td>
+            <td>${r.payment_method ? esc(rcPaymentBreakdownLabel(r)) : '—'}</td>
+            <td>${fmtDate(r.paid_at || r.canceled_at)}</td>
+            <td>${rcStatusBadge(r.status)}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${esc(e.message)}</td></tr>`;
+      }
+    }
+
+    // ── TIPOS DE PROCEDIMENTO / MÉDICOS (modal de novo lançamento) ──
+    async function rcLoadProcedureTypesForCharge(){
+      try {
+        const rows = await rcApiGet('/api/cashier/procedure-types');
+        rcProcedureTypesById = {};
+        const select = document.getElementById('rcChargeProcedureTypeSelect');
+        select.innerHTML = '<option value="">— Lançamento manual (sem tipo cadastrado) —</option>';
+        rows.forEach(pt => {
+          rcProcedureTypesById[pt.id] = pt;
+          const opt = document.createElement('option');
+          opt.value = pt.id;
+          opt.textContent = pt.name + (pt.price != null ? ` (${rcFmtMoney(pt.price)})` : '');
+          select.appendChild(opt);
+        });
+      } catch (e) { /* silencioso */ }
+    }
+    async function rcLoadDoctorsForCharge(){
+      try {
+        const rows = allDoctors && allDoctors.length ? allDoctors : await rcApiGet('/api/reception/doctors');
+        const select = document.getElementById('rcChargeDoctorSelect');
+        select.innerHTML = '<option value="">— Não vincular a um médico —</option>' +
+          rows.map(d => `<option value="${esc(d.id)}">${esc(d.name)}</option>`).join('');
+      } catch (e) { /* silencioso */ }
+    }
+
+    function selectRcChargePatient(id, name){
+      document.getElementById('rcChargePatientId').value = id;
+      document.getElementById('rcChargePatientSearch').value = name;
+      document.getElementById('rcChargePatientResults').style.display = 'none';
+    }
+
+    async function openRcNewChargeModal(){
+      document.getElementById('rcChargePatientSearch').value = '';
+      document.getElementById('rcChargePatientId').value = '';
+      document.getElementById('rcChargeProcedureTypeSelect').value = '';
+      document.getElementById('rcChargeDescriptionInput').value = '';
+      document.getElementById('rcChargeAmountInput').value = '';
+      document.getElementById('rcChargeDiscountInput').value = '0';
+      document.getElementById('rcChargeNotesInput').value = '';
+      document.getElementById('rcOwnerEmailInput').value = '';
+      document.getElementById('rcOwnerPasswordInput').value = '';
+      document.getElementById('rcNewChargeErr').classList.remove('show');
+      document.getElementById('rcNewChargeOk').classList.remove('show');
+      document.getElementById('rcNewChargeModal').classList.add('show');
+      await Promise.all([rcLoadProcedureTypesForCharge(), rcLoadDoctorsForCharge()]);
+    }
+    function closeRcNewChargeModal(){ document.getElementById('rcNewChargeModal').classList.remove('show'); }
+
+    async function rcConfirmNewCharge(){
+      const errEl = document.getElementById('rcNewChargeErr');
+      const okEl = document.getElementById('rcNewChargeOk');
+      errEl.classList.remove('show'); okEl.classList.remove('show');
+
+      const patientId = document.getElementById('rcChargePatientId').value;
+      if (!patientId) { errEl.textContent = 'Selecione um paciente da lista de busca.'; errEl.classList.add('show'); return; }
+
+      const body = {
+        patientId,
+        doctorId: document.getElementById('rcChargeDoctorSelect').value || null,
+        procedureTypeId: document.getElementById('rcChargeProcedureTypeSelect').value || null,
+        description: document.getElementById('rcChargeDescriptionInput').value.trim() || null,
+        amount: document.getElementById('rcChargeAmountInput').value !== '' ? Number(document.getElementById('rcChargeAmountInput').value) : null,
+        discountAmount: document.getElementById('rcChargeDiscountInput').value !== '' ? Number(document.getElementById('rcChargeDiscountInput').value) : 0,
+        notes: document.getElementById('rcChargeNotesInput').value.trim() || null,
+        ownerEmail: document.getElementById('rcOwnerEmailInput').value.trim(),
+        ownerPassword: document.getElementById('rcOwnerPasswordInput').value,
+      };
+
+      const btn = document.getElementById('rcConfirmNewChargeBtn');
+      btn.disabled = true;
+      try {
+        await rcApiSend('/api/cashier/transactions', 'POST', body);
+        okEl.textContent = 'Lançamento criado com sucesso!';
+        okEl.classList.add('show');
+        await rcLoadPending();
+        await rcLoadSession();
+        setTimeout(closeRcNewChargeModal, 900);
+      } catch (e) {
+        errEl.textContent = e.message; errEl.classList.add('show');
+      }
+      btn.disabled = false;
+    }
+
+    // ── RECEBER PAGAMENTO (aceita dividir em mais de uma forma, como um PDV) ──
+    function rcRenderPaymentMethodButtons(){
+      const wrap = document.getElementById('rcPaymentMethodButtons');
+      wrap.innerHTML = RC_SPLITTABLE_PAYMENT_METHODS.map((code) => {
+        const info = RC_PAYMENT_METHOD_LABELS[code];
+        return `
+          <div class="payment-method-btn" data-method="${code}" onclick="rcAddReceiveLeg('${code}')">
+            <i class="fas ${info.icon}"></i> ${info.label}
+          </div>`;
+      }).join('');
+    }
+    function rcReceiveLegsSum(){
+      return Math.round(rcReceiveLegs.reduce((acc, l) => acc + (Number(l.amount) || 0), 0) * 100) / 100;
+    }
+    function rcAddReceiveLeg(code){
+      if (rcReceiveLegs.some((l) => l.method === code)) return;
+      const remaining = Math.round((rcReceiveAmount - rcReceiveLegsSum()) * 100) / 100;
+      rcReceiveLegs.push({ method: code, amount: remaining > 0 ? remaining : rcReceiveAmount });
+      rcRenderReceiveLegs();
+    }
+    function rcRemoveReceiveLeg(code){
+      rcReceiveLegs = rcReceiveLegs.filter((l) => l.method !== code);
+      rcRenderReceiveLegs();
+    }
+    function rcSetReceiveLegAmount(code, value){
+      const leg = rcReceiveLegs.find((l) => l.method === code);
+      if (leg) leg.amount = Number(String(value).replace(',', '.')) || 0;
+      rcUpdateReceiveRemainingNote();
+    }
+    function rcRenderReceiveLegs(){
+      const wrap = document.getElementById('rcReceiveLegsWrap');
+      wrap.innerHTML = rcReceiveLegs.length === 0
+        ? '<div class="receive-legs-empty">Nenhuma forma de pagamento adicionada ainda.</div>'
+        : rcReceiveLegs.map((l) => {
+            const info = RC_PAYMENT_METHOD_LABELS[l.method];
+            return `
+              <div class="receive-leg-row">
+                <span class="receive-leg-icon"><i class="fas ${info.icon}"></i></span>
+                <span class="receive-leg-label">${info.label}</span>
+                <input type="number" step="0.01" min="0.01" class="receive-leg-input" value="${Number(l.amount).toFixed(2)}" oninput="rcSetReceiveLegAmount('${l.method}', this.value)">
+                <button type="button" class="receive-leg-remove" onclick="rcRemoveReceiveLeg('${l.method}')" title="Remover"><i class="fas fa-times"></i></button>
+              </div>`;
+          }).join('');
+      document.querySelectorAll('#rcPaymentMethodButtons .payment-method-btn').forEach((el) => {
+        el.classList.toggle('selected', rcReceiveLegs.some((l) => l.method === el.getAttribute('data-method')));
+      });
+      rcUpdateReceiveRemainingNote();
+    }
+    function rcUpdateReceiveRemainingNote(){
+      const el = document.getElementById('rcReceiveRemaining');
+      const remaining = Math.round((rcReceiveAmount - rcReceiveLegsSum()) * 100) / 100;
+      if (rcReceiveLegs.length === 0) { el.innerHTML = ''; return; }
+      if (Math.abs(remaining) < 0.005) {
+        el.innerHTML = `<span style="color:#10b981;"><i class="fas fa-check-circle"></i> Total confere: ${rcFmtMoney(rcReceiveLegsSum())}</span>`;
+      } else if (remaining > 0) {
+        el.innerHTML = `<span style="color:#f59e0b;"><i class="fas fa-triangle-exclamation"></i> Faltam ${rcFmtMoney(remaining)} para completar o valor.</span>`;
+      } else {
+        el.innerHTML = `<span style="color:#ef4444;"><i class="fas fa-triangle-exclamation"></i> Excedeu em ${rcFmtMoney(Math.abs(remaining))} — ajuste os valores.</span>`;
+      }
+    }
+    function openRcReceiveModal(id, description, amount){
+      rcReceiveTxId = id;
+      rcReceiveAmount = Math.round(Number(amount) * 100) / 100;
+      rcReceiveLegs = [];
+      document.getElementById('rcReceiveNotesInput').value = '';
+      document.getElementById('rcReceiveErr').classList.remove('show');
+      document.getElementById('rcReceiveSummary').innerHTML = `Confirmar recebimento de <strong>${rcFmtMoney(amount)}</strong> referente a <strong>${esc(description)}</strong>.`;
+      rcRenderPaymentMethodButtons();
+      rcRenderReceiveLegs();
+      document.getElementById('rcReceiveModal').classList.add('show');
+    }
+    function closeRcReceiveModal(){ document.getElementById('rcReceiveModal').classList.remove('show'); }
+
+    async function rcConfirmReceive(){
+      const errEl = document.getElementById('rcReceiveErr');
+      errEl.classList.remove('show');
+      if (rcReceiveLegs.length === 0) { errEl.textContent = 'Selecione ao menos uma forma de pagamento.'; errEl.classList.add('show'); return; }
+      for (const leg of rcReceiveLegs) {
+        if (!(Number(leg.amount) > 0)) {
+          errEl.textContent = `Informe um valor válido para ${RC_PAYMENT_METHOD_LABELS[leg.method]?.label || leg.method}.`;
+          errEl.classList.add('show');
+          return;
+        }
+      }
+      const sum = rcReceiveLegsSum();
+      if (Math.abs(sum - rcReceiveAmount) > 0.01) {
+        errEl.textContent = `A soma das formas de pagamento (${rcFmtMoney(sum)}) precisa ser igual ao valor do lançamento (${rcFmtMoney(rcReceiveAmount)}).`;
+        errEl.classList.add('show');
+        return;
+      }
+      const btn = document.getElementById('rcConfirmReceiveBtn');
+      btn.disabled = true;
+      try {
+        await rcApiSend(`/api/cashier/transactions/${rcReceiveTxId}/receive`, 'POST', {
+          payments: rcReceiveLegs.map((l) => ({ method: l.method, amount: Number(l.amount) })),
+          notes: document.getElementById('rcReceiveNotesInput').value.trim() || null,
+        });
+        closeRcReceiveModal();
+        await rcLoadPending();
+        await rcLoadHistory();
+        await rcLoadSession();
+      } catch (e) {
+        errEl.textContent = e.message; errEl.classList.add('show');
+      }
+      btn.disabled = false;
+    }
+
+    // ── HISTÓRICO DE SESSÕES ──
+    async function openRcSessionsHistoryModal(){
+      document.getElementById('rcSessionsHistoryModal').classList.add('show');
+      const tbody = document.getElementById('rcSessionsHistoryTbody');
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Carregando...</td></tr>';
+      try {
+        const rows = await rcApiGet('/api/cashier/sessions?limit=50');
+        if (rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma sessão de caixa registrada.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map(s => {
+          const diff = s.closing_difference != null ? Number(s.closing_difference) : null;
+          const diffHtml = diff == null ? '—' :
+            (diff === 0 ? '<span class="diff-zero">R$ 0,00</span>' :
+              (diff > 0 ? `<span class="diff-positive">+${rcFmtMoney(diff)}</span>` : `<span class="diff-negative">${rcFmtMoney(diff)}</span>`));
+          return `
+            <tr>
+              <td>${fmtDate(s.opened_at)}</td>
+              <td>${fmtDate(s.closed_at)}</td>
+              <td>${esc(s.opened_by_name || '—')}</td>
+              <td>${rcFmtMoney(s.opening_amount)}</td>
+              <td>${s.closing_totals_json ? rcFmtMoney(Object.values(s.closing_totals_json).reduce((a,b) => a + Number(b), 0)) : '—'}</td>
+              <td>${diffHtml}</td>
+              <td>${s.status === 'OPEN' ? '<span class="badge badge-green">Aberto</span>' : '<span class="badge badge-gray">Fechado</span>'}</td>
+            </tr>`;
+        }).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${esc(e.message)}</td></tr>`;
+      }
+    }
+    function closeRcSessionsHistoryModal(){ document.getElementById('rcSessionsHistoryModal').classList.remove('show'); }
+
+
+    // ===== INICIALIZAÇÃO =====
+    window.addEventListener('load', () => {
+      initReceptionCalendar();
+      syncReceptionCalendar(currentAgendaItems, receptionCalendar);
+    });
+
+    (async()=>{ await loadDoctors(); await loadAgenda(); })();
+
+    // Esconde itens do menu para os quais o proprietário não liberou acesso
+    // (ex.: Financeiro > Caixa). Ficam escondidos desde o HTML (atributo
+    // "hidden") até esta checagem confirmar o que pode aparecer — assim,
+    // se a checagem demorar ou falhar, o item continua escondido em vez
+    // de aparecer de relance ou ficar disponível por engano.
+    document.querySelectorAll('.nav-item[data-page-codes]').forEach((item) => {
+      item.hidden = true;
+    });
+    (async function applyReceptionPermissions() {
+      try {
+        const res = await fetch(isDoctorSession ? '/api/auth/permissions' : '/api/auth/permissions-receptionist', { headers: h });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data || !Array.isArray(data.pages)) return;
+        const allowed = new Set(data.pages.filter((p) => p.can_view).map((p) => p.code));
+        document.querySelectorAll('.nav-item[data-page-codes]').forEach((item) => {
+          const codes = (item.getAttribute('data-page-codes') || '').split(',').map((c) => c.trim()).filter(Boolean);
+          if (codes.length === 0) { item.hidden = false; return; }
+          const canSee = codes.some((code) => allowed.has(code));
+          item.hidden = !canSee;
+        });
+
+        // Telas do médico liberadas "fora do perfil" (Gestão da Clínica > Permissões)
+        // que ainda não têm um link fixo aqui — cria o item dentro de "Acesso Extra"
+        // na hora, pra não precisar mais forçar novo login pra usar a tela.
+        const extraList = document.getElementById('extraAccessGroupList');
+        if (extraList) {
+          const alreadyLinked = new Set();
+          document.querySelectorAll('.nav-item[data-page-codes]').forEach((item) => {
+            (item.getAttribute('data-page-codes') || '').split(',').forEach((c) => alreadyLinked.add(c.trim()));
+          });
+          const EXTRA_PAGE_LINKS = {
+            'dashboard':            { url: '/medico',                       label: 'Dashboard do Médico',    icon: 'fa-gauge-high' },
+            'patients':             { url: '/medico/pacientes',             label: 'Pacientes (Médico)',     icon: 'fa-user-injured' },
+            'patients.records':     { url: '/medico/prontuarios',           label: 'Prontuários',            icon: 'fa-file-medical' },
+            'procedures':           { url: '/medico/procedimentos',         label: 'Procedimentos',          icon: 'fa-syringe' },
+            'procedures.types':     { url: '/medico/procedimentos/tipos',   label: 'Tipos de Procedimento',  icon: 'fa-list' },
+            'documents':            { url: '/medico/documentos',            label: 'Documentos',             icon: 'fa-file-signature' },
+            'templates':            { url: '/medico/templates',             label: 'Modelos de Documento',   icon: 'fa-file-alt' },
+            'prescriptions':        { url: '/medico/receita',               label: 'Receita / Atestado',     icon: 'fa-prescription' },
+            'financeiro.relatorios':{ url: '/medico/financeiro/relatorios', label: 'Relatórios Financeiros', icon: 'fa-chart-pie' },
+            'financeiro.despesas':  { url: '/medico/financeiro/despesas',   label: 'Contas a Pagar',         icon: 'fa-file-invoice-dollar' },
+            'clinic':               { url: '/medico/clinica',               label: 'Minha Clínica',          icon: 'fa-hospital-alt' },
+          };
+          data.pages.forEach((p) => {
+            if (!p.is_out_of_profile || !p.can_view) return;
+            if (alreadyLinked.has(p.code)) return;
+            const link = EXTRA_PAGE_LINKS[p.code];
+            if (!link) return;
+            alreadyLinked.add(p.code);
+            const a = document.createElement('a');
+            a.className = 'nav-item';
+            a.href = link.url;
+            a.setAttribute('data-page-codes', p.code);
+            a.innerHTML = `<i class="fas ${link.icon}"></i> <span>${link.label}</span>`;
+            extraList.appendChild(a);
+          });
+        }
+      } catch (_e) { /* silencioso — itens continuam escondidos (falha segura), não bloqueia o resto do dashboard */ }
+    })();
+
+    // ===== SOCKET.IO =====
+    (function() {
+      const _sock = io({ transports: ['websocket','polling'] });
+      const _rcUserData = JSON.parse(localStorage.getItem('receptionData') || '{}');
+      _sock.on('connect', () => {
+        _sock.emit('join_doctor', 'global');
+        if (_rcUserData.clinicId) _sock.emit('join_clinic', _rcUserData.clinicId);
+      });
+      _sock.on('consultation_created', () => { if(typeof loadAgenda==='function') loadAgenda(); });
+      _sock.on('agenda_updated', () => { if(typeof loadAgenda==='function') loadAgenda(); });
+      _sock.on('procedure_created', () => { if(typeof loadAgenda==='function') loadAgenda(); });
+      _sock.on('procedure_updated', () => { if(typeof loadAgenda==='function') loadAgenda(); });
+      _sock.on('patient_created', () => { if(typeof loadAgenda==='function') loadAgenda(); });
+      _sock.on('patient_updated', () => { if(typeof loadAgenda==='function') loadAgenda(); });
+      ['cash_transaction_created','cash_transaction_paid','cash_transaction_canceled','cash_transaction_updated'].forEach((evt) => {
+        _sock.on(evt, () => { if (typeof rcLoadPending === 'function') { rcLoadPending(); rcLoadHistory(); rcLoadSession(); } });
+      });
+      ['cash_session_opened','cash_session_closed'].forEach((evt) => {
+        _sock.on(evt, () => { if (typeof rcLoadSession === 'function') rcLoadSession(); });
+      });
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>

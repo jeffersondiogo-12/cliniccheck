@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinic Chek · Painel Administrativo</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    /* ============================================================
+       TEMA CLARO / ESCURO — MESMO SISTEMA DA TELA DE REFERÊNCIA
+       ============================================================ */
+    :root {
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sidebar-width: 280px;
+      --sidebar-collapsed: 72px;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       RESET E BASE
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ============================================================
+       SIDEBAR (copiada da referência com ajustes)
+       ============================================================ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: var(--font);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition), transform var(--transition), background var(--transition);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed);
+    }
+    .sidebar.collapsed .sb-brand-title,
+    .sidebar.collapsed .sidebar-user,
+    .sidebar.collapsed .sb-group-btn span:not(.caret),
+    .sidebar.collapsed .nav-item span,
+    .sidebar.collapsed .sidebar-footer .btn-logout span,
+    .sidebar.collapsed .sb-toggle-label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sidebar.collapsed .sb-brand-icon {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .nav-item i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+    .sidebar.collapsed .sb-group-btn {
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .sidebar.collapsed .sb-group-btn .caret {
+      display: none;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout i {
+      margin-right: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+    }
+
+    /* HEADER / BRAND */
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .sb-brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--accent-1), #06b6d4);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .sb-brand-icon:hover {
+      transform: rotate(-8deg) scale(1.05);
+    }
+    .sb-brand-title {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sb-brand-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--text-primary) 60%, var(--accent-1));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sb-brand-title small {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 400;
+      -webkit-text-fill-color: var(--text-muted);
+    }
+
+    .sb-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+    .sb-toggle-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* USER CARD */
+    .sidebar-user {
+      margin: 12px 16px 8px;
+      padding: 14px 16px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      transition: background 0.3s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .sidebar-user .role {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-user .clinic {
+      font-size: 11px;
+      color: var(--accent-1);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-user .clinic i {
+      font-size: 10px;
+    }
+
+    /* NAVEGAÇÃO */
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 12px 8px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-subtle) transparent;
+    }
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 10px;
+    }
+
+    .sb-group {
+      margin-top: 4px;
+    }
+    .sb-group + .sb-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .sb-group-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      border: 0;
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--font);
+      border-radius: 6px;
+      transition: color 0.25s, background 0.25s;
+    }
+    .sb-group-btn:hover {
+      color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+    .sb-group-btn .caret {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 9px;
+    }
+    .sb-group.open .sb-group-btn .caret {
+      transform: rotate(90deg);
+      color: var(--accent-1);
+    }
+
+    .sb-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+    }
+    .sb-group.open .sb-group-list {
+      max-height: 600px;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, transform 0.15s, padding 0.2s;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font);
+      overflow: hidden;
+    }
+    .nav-item i {
+      width: 20px;
+      font-size: 15px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--accent-1);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-item:hover {
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateX(3px);
+    }
+    .nav-item:hover i {
+      color: var(--accent-1);
+      transform: scale(1.1) rotate(-4deg);
+    }
+    .nav-item:hover::before {
+      transform: scaleY(0.5);
+    }
+
+    .nav-item.active {
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--accent-1);
+    }
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    .nav-item.active i {
+      color: var(--accent-1);
+    }
+    .nav-item:active {
+      transform: scale(0.97);
+    }
+    .nav-item[hidden] {
+      display: none !important;
+    }
+
+    /* FOOTER — TEMA E LOGOUT */
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      transition: background 0.3s;
+    }
+    .theme-toggle .sb-toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: opacity 0.2s;
+    }
+    .theme-toggle .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--border-subtle);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .theme-toggle .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch {
+      background: var(--accent-1);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch .slider {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-logout i {
+      font-size: 15px;
+    }
+    .btn-logout span {
+      transition: opacity 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+    .btn-logout:active {
+      transform: scale(0.97);
+    }
+
+    /* RESPONSIVIDADE SIDEBAR */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        border-right: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .sidebar.collapsed {
+        width: var(--sidebar-width);
+      }
+      .sidebar.collapsed .sb-brand-title,
+      .sidebar.collapsed .sidebar-user,
+      .sidebar.collapsed .sb-group-btn span:not(.caret),
+      .sidebar.collapsed .nav-item span,
+      .sidebar.collapsed .sidebar-footer .btn-logout span,
+      .sidebar.collapsed .sb-toggle-label {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        overflow: visible;
+      }
+      .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 9px 12px !important;
+      }
+      .sidebar.collapsed .nav-item i {
+        font-size: 15px;
+        margin-right: 0;
+      }
+      .sidebar.collapsed .sb-group-btn {
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .sidebar.collapsed .sb-group-btn .caret {
+        display: inline;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout {
+        justify-content: flex-start;
+        padding: 10px 14px !important;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout i {
+        margin-right: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 320px;
+      }
+      .sb-brand-title h2 {
+        font-size: 15px;
+      }
+    }
+
+    /* ============================================================
+       MAIN / TOPBAR / CONTENT (mesmo estilo da referência)
+       ============================================================ */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      transition: color var(--transition);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      transition: color var(--transition);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+    }
+    .topbar-actions .badge i {
+      color: var(--accent-5);
+      font-size: 10px;
+      transition: color var(--transition);
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       CARDS E BOTÕES (da referência)
+       ============================================================ */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--accent-1);
+    }
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color var(--transition);
+    }
+    .card-header h3 i {
+      color: var(--accent-1);
+      font-size: 16px;
+      transition: color var(--transition);
+    }
+    .card-body {
+      padding: 20px 22px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--accent-1);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3);
+    }
+    .btn-solid:hover {
+      background: #3b7ec8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-teal {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3);
+    }
+    .btn-teal:hover {
+      background: #5ab8a9;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(107, 197, 184, 0.4);
+    }
+    .btn-teal:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(229, 62, 62, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(229, 62, 62, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* FORMULÁRIOS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols1 {
+      grid-template-columns: 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .form-group input,
+    .form-group select {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder {
+      color: var(--text-muted);
+      font-weight: 300;
+      transition: color var(--transition);
+    }
+    .form-group select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+    .form-group select[multiple] {
+      min-height: 100px;
+    }
+
+    /* ALERTAS */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      border-left: 3px solid var(--accent-5);
+    }
+    .alert-err {
+      background: var(--red-bg);
+      color: var(--red);
+      border-left: 3px solid var(--red);
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* TABELAS */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.2s ease, border-color var(--transition), transform 0.15s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--bg-card-hover);
+      transform: scale(1.002);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--text-secondary);
+      vertical-align: middle;
+      transition: color var(--transition);
+    }
+    tbody td strong {
+      color: var(--text-primary);
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: background var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .badge:hover {
+      transform: scale(1.06);
+    }
+    .badge-blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .badge-yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .badge-gray {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    /* GRID AUXILIAR */
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* ACESSO NEGADO */
+    .access-denied {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .access-denied h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--red);
+      transition: color var(--transition);
+    }
+    .access-denied p {
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+
+    /* RESPONSIVO */
+    @media (max-width: 1100px) {
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+      .topbar {
+        padding: 12px 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .topbar h1 {
+        font-size: 18px;
+      }
+      .content {
+        padding: 16px;
+      }
+    }
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.span2 {
+        grid-column: span 1;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .btn-sm {
+        width: auto;
+      }
+      .card-body {
+        padding: 14px;
+      }
+      .table-wrap table {
+        min-width: 500px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+  SIDEBAR — mesmos componentes da referência
+  ============================================================ -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-header">
+      <div class="sb-brand">
+        <div class="sb-brand-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="sb-brand-title">
+          <h2>Clinic Chek</h2>
+          <small>Gestão inteligente</small>
+        </div>
+      </div>
+      <button class="sb-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name" id="sidebarName">Carregando...</div>
+      <div class="role" id="sidebarRole">Profissional</div>
+      <div class="clinic"><i class="fas fa-hospital"></i> <span id="sidebarClinic">Clínica: --</span></div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- PRINCIPAL -->
+      <div class="sb-group open" data-group="principal">
+        <button class="sb-group-btn" type="button"><span>Principal</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="dashboard" href="/medico">
+            <i class="fas fa-th-large"></i> <span>Dashboard</span>
+          </a>
+          <a class="nav-item" hidden data-page="agenda" href="/medico/agenda">
+            <i class="fas fa-calendar-check"></i> <span>Agenda</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CADASTROS -->
+      <div class="sb-group open" data-group="cadastro">
+        <button class="sb-group-btn" type="button"><span>Cadastros</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="patients" href="/medico/pacientes">
+            <i class="fas fa-user-injured"></i> <span>Pacientes</span>
+          </a>
+          <a class="nav-item" hidden data-page="patients.records" href="/medico/prontuarios">
+            <i class="fas fa-notes-medical"></i> <span>Prontuários</span>
+          </a>
+          <a class="nav-item" hidden data-page="procedures" href="/medico/procedimentos">
+            <i class="fas fa-procedures"></i> <span>Procedimentos</span>
+          </a>
+          <a class="nav-item" hidden data-page="prescriptions" href="/medico/receita">
+            <i class="fas fa-prescription"></i> <span>Receita / Atestado</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- DOCUMENTOS -->
+      <div class="sb-group open" data-group="documentos">
+        <button class="sb-group-btn" type="button"><span>Documentos</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="documents" href="/medico/documentos">
+            <i class="fas fa-file-signature"></i> <span>Documentos</span>
+          </a>
+          <a class="nav-item" hidden data-page="templates" href="/medico/templates">
+            <i class="fas fa-file-alt"></i> <span>Modelos</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ADMINISTRAÇÃO (ativo) -->
+      <div class="sb-group open" data-group="administracao">
+        <button class="sb-group-btn" type="button"><span>Administração</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item active" hidden data-page="team" id="navTeamItem" href="/admin">
+            <i class="fas fa-user-md"></i> <span>Equipe (Admin)</span>
+          </a>
+          <a class="nav-item" hidden data-page="clinic" href="/medico/clinica">
+            <i class="fas fa-hospital-alt"></i> <span>Minha Clínica</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ACESSO EXTRA -->
+      <div class="sb-group open" data-group="acesso-extra">
+        <button class="sb-group-btn" type="button"><span>Acesso Extra</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="reception" href="/recepcao">
+            <i class="fas fa-concierge-bell"></i> <span>Painel de Recepção</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span class="sb-toggle-label"><i class="fas fa-moon"></i> Tema</span>
+        <div class="toggle-switch" id="themeToggle" role="button" tabindex="0" aria-label="Alternar tema">
+          <div class="slider"></div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+  MAIN
+  ============================================================ -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Painel Administrativo</h1>
+        <div class="meta">Cadastro de profissionais e atendentes</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+        <a href="/medico" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Aviso de acesso negado -->
+      <div class="access-denied" id="accessDenied" style="display:none">
+        <h2><i class="fas fa-lock"></i> Acesso Restrito</h2>
+        <p>Esta área é exclusiva para administradores do sistema.</p>
+        <a href="/medico" class="btn btn-solid" style="margin-top:16px;display:inline-flex;"><i class="fas fa-arrow-left"></i> Voltar ao Dashboard</a>
+      </div>
+
+      <div id="adminContent" style="display:none">
+
+        <!-- CADASTRAR MÉDICO + LISTA -->
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-user-md"></i> Cadastrar Profissional</h3>
+            </div>
+            <div class="card-body">
+              <form id="doctorForm">
+                <div class="form-grid cols1">
+                  <div class="form-group"><label>Nome completo</label><input type="text" id="dName" required placeholder="Dr. Nome Sobrenome" /></div>
+                  <div class="form-group"><label>E-mail</label><input type="email" id="dEmail" required placeholder="medico@clinica.com" /></div>
+                  <div class="form-group"><label>CRM</label><input type="text" id="dCrm" placeholder="CRM/SP 000000" /></div>
+                  <div class="form-group"><label>Especialidade</label><input type="text" id="dSpecialty" placeholder="Ex: Clínico Geral, Dermatologia" /></div>
+                  <div class="form-group"><label>Senha</label><input type="password" id="dPassword" required placeholder="Mínimo 6 caracteres" /></div>
+                </div>
+                <div style="margin-top:16px;">
+                  <button type="submit" class="btn btn-solid" id="doctorSubmitBtn">
+                    <i class="fas fa-plus"></i> Cadastrar Profissional
+                  </button>
+                </div>
+                <div class="alert-msg alert-ok" id="doctorOk"></div>
+                <div class="alert-msg alert-err" id="doctorErr"></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-list-ul"></i> Profissionais Cadastrados</h3>
+              <button class="btn btn-outline btn-sm" onclick="loadTeam()"><i class="fas fa-sync"></i></button>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Nome</th><th>E-mail</th><th>CRM</th><th>Especialidade</th><th>Tipo</th></tr></thead>
+                  <tbody id="doctorsList"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CADASTRAR RECEPCIONISTA + LISTA -->
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-user-tie"></i> Cadastrar Atendente</h3>
+            </div>
+            <div class="card-body">
+              <form id="receptionistForm">
+                <div class="form-grid cols1">
+                  <div class="form-group"><label>Nome completo</label><input type="text" id="rName" required placeholder="Nome do(a) atendente" /></div>
+                  <div class="form-group"><label>E-mail</label><input type="email" id="rEmail" required placeholder="recepcao@clinica.com" /></div>
+                  <div class="form-group"><label>Senha</label><input type="password" id="rPassword" required placeholder="Mínimo 6 caracteres" /></div>
+                  <div class="form-group">
+                    <label>Acesso à Agenda</label>
+                    <select id="receptionistAgendaScope">
+                      <option value="ALL_DOCTORS" selected>Agenda da Clínica (todos os médicos)</option>
+                      <option value="SELECTED_DOCTORS">Agenda de Médicos Específicos</option>
+                    </select>
+                  </div>
+                  <div class="form-group" id="receptionistAgendaDoctorWrap" style="display:none;">
+                    <label>Médicos permitidos (selecione um ou mais)</label>
+                    <select id="receptionistAgendaDoctorIds" multiple size="6">
+                    </select>
+                    <small style="display:block;color:var(--text-muted);font-size:11px;margin-top:6px;">Use Ctrl/Cmd para selecionar mais de um.</small>
+                  </div>
+                </div>
+                <div style="margin-top:16px;">
+                  <button type="submit" class="btn btn-teal" id="receptionistSubmitBtn">
+                    <i class="fas fa-plus"></i> Cadastrar Atendente
+                  </button>
+                </div>
+                <div class="alert-msg alert-ok" id="receptionistOk"></div>
+                <div class="alert-msg alert-err" id="receptionistErr"></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-users"></i> Atendentes Cadastrados</h3>
+              <button class="btn btn-outline btn-sm" onclick="loadTeam()"><i class="fas fa-sync"></i></button>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Nome</th><th>E-mail</th><th>Status</th></tr></thead>
+                  <tbody id="receptionistsList"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================
+  SCRIPTS
+  ============================================================ -->
+  <script>
+    (function() {
+      // ============================================================
+      // SIDEBAR — TOGGLE, TEMA, LOGOUT (mesmo código da referência)
+      // ============================================================
+      const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      let isCollapsed = false;
+
+      const savedCollapse = localStorage.getItem('sidebarCollapsed');
+      if (savedCollapse === 'true') {
+        sidebar.classList.add('collapsed');
+        isCollapsed = true;
+      }
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.innerWidth <= 992) {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+          document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        } else {
+          isCollapsed = !isCollapsed;
+          sidebar.classList.toggle('collapsed', isCollapsed);
+          localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      // TEMA
+      const themeToggle = document.getElementById('themeToggle');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      // LOGOUT
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('doctorToken');
+        localStorage.removeItem('doctorData');
+        window.location.href = '/medico/login';
+      });
+
+      // ============================================================
+      // DADOS DO USUÁRIO
+      // ============================================================
+      const token = localStorage.getItem('doctorToken');
+      const doctorData = JSON.parse(localStorage.getItem('doctorData') || '{}');
+      if (!token) { window.location.href = '/medico/login'; }
+
+      const nameEl = document.getElementById('sidebarName');
+      const roleEl = document.getElementById('sidebarRole');
+      const clinicEl = document.getElementById('sidebarClinic');
+      if (nameEl) nameEl.textContent = doctorData.name || 'Profissional';
+      if (roleEl) roleEl.textContent = doctorData.isClinicOwner ? 'Owner da Clínica' : 'Profissional';
+      if (clinicEl) clinicEl.textContent = 'Clínica: ' + (doctorData.clinicName || '--');
+
+      const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+
+      // ============================================================
+      // PERMISSÕES — esconde da sidebar as páginas que este usuário
+      // não pode ver (os itens já nascem com "hidden" no HTML pra não
+      // aparecer nem um instante antes desta checagem terminar).
+      // ============================================================
+      document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+        item.hidden = true;
+      });
+      fetch('/api/auth/permissions', { headers })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (!data || !Array.isArray(data.pages)) return;
+          const allowed = new Set((data.pages || []).filter((p) => p.can_view).map((p) => p.code));
+          document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+            const rawCodes = item.getAttribute('data-page-codes') || item.getAttribute('data-page') || '';
+            const pageCodes = rawCodes.split(',').map((code) => code.trim()).filter(Boolean);
+            if (!pageCodes.length) { item.hidden = false; return; }
+            const canSee = pageCodes.some((code) => allowed.has(code));
+            item.hidden = !canSee;
+          });
+          document.querySelectorAll('.sb-group').forEach((g) => {
+            const hasVisible = Array.from(g.querySelectorAll('.nav-item')).some((i) => !i.hidden);
+            g.style.display = hasVisible ? '' : 'none';
+          });
+        })
+        .catch(() => {});
+
+      // ============================================================
+      // LÓGICA ADMIN — CHECK E CARREGAMENTO
+      // ============================================================
+      async function checkAdmin() {
+        try {
+          const res = await fetch('/api/auth/me', { headers });
+          if (!res.ok) throw new Error();
+          const me = await res.json();
+          const isAdmin = me?.role === 'ADMIN' || doctorData?.isAdmin === true;
+          if (!isAdmin) {
+            document.getElementById('accessDenied').style.display = '';
+          } else {
+            document.getElementById('adminContent').style.display = '';
+            loadTeam();
+            loadDoctorsForReceptionistScope();
+          }
+        } catch {
+          document.getElementById('accessDenied').style.display = '';
+        }
+      }
+
+      async function loadTeam() {
+        const doctorsBody = document.getElementById('doctorsList');
+        const recepBody = document.getElementById('receptionistsList');
+
+        try {
+          const [docsRes, recRes] = await Promise.all([
+            fetch('/api/auth/team/doctors', { headers }),
+            fetch('/api/auth/team/receptionists', { headers }),
+          ]);
+
+          const doctors = docsRes.ok ? await docsRes.json() : [];
+          const receptionists = recRes.ok ? await recRes.json() : [];
+
+          doctorsBody.innerHTML = doctors.length
+            ? doctors.map(d => `<tr>
+                <td><strong>${esc(d.name || '—')}</strong></td>
+                <td style="color:var(--text-muted)">${esc(d.email || '—')}</td>
+                <td style="color:var(--text-muted)">${esc(d.crm || '—')}</td>
+                <td style="color:var(--text-muted)">${esc(d.specialty || '—')}</td>
+                <td><span class="badge ${d.role === 'ADMIN' ? 'badge-blue' : 'badge-gray'}">${d.role === 'ADMIN' ? 'Admin' : 'Profissional'}</span></td>
+              </tr>`).join('')
+            : '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px">Nenhum profissional cadastrado</td></tr>';
+
+          recepBody.innerHTML = receptionists.length
+            ? receptionists.map(r => `<tr>
+                <td><strong>${esc(r.name || '—')}</strong></td>
+                <td style="color:var(--text-muted)">${esc(r.email || '—')}</td>
+                <td>${r.active ? '<span class="badge badge-green">Ativa</span>' : '<span class="badge badge-red">Inativa</span>'}</td>
+              </tr>`).join('')
+            : '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px">Nenhum atendente cadastrado</td></tr>';
+        } catch {
+          doctorsBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--red);font-size:11px">Erro ao carregar</td></tr>';
+          recepBody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--red);font-size:11px">Erro ao carregar</td></tr>';
+        }
+      }
+
+      function esc(v) {
+        return String(v || '').replace(/[&<>"']/g, (s) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s] || s));
+      }
+
+      // ============================================================
+      // FORMULÁRIO — CADASTRAR MÉDICO
+      // ============================================================
+      document.getElementById('doctorForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const ok = document.getElementById('doctorOk');
+        const err = document.getElementById('doctorErr');
+        const btn = document.getElementById('doctorSubmitBtn');
+        ok.style.display = 'none';
+        err.style.display = 'none';
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spin"></span>Salvando...';
+
+        try {
+          const res = await fetch('/api/auth/register-doctor', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              name: document.getElementById('dName').value.trim(),
+              email: document.getElementById('dEmail').value.trim(),
+              crm: document.getElementById('dCrm').value.trim(),
+              specialty: document.getElementById('dSpecialty').value.trim() || null,
+              password: document.getElementById('dPassword').value,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Erro ao cadastrar profissional');
+
+          ok.textContent = `Profissional ${data.name} cadastrado com sucesso.`;
+          ok.style.display = 'block';
+          e.target.reset();
+          await loadTeam();
+        } catch (error) {
+          err.textContent = error.message || 'Erro ao cadastrar profissional.';
+          err.style.display = 'block';
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plus"></i> Cadastrar Profissional';
+      });
+
+      // ============================================================
+      // FORMULÁRIO — CADASTRAR RECEPCIONISTA
+      // ============================================================
+      document.getElementById('receptionistForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const ok = document.getElementById('receptionistOk');
+        const err = document.getElementById('receptionistErr');
+        const btn = document.getElementById('receptionistSubmitBtn');
+        ok.style.display = 'none';
+        err.style.display = 'none';
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spin"></span>Salvando...';
+
+        try {
+          const scopeType = document.getElementById('receptionistAgendaScope').value;
+          const doctorIds = Array.from(document.getElementById('receptionistAgendaDoctorIds').selectedOptions || []).map(opt => opt.value).filter(Boolean);
+          const doctorId = doctorIds.length === 1 ? doctorIds[0] : null;
+
+          const payload = {
+            name: document.getElementById('rName').value.trim(),
+            email: document.getElementById('rEmail').value.trim(),
+            password: document.getElementById('rPassword').value,
+            scopeType,
+            doctorId,
+            doctorIds,
+          };
+
+          const res = await fetch('/api/auth/register-receptionist', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Erro ao cadastrar atendente');
+
+          ok.textContent = `Atendente ${data.name} cadastrado(a) com sucesso.`;
+          ok.style.display = 'block';
+          e.target.reset();
+          await loadTeam();
+        } catch (error) {
+          err.textContent = error.message || 'Erro ao cadastrar atendente.';
+          err.style.display = 'block';
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plus"></i> Cadastrar Atendente';
+      });
+
+      // ============================================================
+      // UI — MOSTRAR/OCULTAR SELETOR DE MÉDICOS ESPECÍFICOS
+      // ============================================================
+      function syncAgendaScopeUI() {
+        const scope = document.getElementById('receptionistAgendaScope').value;
+        const wrap = document.getElementById('receptionistAgendaDoctorWrap');
+        wrap.style.display = scope === 'SELECTED_DOCTORS' ? 'block' : 'none';
+      }
+      document.getElementById('receptionistAgendaScope').addEventListener('change', syncAgendaScopeUI);
+      syncAgendaScopeUI();
+
+      // ============================================================
+      // CARREGAR MÉDICOS PARA O SELETOR DE ESCOPO
+      // ============================================================
+      async function loadDoctorsForReceptionistScope() {
+        try {
+          const res = await fetch('/api/reception/doctors', { headers });
+          if (!res.ok) return;
+          const doctors = await res.json();
+          const sel = document.getElementById('receptionistAgendaDoctorIds');
+          if (!Array.isArray(doctors)) return;
+          sel.innerHTML = doctors.map(d => {
+            const meta = d.crm ? ' — ' + esc(d.crm) : '';
+            return `<option value="${esc(d.id)}">${esc(d.name)}${meta}</option>`;
+          }).join('');
+        } catch (_e) {}
+      }
+
+      // ============================================================
+      // INICIALIZAÇÃO
+      // ============================================================
+      checkAdmin();
+    })();
+  </script>
+</body>
+</html>

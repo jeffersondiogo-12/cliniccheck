@@ -1,0 +1,3258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinic Chek · Receita / Atestado</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    /* ============================================================
+       SISTEMA DE TEMAS — CLARO EQUILIBRADO / ESCURO
+       ============================================================ */
+    :root {
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ============================================================
+       RESET E BASE
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ============================================================
+       SIDEBAR — ESTRUTURA COMPLETA
+       ============================================================ */
+    /* ----- TEMA CLARO (PADRÃO) E ESCURO PARA SIDEBAR ----- */
+    :root {
+      --sb-bg: #f8fafc;
+      --sb-surface: #ffffff;
+      --sb-elevated: #f1f5f9;
+      --sb-border: #e2e8f0;
+      --sb-text: #1e293b;
+      --sb-text-secondary: #334155;
+      --sb-text-muted: #64748b;
+      --sb-accent: #2563eb;
+      --sb-accent-dim: #eff6ff;
+      --sb-accent-hover: #dbeafe;
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+      --sb-radius: 12px;
+      --sb-font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sb-sidebar-width: 280px;
+      --sb-sidebar-collapsed: 72px;
+      --sb-transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --sb-bg: #0b1120;
+      --sb-surface: #111c2e;
+      --sb-elevated: #1e2d45;
+      --sb-border: rgba(255, 255, 255, 0.06);
+      --sb-text: #f0f4ff;
+      --sb-text-secondary: #b0c4e8;
+      --sb-text-muted: #7a8aa8;
+      --sb-accent: #3b82f6;
+      --sb-accent-dim: rgba(59, 130, 246, 0.15);
+      --sb-accent-hover: rgba(59, 130, 246, 0.25);
+      --sb-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sb-sidebar-width);
+      background: var(--sb-surface);
+      border-right: 1px solid var(--sb-border);
+      color: var(--sb-text);
+      font-family: var(--sb-font);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: width var(--sb-transition), transform var(--sb-transition), background var(--sb-transition);
+      box-shadow: var(--sb-shadow);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sb-sidebar-collapsed);
+    }
+    .sidebar.collapsed .sb-brand-title,
+    .sidebar.collapsed .sidebar-user,
+    .sidebar.collapsed .sb-group-btn span:not(.caret),
+    .sidebar.collapsed .nav-item span,
+    .sidebar.collapsed .sidebar-footer .btn-logout span,
+    .sidebar.collapsed .sb-toggle-label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sidebar.collapsed .sb-brand-icon {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .nav-item i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+    .sidebar.collapsed .sb-group-btn {
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .sidebar.collapsed .sb-group-btn .caret {
+      display: none;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout {
+      justify-content: center;
+      padding: 10px !important;
+    }
+    .sidebar.collapsed .sidebar-footer .btn-logout i {
+      margin-right: 0;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--sb-border);
+      flex-shrink: 0;
+    }
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .sb-brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--sb-accent), #06b6d4);
+      border-radius: var(--sb-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .sb-brand-icon:hover {
+      transform: rotate(-8deg) scale(1.05);
+    }
+    .sb-brand-title {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+    .sb-brand-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--sb-text);
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--sb-text) 60%, var(--sb-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sb-brand-title small {
+      font-size: 10px;
+      color: var(--sb-text-muted);
+      font-weight: 400;
+      -webkit-text-fill-color: var(--sb-text-muted);
+    }
+
+    .sb-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--sb-text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn:hover {
+      background: var(--sb-elevated);
+      color: var(--sb-text);
+    }
+    .sb-toggle-btn:active {
+      transform: scale(0.9);
+    }
+
+    .sidebar-user {
+      margin: 12px 16px 8px;
+      padding: 14px 16px;
+      background: var(--sb-elevated);
+      border-radius: var(--sb-radius);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .sidebar-user .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sb-text);
+    }
+    .sidebar-user .role {
+      font-size: 11px;
+      color: var(--sb-text-muted);
+      margin-top: 2px;
+    }
+    .sidebar-user .clinic {
+      font-size: 11px;
+      color: var(--sb-accent);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-user .clinic i {
+      font-size: 10px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 12px 8px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--sb-border) transparent;
+    }
+    .sidebar-nav::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav::-webkit-scrollbar-thumb {
+      background: var(--sb-border);
+      border-radius: 10px;
+    }
+
+    .sb-group {
+      margin-top: 4px;
+    }
+    .sb-group + .sb-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--sb-border);
+    }
+
+    .sb-group-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      border: 0;
+      color: var(--sb-text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--sb-font);
+      border-radius: 6px;
+      transition: color 0.25s, background 0.25s;
+    }
+    .sb-group-btn:hover {
+      color: var(--sb-accent);
+      background: var(--sb-accent-dim);
+    }
+    .sb-group-btn .caret {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 9px;
+    }
+    .sb-group.open .sb-group-btn .caret {
+      transform: rotate(90deg);
+      color: var(--sb-accent);
+    }
+
+    .sb-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+    }
+    .sb-group.open .sb-group-list {
+      max-height: 600px;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sb-text-secondary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, transform 0.15s, padding 0.2s;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sb-font);
+      overflow: hidden;
+    }
+    .nav-item i {
+      width: 20px;
+      font-size: 15px;
+      color: var(--sb-text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .nav-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--sb-accent);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-item:hover {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      transform: translateX(3px);
+    }
+    .nav-item:hover i {
+      color: var(--sb-accent);
+      transform: scale(1.1) rotate(-4deg);
+    }
+    .nav-item:hover::before {
+      transform: scaleY(0.5);
+    }
+
+    .nav-item.active {
+      background: var(--sb-accent-dim);
+      color: var(--sb-text);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--sb-accent);
+    }
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    .nav-item.active i {
+      color: var(--sb-accent);
+    }
+    .nav-item:active {
+      transform: scale(0.97);
+    }
+    .nav-item[hidden] {
+      display: none !important;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--sb-border);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--sb-elevated);
+      border: 1px solid var(--sb-border);
+      transition: background 0.3s;
+    }
+    .theme-toggle .sb-toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sb-text-muted);
+      transition: opacity 0.2s;
+    }
+    .theme-toggle .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--sb-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .theme-toggle .toggle-switch .slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch {
+      background: var(--sb-accent);
+    }
+    [data-theme="dark"] .theme-toggle .toggle-switch .slider {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--sb-font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-logout i {
+      font-size: 15px;
+    }
+    .btn-logout span {
+      transition: opacity 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.16);
+    }
+    .btn-logout:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sb-sidebar-width);
+        border-right: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .sidebar.collapsed {
+        width: var(--sb-sidebar-width);
+      }
+      .sidebar.collapsed .sb-brand-title,
+      .sidebar.collapsed .sidebar-user,
+      .sidebar.collapsed .sb-group-btn span:not(.caret),
+      .sidebar.collapsed .nav-item span,
+      .sidebar.collapsed .sidebar-footer .btn-logout span,
+      .sidebar.collapsed .sb-toggle-label {
+        opacity: 1;
+        pointer-events: auto;
+        width: auto;
+        overflow: visible;
+      }
+      .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 9px 12px !important;
+      }
+      .sidebar.collapsed .nav-item i {
+        font-size: 15px;
+        margin-right: 0;
+      }
+      .sidebar.collapsed .sb-group-btn {
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .sidebar.collapsed .sb-group-btn .caret {
+        display: inline;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout {
+        justify-content: flex-start;
+        padding: 10px 14px !important;
+      }
+      .sidebar.collapsed .sidebar-footer .btn-logout i {
+        margin-right: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        max-width: 320px;
+      }
+      .sb-brand-title h2 {
+        font-size: 15px;
+      }
+    }
+
+    /* ============================================================
+       MAIN (ajustado para a nova sidebar)
+       ============================================================ */
+    .main {
+      margin-left: var(--sb-sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+    @media (max-width: 992px) {
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .topbar-actions .badge i {
+      color: var(--accent-5);
+      font-size: 10px;
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       CARDS E GRIDS (copiados da página original)
+       ============================================================ */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px) scale(1.002);
+      border-color: var(--accent-1);
+    }
+    .card-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-header h3 i {
+      color: var(--accent-1);
+      font-size: 16px;
+    }
+    .card-body {
+      padding: 20px 22px;
+    }
+
+    .card-overflow-visible {
+      overflow: visible;
+    }
+
+    /* ============================================================
+       FORMULÁRIOS
+       ============================================================ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols1 {
+      grid-template-columns: 1fr;
+    }
+    .form-grid.cols3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.span2 {
+      grid-column: span 2;
+    }
+    .form-group.span3 {
+      grid-column: span 3;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: color var(--transition);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform 0.15s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+      transform: scale(1.01);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-group select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    /* ============================================================
+       BOTÕES
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      letter-spacing: 0.2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .btn:hover::after {
+      opacity: 1;
+    }
+    .btn i {
+      font-size: 14px;
+    }
+    .btn-solid {
+      background: var(--accent-1);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3);
+    }
+    .btn-solid:hover {
+      background: #3b7ec8;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4);
+    }
+    .btn-solid:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-teal {
+      background: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3);
+    }
+    .btn-teal:hover {
+      background: #5ab8a9;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 24px rgba(107, 197, 184, 0.4);
+    }
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: 11px;
+    }
+    .btn-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(229, 62, 62, 0.15);
+    }
+    .btn-red:hover {
+      background: rgba(229, 62, 62, 0.12);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-icon {
+      padding: 6px;
+      border-radius: 6px;
+    }
+
+    /* ============================================================
+       ALERTAS
+       ============================================================ */
+    .alert-msg {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), transform 0.2s ease;
+    }
+    .alert-msg.show {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+    .alert-ok {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+      border-left: 3px solid var(--accent-5);
+    }
+    .alert-err {
+      background: var(--red-bg);
+      color: var(--red);
+      border-left: 3px solid var(--red);
+    }
+
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ============================================================
+       TABS
+       ============================================================ */
+    .tabs-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 9px 18px;
+      border: 1.5px solid var(--border-card);
+      border-radius: 8px;
+      background: var(--bg-card);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--accent-1);
+      color: #fff;
+      border-color: var(--accent-1);
+    }
+    .tab-btn:hover:not(.active) {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+    }
+
+    /* ============================================================
+       TABELAS
+       ============================================================ */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.2s ease, border-color var(--transition), transform 0.15s ease;
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    tbody tr:hover {
+      background: var(--bg-card-hover);
+      transform: scale(1.002);
+    }
+    tbody td {
+      padding: 11px 14px;
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    tbody td strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* ============================================================
+       BADGES
+       ============================================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: background var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .badge:hover {
+      transform: scale(1.06);
+    }
+    .badge-blue {
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+    }
+    .badge-green {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .badge-yellow {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .badge-gray {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-teal {
+      background: var(--accent-2-dim);
+      color: var(--accent-2);
+    }
+
+    /* ============================================================
+       COMPONENTES ESPECÍFICOS DA PÁGINA DE RECEITA/ATESTADO
+       ============================================================ */
+    .patient-box {
+      background: var(--accent-1-dim);
+      border: 1px solid #c3dafe;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .patient-box .pb-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-1);
+    }
+    .patient-box .pb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .patient-box .pb-item {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .patient-box .pb-item strong {
+      display: block;
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .consent-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .consent-signed {
+      background: var(--accent-5-dim);
+      color: var(--accent-5);
+    }
+    .consent-pending {
+      background: var(--accent-4-dim);
+      color: var(--accent-4);
+    }
+    .consent-none {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    .patient-search-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .patient-api-status {
+      font-size: 10px;
+      color: var(--text-muted);
+      min-height: 14px;
+    }
+    .patient-api-status.ok {
+      color: var(--accent-5);
+    }
+    .patient-api-status.warn {
+      color: var(--accent-4);
+    }
+    .patient-api-status.err {
+      color: var(--red);
+    }
+
+    .patient-dropdown {
+      background: var(--bg-card);
+      border: 1.5px solid var(--accent-1);
+      border-radius: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    .patient-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.12s;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .patient-option:last-child {
+      border-bottom: none;
+    }
+    .patient-option:hover {
+      background: var(--accent-1-dim);
+    }
+    .patient-option .name {
+      font-weight: 600;
+      color: var(--accent-1);
+      font-size: 11px;
+    }
+    .patient-option .meta {
+      color: var(--text-secondary);
+      font-size: 10px;
+      margin-top: 2px;
+    }
+    .patient-option.empty {
+      cursor: default;
+      color: var(--text-muted);
+    }
+
+    .med-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .med-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .med-item input {
+      padding: 7px 10px;
+      border: 1.5px solid var(--border-card);
+      border-radius: 7px;
+      font-size: 11px;
+      font-family: var(--font);
+      background: var(--bg-input);
+      outline: none;
+      color: var(--text-primary);
+      transition: border-color 0.2s;
+    }
+    .med-item input:focus {
+      border-color: var(--accent-1);
+    }
+    .med-item label {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .med-item .med-col {
+      display: flex;
+      flex-direction: column;
+    }
+    .med-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--red);
+      padding: 6px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .med-remove:hover {
+      background: var(--red-bg);
+    }
+    .med-remove svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .cid-search-wrap {
+      position: relative;
+    }
+    .cid-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1.5px solid var(--accent-1);
+      border-radius: 8px;
+      z-index: 100;
+      max-height: 220px;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    .cid-option {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.12s;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .cid-option:last-child {
+      border-bottom: none;
+    }
+    .cid-option:hover {
+      background: var(--accent-1-dim);
+    }
+    .cid-option.active {
+      background: var(--accent-1-dim);
+    }
+    .cid-option .cid-code {
+      font-weight: 700;
+      color: var(--accent-1);
+      font-size: 11px;
+    }
+    .cid-option .cid-desc {
+      color: var(--text-secondary);
+      font-size: 11px;
+      margin-top: 1px;
+    }
+    .cid-selected {
+      background: var(--accent-1-dim);
+      border: 1px solid #c3dafe;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      display: none;
+      margin-top: 6px;
+    }
+    .cid-selected .cid-code {
+      font-weight: 700;
+      color: var(--accent-1);
+    }
+    .cid-toolbar {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .cid-toolbar .cid-filter {
+      min-width: 180px;
+      max-width: 220px;
+    }
+    .cid-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .cid-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-1-dim);
+      border: 1px solid #c3dafe;
+      color: var(--accent-1);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .cid-pill small {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .cid-pill button {
+      border: none;
+      background: transparent;
+      color: var(--red);
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 0 0 2px;
+    }
+    .cid-empty {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* ============================================================
+       PREVIEW / PRINT
+       ============================================================ */
+    .print-preview {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 32px;
+      font-size: 13px;
+      line-height: 1.7;
+      display: none;
+      font-family: var(--font);
+    }
+    .print-preview.open {
+      display: block;
+    }
+
+    .print-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid var(--accent-1);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    .print-head .clinic-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .print-head .clinic-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .print-head .clinic-info h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-1);
+      margin: 0 0 2px;
+    }
+    .print-head .clinic-info p {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin: 1px 0;
+    }
+    .print-head .clinic-info .clinic-address {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .print-head .doc-type {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-1);
+      text-align: right;
+      letter-spacing: 0.5px;
+    }
+
+    .print-section {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      background: var(--bg-surface);
+    }
+    .print-section h4 {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 5px;
+      margin: 0 0 8px;
+    }
+    .print-section p,
+    .print-section strong {
+      font-size: 13px;
+      color: var(--text-primary);
+      margin: 2px 0;
+    }
+
+    .print-meds {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+    .print-meds thead {
+      background: var(--accent-1-dim);
+    }
+    .print-meds th {
+      text-align: left;
+      padding: 7px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .print-meds td {
+      padding: 7px 10px;
+      font-size: 12px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+    .print-meds tbody tr:nth-child(even) {
+      background: var(--bg-surface);
+    }
+
+    .print-footer {
+      margin-top: 36px;
+      padding-top: 14px;
+      border-top: 1.5px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .print-footer>div:first-child {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .print-sig {
+      text-align: center;
+      min-width: 220px;
+    }
+    .print-sig .sig-line {
+      border-bottom: 1.5px solid var(--text-primary);
+      width: 220px;
+      margin: 0 auto 5px;
+    }
+    .print-sig p {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin: 1px 0;
+    }
+
+    @media print {
+      .sidebar,
+      .topbar,
+      .no-print,
+      .tabs-row,
+      .card {
+        display: none !important;
+      }
+      .content>.pane-print-active {
+        display: block !important;
+        padding: 0 !important;
+        background: transparent !important;
+      }
+      .content>.pane-print-active>.print-preview.open {
+        display: block !important;
+      }
+      .print-preview.open {
+        border: none !important;
+        padding: 16px 20px !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+      }
+      body,
+      html {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+      }
+      .print-head {
+        border-bottom-width: 2px !important;
+      }
+      .print-section h4 {
+        color: #555 !important;
+      }
+      .print-footer {
+        margin-top: 60px;
+      }
+      .print-sig .sig-line {
+        border-color: #000 !important;
+      }
+    }
+
+    /* ============================================================
+       MODAL CID
+       ============================================================ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-card);
+      transition: transform 0.25s ease;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal:hover {
+      transform: scale(1.005);
+    }
+    .modal-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-head h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 24px;
+      line-height: 1;
+      transition: color 0.15s, transform 0.2s ease;
+    }
+    .modal-close:hover {
+      color: var(--text-primary);
+      transform: rotate(90deg);
+    }
+    .modal-body {
+      padding: 22px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-foot {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+      background: var(--bg-surface);
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .modal-foot .btn {
+      min-width: 80px;
+      justify-content: center;
+    }
+
+    /* ============================================================
+       RESPONSIVO GERAL
+       ============================================================ */
+    @media (max-width: 900px) {
+      .content {
+        padding: 16px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-grid.cols3 {
+        grid-template-columns: 1fr;
+      }
+      .form-group.span2,
+      .form-group.span3 {
+        grid-column: span 1;
+      }
+      .med-item {
+        grid-template-columns: 1fr 1fr;
+      }
+      .med-item .med-col:nth-child(3) {
+        grid-column: span 2;
+      }
+      .topbar {
+        padding: 12px 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .topbar h1 {
+        font-size: 18px;
+      }
+      .modal {
+        max-width: 100%;
+        margin: 8px;
+      }
+    }
+    @media (max-width: 640px) {
+      .stat-card .value {
+        font-size: 22px;
+      }
+      .card-body {
+        padding: 14px;
+      }
+    }
+
+    /* ============================================================
+       ANIMAÇÕES
+       ============================================================ */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+  SIDEBAR — NOVA ESTRUTURA
+  ============================================================ -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-header">
+      <div class="sb-brand">
+        <div class="sb-brand-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="sb-brand-title">
+          <h2>Clinic Chek</h2>
+          <small>Gestão inteligente</small>
+        </div>
+      </div>
+      <button class="sb-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="name" id="sidebarName">Carregando...</div>
+      <div class="role" id="sidebarRole">Profissional</div>
+      <div class="clinic"><i class="fas fa-hospital"></i> <span id="sidebarClinic">Clínica: --</span></div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- PRINCIPAL -->
+      <div class="sb-group open" data-group="principal">
+        <button class="sb-group-btn" type="button"><span>Principal</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="dashboard" data-page-codes="dashboard,dashboard.insights" href="/medico">
+            <i class="fas fa-th-large"></i> <span>Dashboard</span>
+          </a>
+          <a class="nav-item" hidden data-page="agenda" data-page-codes="agenda,agenda.consultations" href="/medico/agenda">
+            <i class="fas fa-calendar-check"></i> <span>Agenda</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CADASTROS -->
+      <div class="sb-group open" data-group="cadastro">
+        <button class="sb-group-btn" type="button"><span>Cadastros</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="patients" data-page-codes="patients,patients.profile" href="/medico/pacientes">
+            <i class="fas fa-user-injured"></i> <span>Pacientes</span>
+          </a>
+          <a class="nav-item" hidden data-page="patients.records" data-page-codes="patients.records,patients.followups" href="/medico/prontuarios">
+            <i class="fas fa-notes-medical"></i> <span>Prontuários</span>
+          </a>
+          <a class="nav-item" hidden data-page="procedures" data-page-codes="procedures,procedures.register,procedures.types" href="/medico/procedimentos">
+            <i class="fas fa-procedures"></i> <span>Procedimentos</span>
+          </a>
+          <a class="nav-item active" hidden data-page="prescriptions" data-page-codes="prescriptions,prescriptions.certificates" href="/medico/receita">
+            <i class="fas fa-prescription"></i> <span>Receita / Atestado</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- FINANCEIRO -->
+      <div class="sb-group open" data-group="financeiro">
+        <button class="sb-group-btn" type="button"><span>Financeiro</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/dashboard">
+            <i class="fas fa-chart-line"></i> <span>Dashboard Financeiro</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.caixa" data-page-codes="financeiro.caixa" href="/medico/caixa">
+            <i class="fas fa-cash-register"></i> <span>Caixa</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.despesas" data-page-codes="financeiro.despesas" href="/medico/financeiro/despesas">
+            <i class="fas fa-file-invoice-dollar"></i> <span>Contas a Pagar</span>
+          </a>
+          <a class="nav-item" hidden data-page="financeiro.relatorios" data-page-codes="financeiro.relatorios" href="/medico/financeiro/relatorios">
+            <i class="fas fa-chart-pie"></i> <span>Relatórios</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CONVÊNIOS -->
+      <div class="sb-group open" data-group="convenios">
+        <button class="sb-group-btn" type="button"><span>Convênios</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="convenios" data-page-codes="convenios,convenios.guias" href="/medico/convenios">
+            <i class="fas fa-handshake"></i> <span>Convênios</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ESTOQUE -->
+      <div class="sb-group open" data-group="estoque">
+        <button class="sb-group-btn" type="button"><span>Estoque</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="estoque" data-page-codes="estoque" href="/medico/estoque">
+            <i class="fas fa-boxes-stacked"></i> <span>Estoque</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- MINHA CONTA -->
+      <div class="sb-group open" data-group="minha-conta">
+        <button class="sb-group-btn" type="button"><span>Minha Conta</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="perfil" href="/medico/perfil">
+            <i class="fas fa-id-badge"></i> <span>Meu Perfil</span>
+          </a>
+          <a class="nav-item" hidden data-page="portfolio" data-page-codes="portfolio" href="/medico/portfolio">
+            <i class="fas fa-globe"></i> <span>Portfólio</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- DOCUMENTOS -->
+      <div class="sb-group open" data-group="documentos">
+        <button class="sb-group-btn" type="button"><span>Documentos</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="documents" data-page-codes="documents,documents.signature" href="/medico/documentos">
+            <i class="fas fa-file-signature"></i> <span>Documentos</span>
+          </a>
+          <a class="nav-item" hidden data-page="templates" data-page-codes="templates,templates.editor" href="/medico/templates">
+            <i class="fas fa-file-alt"></i> <span>Modelos</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ADMINISTRAÇÃO -->
+      <div class="sb-group open" data-group="administracao">
+        <button class="sb-group-btn" type="button"><span>Administração</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="team" data-page-codes="team,team.doctors,team.receptionists" id="navTeamItem" href="/admin">
+            <i class="fas fa-user-md"></i> <span>Equipe (Admin)</span>
+          </a>
+          <a class="nav-item" hidden data-page="clinic" data-page-codes="clinic,clinic.members,clinic.permissions" href="/medico/clinica">
+            <i class="fas fa-hospital-alt"></i> <span>Minha Clínica</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- ACESSO EXTRA -->
+      <div class="sb-group open" data-group="acesso-extra">
+        <button class="sb-group-btn" type="button"><span>Acesso Extra</span><span class="caret">▶</span></button>
+        <div class="sb-group-list">
+          <a class="nav-item" hidden data-page="reception" data-page-codes="reception,reception.dashboard,reception.patients,reception.agenda" href="/recepcao">
+            <i class="fas fa-concierge-bell"></i> <span>Painel de Recepção</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-toggle">
+        <span class="sb-toggle-label"><i class="fas fa-moon"></i> Tema</span>
+        <div class="toggle-switch" id="themeToggle" role="button" tabindex="0" aria-label="Alternar tema">
+          <div class="slider"></div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+  MAIN — CONTEÚDO DA PÁGINA DE RECEITA/ATESTADO
+  ============================================================ -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="topbarTitle">Receita / Atestado Médico</h1>
+        <div class="meta" id="topbarMeta">Emissão de receitas e atestados vinculados aos procedimentos</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+        <a href="/medico" class="btn btn-outline btn-sm no-print">← Dashboard</a>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ============================================================
+      TABS
+      ============================================================ -->
+      <div class="tabs-row no-print">
+        <button class="tab-btn active" id="tabRec"  onclick="switchTab('receita')">💊 Nova Receita</button>
+        <button class="tab-btn"        id="tabAte"  onclick="switchTab('atestado')">📋 Novo Atestado</button>
+        <button class="tab-btn"        id="tabHistR" onclick="switchTab('hist-r')">Histórico Receitas</button>
+        <button class="tab-btn"        id="tabHistA" onclick="switchTab('hist-a')">Histórico Atestados</button>
+        <button class="tab-btn"        id="tabCid"  onclick="switchTab('cid')">⚕ CID-10 Custom</button>
+      </div>
+
+      <!-- ─── PANE RECEITA ─────────────────────────────────────────── -->
+      <div id="paneReceita">
+        <!-- Dados do paciente e procedimento -->
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-user"></i> Dados do Paciente e Procedimento</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group span2">
+                <label>Buscar Paciente (nome, e-mail ou CPF)</label>
+                <div class="patient-search-wrap">
+                  <input type="text" id="rPatientSearch" placeholder="Digite para filtrar..." autocomplete="off" />
+                  <div class="patient-api-status" id="rPatientApiStatus">Carregando pacientes...</div>
+                  <div class="patient-dropdown" id="rPatientDropdown" style="display:none"></div>
+                </div>
+                <select id="rPatientSelect" style="margin-top:6px;"><option value="">Selecione o paciente</option></select>
+              </div>
+              <div class="form-group span2">
+                <label>Procedimento (assinado e disponível)</label>
+                <select id="rSurgerySelect"><option value="">Selecione um procedimento elegível</option></select>
+              </div>
+            </div>
+            <div class="patient-box" id="rPatientBox">
+              <div class="pb-name" id="rPatientName">—</div>
+              <div class="pb-grid">
+                <div class="pb-item"><strong>E-mail</strong><span id="rPatientEmail">—</span></div>
+                <div class="pb-item"><strong>CPF / RG</strong><span id="rPatientCpf">—</span></div>
+                <div class="pb-item"><strong>Nascimento</strong><span id="rPatientBirth">—</span></div>
+                <div class="pb-item"><strong>Endereço</strong><span id="rPatientAddr">—</span></div>
+              </div>
+              <div id="rConsentBadge"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medicamentos -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-pills"></i> Medicamentos</h3>
+            <button class="btn btn-outline btn-sm" onclick="addMed('rMedList')">+ Adicionar Medicamento</button>
+          </div>
+          <div class="card-body">
+            <div class="med-list" id="rMedList"></div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Validade da Receita (dias)</label>
+                <input type="number" id="rValidDays" value="30" min="1" max="365" />
+              </div>
+              <div class="form-group">
+                <label>Data de Emissão</label>
+                <input type="date" id="rIssuedAt" />
+              </div>
+              <div class="form-group span2">
+                <label>Orientações / Posologia adicional</label>
+                <textarea id="rNotes" placeholder="Instruções gerais, cuidados, retorno..."></textarea>
+              </div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;" class="no-print">
+              <button class="btn btn-teal" id="rSaveBtn" onclick="saveReceita()">
+                <i class="fas fa-save"></i> Salvar Receita
+              </button>
+              <button class="btn btn-outline" onclick="previewReceita()">
+                <i class="fas fa-eye"></i> Visualizar
+              </button>
+              <button class="btn btn-outline" onclick="printDoc()"><i class="fas fa-print"></i> Imprimir</button>
+            </div>
+            <div class="alert-msg alert-ok"  id="rOk"></div>
+            <div class="alert-msg alert-err" id="rErr"></div>
+          </div>
+        </div>
+
+        <!-- Preview Receita -->
+        <div class="print-preview" id="previewReceita">
+          <div class="print-head">
+            <div class="clinic-left">
+              <img id="pvRLogo" src="" alt="" class="clinic-logo" style="display:none" />
+              <div class="clinic-info">
+                <h2 id="pvClinic">—</h2>
+                <p id="pvDoctorInfo">Dr(a). —</p>
+                <p class="clinic-address" id="pvClinicAddress"></p>
+              </div>
+            </div>
+            <div class="doc-type">RECEITA MÉDICA</div>
+          </div>
+          <div class="print-section">
+            <h4>Paciente</h4>
+            <p><strong id="pvRName">—</strong></p>
+            <p id="pvRInfo" style="font-size:11px;color:var(--text-muted);margin-top:3px;"></p>
+          </div>
+          <div class="print-section">
+            <h4>Medicamentos Prescritos</h4>
+            <table class="print-meds"><thead><tr><th>Medicamento</th><th>Dosagem</th><th>Posologia</th></tr></thead>
+            <tbody id="pvMedRows"></tbody></table>
+          </div>
+          <div class="print-section" id="pvNotesSection" style="display:none">
+            <h4>Orientações</h4>
+            <p id="pvNotes"></p>
+          </div>
+          <div class="print-footer">
+            <div style="font-size:11px;color:var(--text-muted);">
+              <p>Emitido em: <strong id="pvRDate">—</strong></p>
+              <p>Validade: <strong id="pvRValid">—</strong> dias</p>
+              <p id="pvClinicFooter" style="margin-top:8px;font-size:10px;"></p>
+            </div>
+            <div class="print-sig">
+              <div class="sig-line"></div>
+              <p id="pvDocName">Dr(a). —</p>
+              <p id="pvDocCrm"></p>
+              <p id="pvDocSpecialty" style="font-size:10px;font-style:italic"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PANE ATESTADO ────────────────────────────────────────── -->
+      <div id="paneAtestado" style="display:none">
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-user"></i> Dados do Paciente e Procedimento</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group span2">
+                <label>Buscar Paciente (nome, e-mail ou CPF)</label>
+                <div class="patient-search-wrap">
+                  <input type="text" id="aPatientSearch" placeholder="Digite para filtrar..." autocomplete="off" />
+                  <div class="patient-api-status" id="aPatientApiStatus">Carregando pacientes...</div>
+                  <div class="patient-dropdown" id="aPatientDropdown" style="display:none"></div>
+                </div>
+                <select id="aPatientSelect" style="margin-top:6px;"><option value="">Selecione o paciente</option></select>
+              </div>
+              <div class="form-group span2">
+                <label>Procedimento (assinado e disponível)</label>
+                <select id="aSurgerySelect"><option value="">Selecione um procedimento elegível</option></select>
+              </div>
+            </div>
+            <div class="patient-box" id="aPatientBox">
+              <div class="pb-name" id="aPatientName">—</div>
+              <div class="pb-grid">
+                <div class="pb-item"><strong>E-mail</strong><span id="aPatientEmail">—</span></div>
+                <div class="pb-item"><strong>CPF / RG</strong><span id="aPatientCpf">—</span></div>
+                <div class="pb-item"><strong>Nascimento</strong><span id="aPatientBirth">—</span></div>
+                <div class="pb-item"><strong>Endereço</strong><span id="aPatientAddr">—</span></div>
+              </div>
+              <div id="aConsentBadge"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-overflow-visible">
+          <div class="card-header"><h3><i class="fas fa-stethoscope"></i> Dados do Atestado</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group span2">
+                <div class="cid-toolbar">
+                  <div style="flex:1;min-width:280px;"><label>CID-11 / CID-10 — Diagnóstico</label></div>
+                  <div class="form-group cid-filter">
+                    <label>Filtro da Busca</label>
+                    <select id="aCidFilter" onchange="onCidFilterChange()">
+                      <option value="all">Todos</option>
+                      <option value="cid10">Somente CID-10</option>
+                      <option value="cid11">Somente CID-11</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="cid-search-wrap">
+                  <input type="text" id="aCidSearch" placeholder="Digite código (ex: J45, 6A80) ou termo (CID-11)..." autocomplete="off" oninput="onCidInput(this.value)" onkeydown="onCidKeyDown(event)" onfocus="onCidFocus()" onblur="onCidBlur()" />
+                  <div class="cid-dropdown" id="aCidDropdown" style="display:none"></div>
+                </div>
+                <div class="cid-selected" id="aCidSelected">
+                  <div><strong>CIDs selecionados para este atestado</strong></div>
+                  <div class="cid-list" id="aCidList"></div>
+                  <div class="cid-empty" id="aCidEmpty">Nenhum CID selecionado.</div>
+                  <button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="clearCid()">Limpar todos</button>
+                </div>
+                <div style="margin-top:8px;">
+                  <button class="btn btn-outline btn-sm no-print" onclick="openAddCidModal()">+ Cadastrar CID-10 personalizado</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Dias de Repouso / Afastamento</label>
+                <input type="number" id="aRestDays" value="1" min="1" max="365" />
+              </div>
+              <div class="form-group">
+                <label>Data de Emissão</label>
+                <input type="date" id="aIssuedAt" />
+              </div>
+              <div class="form-group span2">
+                <label>Justificativa / Observações</label>
+                <textarea id="aJustification" placeholder="Descreva o motivo do afastamento, procedimento realizado, orientações..."></textarea>
+              </div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;" class="no-print">
+              <button class="btn btn-teal" id="aSaveBtn" onclick="saveAtestado()">
+                <i class="fas fa-save"></i> Salvar Atestado
+              </button>
+              <button class="btn btn-outline" onclick="previewAtestado()">
+                <i class="fas fa-eye"></i> Visualizar
+              </button>
+              <button class="btn btn-outline" onclick="printDoc()"><i class="fas fa-print"></i> Imprimir</button>
+            </div>
+            <div class="alert-msg alert-ok"  id="aOk"></div>
+            <div class="alert-msg alert-err" id="aErr"></div>
+          </div>
+        </div>
+
+        <!-- Preview Atestado -->
+        <div class="print-preview" id="previewAtestado">
+          <div class="print-head">
+            <div class="clinic-left">
+              <img id="pvALogo" src="" alt="" class="clinic-logo" style="display:none" />
+              <div class="clinic-info">
+                <h2 id="pvAClinic">—</h2>
+                <p id="pvADocInfo">Dr(a). —</p>
+                <p class="clinic-address" id="pvAClinicAddress"></p>
+              </div>
+            </div>
+            <div class="doc-type">ATESTADO MÉDICO</div>
+          </div>
+          <div class="print-section">
+            <h4>Atesto que o(a) paciente</h4>
+            <p><strong id="pvAName">—</strong></p>
+            <p id="pvAInfo" style="font-size:11px;color:var(--text-muted);margin-top:3px;"></p>
+          </div>
+          <div class="print-section" id="pvACidSection" style="display:none">
+            <h4>Diagnóstico (CID)</h4>
+            <div id="pvACidList"></div>
+          </div>
+          <div class="print-section">
+            <h4>Período de Afastamento</h4>
+            <p>Necessita de <strong id="pvADays">—</strong> dia(s) de repouso/afastamento, a partir de <strong id="pvADate">—</strong>.</p>
+          </div>
+          <div class="print-section" id="pvAJustSection" style="display:none">
+            <h4>Justificativa</h4>
+            <p id="pvAJust"></p>
+          </div>
+          <div class="print-footer">
+            <div style="font-size:11px;color:var(--text-muted);">
+              <p>Emitido em: <strong id="pvAIssuedAt">—</strong></p>
+              <p id="pvAClinicFooter" style="margin-top:8px;font-size:10px;"></p>
+            </div>
+            <div class="print-sig">
+              <div class="sig-line"></div>
+              <p id="pvADocName">Dr(a). —</p>
+              <p id="pvADocCrm"></p>
+              <p id="pvADocSpecialty" style="font-size:10px;font-style:italic"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── HISTÓRICO RECEITAS ───────────────────────────────────── -->
+      <div id="paneHistR" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-history"></i> Histórico de Receitas</h3>
+            <input type="text" id="histRSearch" placeholder="Buscar paciente..." style="padding:7px 11px;border:1.5px solid var(--border-card);border-radius:8px;font-size:12px;font-family:var(--font);outline:none;background:var(--bg-input);color:var(--text-primary);" oninput="renderHistR()" />
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Paciente</th><th>Medicamentos</th><th>Procedimento</th><th>Emissão</th><th>Ações</th></tr></thead>
+                <tbody id="histRBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── HISTÓRICO ATESTADOS ──────────────────────────────────── -->
+      <div id="paneHistA" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-history"></i> Histórico de Atestados</h3>
+            <input type="text" id="histASearch" placeholder="Buscar paciente..." style="padding:7px 11px;border:1.5px solid var(--border-card);border-radius:8px;font-size:12px;font-family:var(--font);outline:none;background:var(--bg-input);color:var(--text-primary);" oninput="renderHistA()" />
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Paciente</th><th>CID</th><th>Repouso</th><th>Procedimento</th><th>Emissão</th><th>Ações</th></tr></thead>
+                <tbody id="histABody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CID-10 CUSTOM ────────────────────────────────────────── -->
+      <div id="paneCid" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-list-ul"></i> CID-10 Customizados</h3>
+            <button class="btn btn-teal btn-sm" onclick="openAddCidModal()">+ Novo CID-10</button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Código</th><th>Descrição</th><th>Categoria</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="cidBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <!-- ============================================================
+  MODAL CID-10
+  ============================================================ -->
+  <div class="modal-overlay" id="cidModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3><i class="fas fa-plus-circle" style="color:var(--accent-1);margin-right:8px;"></i>Cadastrar CID-10 Personalizado</h3>
+        <button class="modal-close" onclick="closeCidModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid cols1">
+          <div class="form-group">
+            <label>Código CID-10 *</label>
+            <input type="text" id="cidCode" placeholder="Ex: J45, K21.0, Z87.1..." maxlength="8" />
+            <small style="font-size:10px;color:var(--text-muted);">Formato: letra + número (ex: J45) ou alfanumérico com ponto (ex: K21.0)</small>
+          </div>
+          <div class="form-group">
+            <label>Descrição *</label>
+            <input type="text" id="cidDesc" placeholder="Nome da doença / condição" />
+          </div>
+          <div class="form-group">
+            <label>Categoria (opcional)</label>
+            <input type="text" id="cidCat" placeholder="Ex: Respiratório, Digestivo..." />
+          </div>
+        </div>
+        <div class="alert-msg alert-ok"  id="cidOk"></div>
+        <div class="alert-msg alert-err" id="cidErr"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="closeCidModal()">Cancelar</button>
+        <button class="btn btn-teal" id="cidSaveBtn" onclick="saveCid()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+  SCRIPTS — SIDEBAR + FUNCIONALIDADES ORIGINAIS (sem alterações)
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // SIDEBAR (mesmo código da tela de procedimentos)
+    // ============================================================
+    (function initSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      if (isCollapsed) sidebar.classList.add('collapsed');
+
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (window.innerWidth <= 992) {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('active');
+          document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        } else {
+          isCollapsed = !isCollapsed;
+          sidebar.classList.toggle('collapsed', isCollapsed);
+          localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+        }
+      });
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      // Tema
+      const themeToggle = document.getElementById('themeToggle');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      // Grupos colapsáveis
+      document.querySelectorAll('.sb-group-btn').forEach((btn) => {
+        btn.addEventListener('click', function() {
+          const group = this.closest('.sb-group');
+          if (group) group.classList.toggle('open');
+        });
+      });
+
+      // Dados do usuário
+      const doctorToken = localStorage.getItem('doctorToken');
+      const receptionToken = localStorage.getItem('receptionToken');
+      const token = doctorToken || receptionToken;
+      const isReceptionSession = !doctorToken && !!receptionToken;
+      const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+      const nameEl = document.getElementById('sidebarName');
+      const roleEl = document.getElementById('sidebarRole');
+      const clinicEl = document.getElementById('sidebarClinic');
+      if (nameEl) nameEl.textContent = doctorData.name || 'Profissional';
+      if (roleEl) roleEl.textContent = isReceptionSession ? 'Recepcionista' : (doctorData.isClinicOwner ? 'Owner da Clinica' : 'Profissional');
+      if (clinicEl) clinicEl.textContent = 'Clinica: ' + (doctorData.clinicName || '--');
+
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('doctorToken'); localStorage.removeItem('doctorData');
+        localStorage.removeItem('receptionToken'); localStorage.removeItem('receptionData');
+        window.location.href = isReceptionSession ? '/recepcao/login' : '/medico/login';
+      });
+
+      // Permissões (opcional)
+      if (token) {
+        fetch(isReceptionSession ? '/api/auth/permissions-receptionist' : '/api/auth/permissions', { headers: { Authorization: 'Bearer ' + token } })
+          .then((r) => r.ok ? r.json() : null)
+          .then((data) => {
+            if (!data || !Array.isArray(data.pages)) return;
+            const allowed = new Set((data.pages || []).filter((p) => p.can_view).map((p) => p.code));
+            document.querySelectorAll('#sidebarNav .nav-item[data-page]').forEach((item) => {
+              const rawCodes = item.getAttribute('data-page-codes') || item.getAttribute('data-page') || '';
+              const pageCodes = rawCodes.split(',').map((code) => code.trim()).filter(Boolean);
+              const canSee = pageCodes.some((code) => allowed.has(code));
+              item.hidden = !canSee;
+            });
+            document.querySelectorAll('.sb-group').forEach((g) => {
+              const hasVisible = Array.from(g.querySelectorAll('.nav-item')).some((i) => !i.hidden);
+              g.style.display = hasVisible ? '' : 'none';
+            });
+          })
+          .catch(() => {});
+      }
+    })();
+  </script>
+
+  <!-- ============================================================
+  SCRIPTS — LÓGICA DA PÁGINA DE RECEITA/ATESTADO (ORIGINAL)
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // CONFIGURAÇÃO INICIAL
+    // ============================================================
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+    if (!token) window.location.href = '/medico/login';
+    if (doctorData.name) document.getElementById('sidebarName').textContent = doctorData.name;
+
+    const h = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+
+    // Datas padrão
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('rIssuedAt').value = today;
+    document.getElementById('aIssuedAt').value = today;
+
+    // ── TABS ──
+    const PANES = { receita: 'paneReceita', atestado: 'paneAtestado', 'hist-r': 'paneHistR', 'hist-a': 'paneHistA', cid: 'paneCid' };
+    const TABS = { receita: 'tabRec', atestado: 'tabAte', 'hist-r': 'tabHistR', 'hist-a': 'tabHistA', cid: 'tabCid' };
+
+    function switchTab(t) {
+      Object.values(PANES).forEach(p => document.getElementById(p).style.display = 'none');
+      Object.values(TABS).forEach(b => document.getElementById(b).classList.remove('active'));
+      document.getElementById(PANES[t]).style.display = '';
+      document.getElementById(TABS[t]).classList.add('active');
+      if (t === 'hist-r') loadHistR();
+      if (t === 'hist-a') loadHistA();
+      if (t === 'cid') loadCidTable();
+      document.getElementById('previewReceita').classList.remove('open');
+      document.getElementById('previewAtestado').classList.remove('open');
+    }
+
+    // ── DADOS BASE ──
+    let allPatients = [];
+    let allSurgeries = [];
+    let allPrescriptions = [];
+    let allAtestados = [];
+    let clinicData = {};
+
+    function asId(value) {
+      if (value === null || value === undefined) return '';
+      return String(value);
+    }
+
+    function normalizeText(value) {
+      return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    }
+
+    function normalizeDoc(value) {
+      return String(value || '').replace(/[^0-9a-z]/gi, '').toLowerCase();
+    }
+
+    function getPatientDisplayName(patient) {
+      return patient?.name || patient?.full_name || patient?.patient_name || patient?.fullName || patient?.patientName || 'Paciente sem nome';
+    }
+
+    function getPatientEmail(patient) {
+      return patient?.email || patient?.patient_email || patient?.emailAddress || '';
+    }
+
+    function getPatientDocument(patient) {
+      return patient?.document_id || patient?.document || patient?.cpf || patient?.documentId || patient?.cpfCnpj || '';
+    }
+
+    function getFilteredPatients(qRaw) {
+      const q = normalizeText(qRaw);
+      const qDoc = normalizeDoc(qRaw);
+      if (!q) return allPatients;
+      return allPatients.filter(p => {
+        const name = normalizeText(getPatientDisplayName(p));
+        const email = normalizeText(getPatientEmail(p));
+        const doc = normalizeDoc(getPatientDocument(p));
+        const idText = normalizeText(p.id);
+        return name.includes(q) || email.includes(q) || idText.includes(q) || (qDoc && doc.includes(qDoc));
+      });
+    }
+
+    function setPatientApiStatus(prefix, message, level = 'ok') {
+      const el = document.getElementById(`${prefix}PatientApiStatus`);
+      if (!el) return;
+      el.classList.remove('ok', 'warn', 'err');
+      if (level) el.classList.add(level);
+      el.textContent = message;
+    }
+
+    function normalizePatientsPayload(payload) {
+      if (Array.isArray(payload)) return payload;
+      if (Array.isArray(payload?.patients)) return payload.patients;
+      return [];
+    }
+
+    async function fetchPatientsWithFallback() {
+      const candidates = [
+        { url: '/api/patients', source: 'patients-api' },
+        { url: '/api/prescriptions/patients', source: 'prescriptions-fallback' },
+      ];
+      let lastError = null;
+      for (const candidate of candidates) {
+        try {
+          const res = await fetch(candidate.url, { headers: h });
+          if (!res.ok) {
+            lastError = `Falha em ${candidate.url} (${res.status})`;
+            continue;
+          }
+          const data = await res.json();
+          const patients = normalizePatientsPayload(data);
+          if (patients.length) {
+            return { patients, source: candidate.source };
+          }
+          lastError = `API ${candidate.url} retornou vazio`;
+        } catch (err) {
+          lastError = err?.message || `Erro ao acessar ${candidate.url}`;
+        }
+      }
+      throw new Error(lastError || 'Não foi possível carregar pacientes');
+    }
+
+    async function loadBase() {
+      try {
+        const [patientsData, sRes, cRes] = await Promise.all([
+          fetchPatientsWithFallback(),
+          fetch('/api/surgeries', { headers: h }),
+          fetch('/api/clinics', { headers: h }),
+        ]);
+
+        allPatients = patientsData.patients;
+        allSurgeries = sRes.ok ? await sRes.json() : [];
+        const clinics = cRes.ok ? await cRes.json() : [];
+        clinicData = clinics[0] || {};
+        const sourceLabel = patientsData.source === 'patients-api' ? '/api/patients' : '/api/prescriptions/patients';
+        setPatientApiStatus('r', `${allPatients.length} paciente(s) carregado(s) via ${sourceLabel}.`, 'ok');
+        setPatientApiStatus('a', `${allPatients.length} paciente(s) carregado(s) via ${sourceLabel}.`, 'ok');
+        console.info('[RX/ATE] Pacientes carregados:', { count: allPatients.length, source: sourceLabel });
+        populatePatientSelects();
+      } catch (err) {
+        allPatients = [];
+        setPatientApiStatus('r', `Erro ao carregar pacientes: ${err.message}`, 'err');
+        setPatientApiStatus('a', `Erro ao carregar pacientes: ${err.message}`, 'err');
+        console.error('[RX/ATE] Erro ao carregar pacientes', err);
+        populatePatientSelects();
+      }
+    }
+
+    function renderPatientDropdown(prefix, filtered, qRaw) {
+      const dd = document.getElementById(`${prefix}PatientDropdown`);
+      if (!dd) return;
+      const hasQuery = Boolean((qRaw || '').trim());
+      if (!hasQuery) {
+        dd.style.display = 'none';
+        dd.innerHTML = '';
+        return;
+      }
+      if (!filtered.length) {
+        dd.innerHTML = '<div class="patient-option empty">Nenhum paciente encontrado para este filtro.</div>';
+        dd.style.display = 'block';
+        return;
+      }
+      dd.innerHTML = filtered.slice(0, 20).map(p => {
+        const id = asId(p.id);
+        const name = escH(getPatientDisplayName(p));
+        const email = escH(getPatientEmail(p) || 'sem e-mail');
+        const doc = escH(getPatientDocument(p) || 'sem documento');
+        return `<div class="patient-option" data-prefix="${prefix}" data-patient-id="${id}" onclick="selectPatientFromDropdown(this)">
+          <div class="name">${name}</div>
+          <div class="meta">${email} · ${doc}</div>
+        </div>`;
+      }).join('');
+      dd.style.display = 'block';
+    }
+
+    function selectPatientFromDropdown(el) {
+      const prefix = el.dataset.prefix;
+      const patientId = el.dataset.patientId;
+      const pat = allPatients.find(p => asId(p.id) === asId(patientId));
+      if (!prefix || !pat) return;
+      document.getElementById(`${prefix}PatientSearch`).value = getPatientDisplayName(pat);
+      const select = document.getElementById(`${prefix}PatientSelect`);
+      select.value = asId(pat.id);
+      onPatientChange(prefix);
+      const dd = document.getElementById(`${prefix}PatientDropdown`);
+      dd.style.display = 'none';
+    }
+
+    function populatePatientSelects() {
+      ['rPatientSelect', 'aPatientSelect'].forEach(id => {
+        const sel = document.getElementById(id);
+        const prefix = id.startsWith('r') ? 'r' : 'a';
+        const currentValue = asId(sel.value);
+        const qRaw = document.getElementById(id.replace('Select', 'Search')).value;
+        const filtered = getFilteredPatients(qRaw);
+        sel.innerHTML = '<option value="">Selecione o paciente</option>';
+        filtered.forEach(p => {
+          const o = document.createElement('option');
+          o.value = asId(p.id);
+          const displayName = getPatientDisplayName(p);
+          const displayDoc = getPatientDocument(p);
+          const displayEmail = getPatientEmail(p);
+          o.textContent = `${displayName}${displayEmail ? ' — ' + displayEmail : ''}${displayDoc ? ' (' + displayDoc + ')' : ''}`;
+          sel.appendChild(o);
+        });
+        const selectedStillVisible = filtered.some(p => asId(p.id) === currentValue);
+        if (selectedStillVisible) {
+          sel.value = currentValue;
+        } else if (currentValue) {
+          const selectedPatient = allPatients.find(p => asId(p.id) === currentValue);
+          if (selectedPatient) {
+            const fallbackOption = document.createElement('option');
+            const displayName = getPatientDisplayName(selectedPatient);
+            const displayDoc = getPatientDocument(selectedPatient);
+            const displayEmail = getPatientEmail(selectedPatient);
+            fallbackOption.value = currentValue;
+            fallbackOption.textContent = `${displayName}${displayEmail ? ' — ' + displayEmail : ''}${displayDoc ? ' (' + displayDoc + ')' : ''}`;
+            sel.appendChild(fallbackOption);
+            sel.value = currentValue;
+          }
+        } else if ((qRaw || '').trim() && filtered.length === 1) {
+          sel.value = asId(filtered[0].id);
+          onPatientChange(prefix);
+        }
+        renderPatientDropdown(prefix, filtered, qRaw);
+        const typed = normalizeText(qRaw);
+        if (!allPatients.length) {
+          setPatientApiStatus(prefix, 'Nenhum paciente carregado pela API.', 'warn');
+        } else if (typed) {
+          setPatientApiStatus(prefix, `${filtered.length} resultado(s) para "${qRaw}".`, filtered.length ? 'ok' : 'warn');
+        }
+      });
+    }
+
+    document.getElementById('rPatientSearch').addEventListener('input', () => populatePatientSelects());
+    document.getElementById('aPatientSearch').addEventListener('input', () => populatePatientSelects());
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.patient-search-wrap')) {
+        const rDd = document.getElementById('rPatientDropdown');
+        const aDd = document.getElementById('aPatientDropdown');
+        if (rDd) rDd.style.display = 'none';
+        if (aDd) aDd.style.display = 'none';
+      }
+    });
+
+    function onPatientChange(prefix) {
+      const patId = asId(document.getElementById(`${prefix}PatientSelect`).value);
+      const pat = allPatients.find(p => asId(p.id) === patId);
+      const box = document.getElementById(`${prefix}PatientBox`);
+      if (!pat) {
+        box.style.display = 'none';
+        const surgSel = document.getElementById(`${prefix}SurgerySelect`);
+        if (surgSel) surgSel.innerHTML = '<option value="">Selecione um procedimento elegível</option>';
+        return;
+      }
+      box.style.display = 'block';
+      document.getElementById(`${prefix}PatientName`).textContent = getPatientDisplayName(pat);
+      document.getElementById(`${prefix}PatientEmail`).textContent = getPatientEmail(pat) || '—';
+      document.getElementById(`${prefix}PatientCpf`).textContent = getPatientDocument(pat) || '—';
+      document.getElementById(`${prefix}PatientBirth`).textContent = pat.birth_date ? new Date(pat.birth_date).toLocaleDateString('pt-BR') : '—';
+      document.getElementById(`${prefix}PatientAddr`).textContent = pat.address || '—';
+
+      const surgSel = document.getElementById(`${prefix}SurgerySelect`);
+      const patSurg = allSurgeries.filter((s) => {
+        if (asId(s.patient_id) !== patId) return false;
+        const status = String(s.status || '').toUpperCase();
+        return status === 'SIGNED';
+      });
+      surgSel.innerHTML = '<option value="">Selecione um procedimento elegível</option>';
+      patSurg.forEach(s => {
+        const o = document.createElement('option');
+        o.value = asId(s.id);
+        o.textContent = `${s.title || 'Procedimento'} — ${s.status} — ${s.procedure_type || ''}`;
+        o.dataset.consent = s.document_status || '';
+        surgSel.appendChild(o);
+      });
+      renderConsentBadge(prefix, '');
+    }
+
+    function onSurgeryChange(prefix) {
+      const sel = document.getElementById(`${prefix}SurgerySelect`);
+      const opt = sel.options[sel.selectedIndex];
+      renderConsentBadge(prefix, opt ? opt.dataset.consent : '');
+    }
+
+    function renderConsentBadge(prefix, consentStatus) {
+      const el = document.getElementById(`${prefix}ConsentBadge`);
+      if (!consentStatus) { el.innerHTML = '<span class="consent-badge consent-none">Sem documento de consentimento</span>'; return; }
+      if (consentStatus === 'SIGNED') el.innerHTML = '<span class="consent-badge consent-signed">✓ Consentimento Assinado</span>';
+      else el.innerHTML = '<span class="consent-badge consent-pending">⏳ Consentimento Pendente de Assinatura</span>';
+    }
+
+    document.getElementById('rPatientSelect').addEventListener('change', () => onPatientChange('r'));
+    document.getElementById('aPatientSelect').addEventListener('change', () => onPatientChange('a'));
+    document.getElementById('rSurgerySelect').addEventListener('change', () => onSurgeryChange('r'));
+    document.getElementById('aSurgerySelect').addEventListener('change', () => onSurgeryChange('a'));
+
+    // ── MEDICAMENTOS ──
+    function addMed(listId) {
+      const list = document.getElementById(listId);
+      const div = document.createElement('div');
+      div.className = 'med-item';
+      div.innerHTML = `
+        <div class="med-col"><label>Medicamento / Princípio Ativo</label><input type="text" placeholder="Ex: Amoxicilina 500mg" class="med-name" /></div>
+        <div class="med-col"><label>Dosagem</label><input type="text" placeholder="Ex: 500mg" class="med-dose" /></div>
+        <div class="med-col"><label>Posologia</label><input type="text" placeholder="Ex: 1 comp. 8/8h por 7 dias" class="med-pos" /></div>
+        <button class="med-remove" onclick="this.closest('.med-item').remove()" title="Remover"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>`;
+      list.appendChild(div);
+      div.querySelector('.med-name').focus();
+    }
+
+    function getMeds(listId) {
+      return [...document.getElementById(listId).querySelectorAll('.med-item')].map(el => ({
+        name: el.querySelector('.med-name').value.trim(),
+        dose: el.querySelector('.med-dose').value.trim(),
+        posology: el.querySelector('.med-pos').value.trim(),
+      })).filter(m => m.name);
+    }
+
+    // ── SALVAR RECEITA ──
+    async function saveReceita() {
+      const ok = document.getElementById('rOk');
+      const err = document.getElementById('rErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      const patientId = document.getElementById('rPatientSelect').value;
+      const surgeryId = document.getElementById('rSurgerySelect').value || null;
+      if (!patientId) { err.textContent = 'Selecione o paciente.'; err.style.display = 'block'; return; }
+      if (!surgeryId) {
+        err.textContent = 'Vincule a receita a um procedimento assinado disponível.';
+        err.style.display = 'block';
+        return;
+      }
+      const meds = getMeds('rMedList');
+      if (!meds.length) { err.textContent = 'Adicione pelo menos um medicamento.'; err.style.display = 'block'; return; }
+      const btn = document.getElementById('rSaveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span>Salvando...';
+      try {
+        const res = await fetch('/api/prescriptions/prescriptions', {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify({
+            patientId,
+            surgeryId,
+            medications: meds,
+            notes: document.getElementById('rNotes').value.trim() || null,
+            validDays: Number(document.getElementById('rValidDays').value) || 30,
+            issuedAt: document.getElementById('rIssuedAt').value || today,
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ok.textContent = 'Receita salva com sucesso!';
+          ok.style.display = 'block';
+          allPrescriptions.unshift(data);
+        } else {
+          err.textContent = data.error || 'Erro ao salvar.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Salvar Receita';
+    }
+
+    // ── SALVAR ATESTADO ──
+    async function saveAtestado() {
+      const ok = document.getElementById('aOk');
+      const err = document.getElementById('aErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+      const patientId = document.getElementById('aPatientSelect').value;
+      const surgeryId = document.getElementById('aSurgerySelect').value || null;
+      if (!patientId) { err.textContent = 'Selecione o paciente.'; err.style.display = 'block'; return; }
+      if (!surgeryId) {
+        err.textContent = 'Vincule o atestado a um procedimento assinado disponível.';
+        err.style.display = 'block';
+        return;
+      }
+      const restDays = Number(document.getElementById('aRestDays').value);
+      if (!restDays || restDays < 1) { err.textContent = 'Informe os dias de repouso.'; err.style.display = 'block'; return; }
+      const btn = document.getElementById('aSaveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span>Salvando...';
+      try {
+        const res = await fetch('/api/prescriptions/certificates', {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify({
+            patientId,
+            surgeryId,
+            cids: selectedCids.map(c => ({ code: c.code, description: c.description, version: c.version, uri: c.uri, source: c.source })),
+            cid10Code: selectedCids[0]?.code || null,
+            cid10Desc: selectedCids[0]?.description || null,
+            cidVersion: selectedCids[0]?.version || null,
+            cidUri: selectedCids[0]?.uri || null,
+            restDays,
+            justification: document.getElementById('aJustification').value.trim() || null,
+            issuedAt: document.getElementById('aIssuedAt').value || today,
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ok.textContent = 'Atestado salvo com sucesso!';
+          ok.style.display = 'block';
+          allAtestados.unshift(data);
+          clearCid();
+        } else {
+          err.textContent = data.error || 'Erro ao salvar.';
+          err.style.display = 'block';
+        }
+      } catch {
+        err.textContent = 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Salvar Atestado';
+    }
+
+    // ── CID ──
+    let selectedCids = [];
+    let cidTimer = null;
+    let cidResults = [];
+    let cidActiveIndex = -1;
+    let cidAbortController = null;
+
+    function hideCidDropdown() {
+      const dd = document.getElementById('aCidDropdown');
+      dd.style.display = 'none';
+      dd.innerHTML = '';
+      cidResults = [];
+      cidActiveIndex = -1;
+    }
+
+    function renderCidDropdown(items) {
+      const dd = document.getElementById('aCidDropdown');
+      cidResults = Array.isArray(items) ? items : [];
+      if (!cidResults.length) {
+        hideCidDropdown();
+        return;
+      }
+      if (cidActiveIndex >= cidResults.length) cidActiveIndex = 0;
+      dd.innerHTML = cidResults.map((c, idx) =>
+        `<div class="cid-option ${idx === cidActiveIndex ? 'active' : ''}" data-idx="${idx}">
+          <div class="cid-code">${escH(cleanCidText(c.code))}</div>
+          <div class="cid-desc">${escH(cleanCidText(c.description))} <small style="color:var(--text-muted)">(${escH(c.system || 'CID-10')})</small></div>
+        </div>`
+      ).join('');
+      dd.style.display = 'block';
+    }
+
+    function selectCidResultByIndex(index) {
+      const c = cidResults[index];
+      if (!c) return;
+      selectCid(cleanCidText(c.code), cleanCidText(c.description), c.version || '10', c.uri || '', c.system || 'CID-10', c.source || 'search');
+    }
+
+    function onCidInput(q) { searchCid(q); }
+
+    function onCidFocus() {
+      const q = document.getElementById('aCidSearch').value || '';
+      if (q.trim().length >= 2) searchCid(q);
+    }
+
+    function onCidBlur() {
+      setTimeout(() => {
+        const val = document.getElementById('aCidSearch').value;
+        confirmCidManual(val, true);
+        hideCidDropdown();
+      }, 180);
+    }
+
+    function onCidKeyDown(event) {
+      const dd = document.getElementById('aCidDropdown');
+      const isOpen = dd.style.display === 'block' && cidResults.length > 0;
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (!isOpen) return;
+        cidActiveIndex = (cidActiveIndex + 1 + cidResults.length) % cidResults.length;
+        renderCidDropdown(cidResults);
+        return;
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (!isOpen) return;
+        cidActiveIndex = (cidActiveIndex - 1 + cidResults.length) % cidResults.length;
+        renderCidDropdown(cidResults);
+        return;
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        if (isOpen) {
+          const pick = cidActiveIndex >= 0 ? cidActiveIndex : 0;
+          selectCidResultByIndex(pick);
+        } else {
+          confirmCidManual(document.getElementById('aCidSearch').value);
+        }
+        return;
+      }
+      if (event.key === 'Escape') hideCidDropdown();
+    }
+
+    function onCidFilterChange() {
+      const q = document.getElementById('aCidSearch').value;
+      if (q && q.trim().length >= 2) searchCid(q);
+    }
+
+    function renderSelectedCids() {
+      const box = document.getElementById('aCidSelected');
+      const list = document.getElementById('aCidList');
+      const empty = document.getElementById('aCidEmpty');
+      if (!selectedCids.length) {
+        box.style.display = 'none';
+        list.innerHTML = '';
+        if (empty) empty.style.display = '';
+        return;
+      }
+      box.style.display = 'block';
+      if (empty) empty.style.display = 'none';
+      list.innerHTML = selectedCids.map((c, i) =>
+        `<span class="cid-pill">
+          ${escH(cleanCidText(c.code))} — ${escH(cleanCidText(c.description || 'Sem descrição'))}
+          <button type="button" onclick="removeCidAt(${i})" title="Remover">×</button>
+        </span>`
+      ).join('');
+    }
+
+    function addCidToSelection({ code, description, version, uri, system, source }) {
+      const normalizedCode = String(code || '').trim().toUpperCase();
+      if (!normalizedCode) return;
+      const normalizedVersion = String(version || '10').trim();
+      const exists = selectedCids.some(c => String(c.code || '').toUpperCase() === normalizedCode && String(c.version || '') === normalizedVersion);
+      if (exists) return;
+      selectedCids.push({
+        code: normalizedCode,
+        description: cleanCidText(description),
+        version: normalizedVersion,
+        uri: uri || null,
+        system: system || (normalizedVersion === '11' ? 'CID-11' : 'CID-10'),
+        source: source || 'manual',
+      });
+      renderSelectedCids();
+    }
+
+    function removeCidAt(index) {
+      selectedCids = selectedCids.filter((_, i) => i !== index);
+      renderSelectedCids();
+    }
+
+    function searchCid(q) {
+      const dd = document.getElementById('aCidDropdown');
+      const filter = document.getElementById('aCidFilter')?.value || 'all';
+      const term = String(q || '').trim();
+      clearTimeout(cidTimer);
+      if (cidAbortController) {
+        cidAbortController.abort();
+        cidAbortController = null;
+      }
+      if (!term || term.length < 2) {
+        hideCidDropdown();
+        return;
+      }
+      dd.innerHTML = '<div class="cid-option" style="cursor:default;color:var(--text-muted)">Buscando CIDs...</div>';
+      dd.style.display = 'block';
+      cidTimer = setTimeout(async () => {
+        try {
+          cidAbortController = new AbortController();
+          const res = await fetch(`/api/prescriptions/cid/search?q=${encodeURIComponent(term)}&lang=pt&filter=${encodeURIComponent(filter)}`, {
+            headers: h,
+            signal: cidAbortController.signal,
+          });
+          const data = res.ok ? await res.json() : [];
+          if (document.getElementById('aCidSearch').value.trim() !== term) return;
+          const limited = Array.isArray(data) ? data.slice(0, 30) : [];
+          if (!limited.length) {
+            dd.innerHTML = '<div class="cid-option" style="cursor:default;color:var(--text-muted)">Nenhum CID encontrado.</div>';
+            dd.style.display = 'block';
+            cidResults = [];
+            cidActiveIndex = -1;
+            return;
+          }
+          cidActiveIndex = 0;
+          renderCidDropdown(limited);
+        } catch (e) {
+          if (e?.name === 'AbortError') return;
+          dd.innerHTML = '<div class="cid-option" style="cursor:default;color:var(--red)">Falha na busca. Tente novamente.</div>';
+          dd.style.display = 'block';
+        }
+      }, 180);
+    }
+
+    function selectCid(code, desc, version, uri, system, source) {
+      addCidToSelection({ code, description: desc, version, uri, system, source });
+      document.getElementById('aCidSearch').value = '';
+      hideCidDropdown();
+    }
+
+    function confirmCidManual(val, isBlur) {
+      if (!val || !val.trim()) return;
+      if (isBlur && cidResults.length) return;
+      const parts = val.trim().split(' — ');
+      const code = cleanCidText(parts[0]).toUpperCase();
+      const desc = cleanCidText(parts.slice(1).join(' — '));
+      addCidToSelection({
+        code,
+        description: desc,
+        version: '10',
+        uri: null,
+        system: 'CID-10',
+        source: 'manual',
+      });
+      document.getElementById('aCidSearch').value = '';
+      hideCidDropdown();
+    }
+
+    function clearCid() {
+      selectedCids = [];
+      renderSelectedCids();
+      document.getElementById('aCidSearch').value = '';
+      hideCidDropdown();
+    }
+
+    document.getElementById('aCidDropdown').addEventListener('mousedown', (e) => e.preventDefault());
+    document.getElementById('aCidDropdown').addEventListener('click', (e) => {
+      const row = e.target.closest('.cid-option[data-idx]');
+      if (!row) return;
+      const idx = Number(row.getAttribute('data-idx'));
+      if (Number.isNaN(idx)) return;
+      selectCidResultByIndex(idx);
+    });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.cid-search-wrap')) hideCidDropdown();
+    });
+
+    function escH(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+    function cleanCidText(s) {
+      return String(s || '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    // ── PREVIEW RECEITA ──
+    function previewReceita() {
+      const patId = asId(document.getElementById('rPatientSelect').value);
+      const pat = allPatients.find(p => asId(p.id) === patId);
+      if (!pat) { alert('Selecione o paciente primeiro.'); return; }
+      const meds = getMeds('rMedList');
+      const patientName = getPatientDisplayName(pat);
+      const patientDoc = getPatientDocument(pat);
+      document.getElementById('pvRName').textContent = patientName;
+      document.getElementById('pvRInfo').textContent = [patientDoc ? 'CPF/RG: ' + patientDoc : '', getPatientEmail(pat) || '', pat.birth_date ? 'Nasc: ' + new Date(pat.birth_date).toLocaleDateString('pt-BR') : ''].filter(Boolean).join(' | ');
+      const clinicName = clinicData.name || doctorData.name || '—';
+      document.getElementById('pvClinic').textContent = clinicName;
+      const hColor = clinicData.header_color || '#1a237e';
+      document.querySelector('#previewReceita .print-head').style.borderBottomColor = hColor;
+      document.querySelector('#previewReceita .print-head h2').style.color = hColor;
+      const logoEl = document.getElementById('pvRLogo');
+      const logoUrl = clinicData.header_image_url || clinicData.logo_url || '';
+      if (logoUrl) { logoEl.src = logoUrl;
+        logoEl.style.display = ''; } else { logoEl.style.display = 'none'; }
+      const addrParts = [clinicData.address, clinicData.city, clinicData.state ? clinicData.city ? clinicData.state : clinicData.state : null, clinicData.phone].filter(Boolean);
+      document.getElementById('pvClinicAddress').textContent = addrParts.join(' · ');
+      const specialty = doctorData.specialty || '';
+      document.getElementById('pvDoctorInfo').textContent = (doctorData.name || '—') + (specialty ? ' — ' + specialty : '');
+      document.getElementById('pvDocName').textContent = doctorData.name || '—';
+      document.getElementById('pvDocCrm').textContent = doctorData.crm ? 'CRM: ' + doctorData.crm : '';
+      document.getElementById('pvDocSpecialty').textContent = specialty;
+      document.getElementById('pvClinicFooter').textContent = clinicData.footer_text || '';
+      document.getElementById('pvRDate').textContent = document.getElementById('rIssuedAt').value ? new Date(document.getElementById('rIssuedAt').value + 'T12:00').toLocaleDateString('pt-BR') : today;
+      document.getElementById('pvRValid').textContent = document.getElementById('rValidDays').value;
+      const notes = document.getElementById('rNotes').value.trim();
+      document.getElementById('pvNotesSection').style.display = notes ? '' : 'none';
+      document.getElementById('pvNotes').textContent = notes;
+      document.getElementById('pvMedRows').innerHTML = meds.map(m =>
+        `<tr><td>${escH(m.name)}</td><td>${escH(m.dose)}</td><td>${escH(m.posology)}</td></tr>`
+      ).join('') || '<tr><td colspan="3" style="color:var(--text-muted);font-style:italic">Nenhum medicamento adicionado</td></tr>';
+      document.getElementById('previewReceita').classList.add('open');
+      document.getElementById('previewAtestado').classList.remove('open');
+      document.getElementById('previewReceita').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── PREVIEW ATESTADO ──
+    function previewAtestado() {
+      const patId = asId(document.getElementById('aPatientSelect').value);
+      const pat = allPatients.find(p => asId(p.id) === patId);
+      if (!pat) { alert('Selecione o paciente primeiro.'); return; }
+      const patientName = getPatientDisplayName(pat);
+      const patientDoc = getPatientDocument(pat);
+      document.getElementById('pvAName').textContent = patientName;
+      document.getElementById('pvAInfo').textContent = [patientDoc ? 'CPF/RG: ' + patientDoc : '', getPatientEmail(pat) || '', pat.birth_date ? 'Nasc: ' + new Date(pat.birth_date).toLocaleDateString('pt-BR') : ''].filter(Boolean).join(' | ');
+      const clinicName = clinicData.name || doctorData.name || '—';
+      document.getElementById('pvAClinic').textContent = clinicName;
+      const hColor = clinicData.header_color || '#1a237e';
+      document.querySelector('#previewAtestado .print-head').style.borderBottomColor = hColor;
+      document.querySelector('#previewAtestado .print-head h2').style.color = hColor;
+      const aLogoEl = document.getElementById('pvALogo');
+      const aLogoUrl = clinicData.header_image_url || clinicData.logo_url || '';
+      if (aLogoUrl) { aLogoEl.src = aLogoUrl;
+        aLogoEl.style.display = ''; } else { aLogoEl.style.display = 'none'; }
+      const aAddrParts = [clinicData.address, clinicData.city, clinicData.state ? clinicData.city ? clinicData.state : clinicData.state : null, clinicData.phone].filter(Boolean);
+      document.getElementById('pvAClinicAddress').textContent = aAddrParts.join(' · ');
+      const specialty = doctorData.specialty || '';
+      document.getElementById('pvADocInfo').textContent = (doctorData.name || '—') + (specialty ? ' — ' + specialty : '');
+      document.getElementById('pvADocName').textContent = doctorData.name || '—';
+      document.getElementById('pvADocCrm').textContent = doctorData.crm ? 'CRM: ' + doctorData.crm : '';
+      document.getElementById('pvADocSpecialty').textContent = specialty;
+      document.getElementById('pvAClinicFooter').textContent = clinicData.footer_text || '';
+      document.getElementById('pvACidSection').style.display = selectedCids.length ? '' : 'none';
+      document.getElementById('pvACidList').innerHTML = selectedCids.map(c =>
+        `<p><strong>${escH(cleanCidText(c.code || '—'))}</strong> — ${escH(cleanCidText(c.description || '—'))}</p>`
+      ).join('');
+      document.getElementById('pvADays').textContent = document.getElementById('aRestDays').value;
+      document.getElementById('pvADate').textContent = document.getElementById('aIssuedAt').value ? new Date(document.getElementById('aIssuedAt').value + 'T12:00').toLocaleDateString('pt-BR') : today;
+      document.getElementById('pvAIssuedAt').textContent = document.getElementById('pvADate').textContent;
+      const just = document.getElementById('aJustification').value.trim();
+      document.getElementById('pvAJustSection').style.display = just ? '' : 'none';
+      document.getElementById('pvAJust').textContent = just;
+      document.getElementById('previewAtestado').classList.add('open');
+      document.getElementById('previewReceita').classList.remove('open');
+      document.getElementById('previewAtestado').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function printDoc() {
+      const openPreview = document.querySelector('.print-preview.open');
+      if (!openPreview) { alert('Visualize a receita ou o atestado antes de imprimir.'); return; }
+      const pane = openPreview.closest('.content > *');
+      if (pane) pane.classList.add('pane-print-active');
+      window.print();
+      if (pane) pane.classList.remove('pane-print-active');
+    }
+
+    // ── HISTÓRICO RECEITAS ──
+    async function loadHistR() {
+      const res = await fetch('/api/prescriptions/prescriptions', { headers: h });
+      allPrescriptions = res.ok ? await res.json() : [];
+      renderHistR();
+    }
+
+    function renderHistR() {
+      const q = (document.getElementById('histRSearch').value || '').toLowerCase();
+      const list = !q ? allPrescriptions : allPrescriptions.filter(r =>
+        (r.patient_name || '').toLowerCase().includes(q) ||
+        (r.patient_email || '').toLowerCase().includes(q)
+      );
+      const tbody = document.getElementById('histRBody');
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Nenhuma receita encontrada</td></tr>'; return; }
+      tbody.innerHTML = list.map(r => {
+        const meds = (Array.isArray(r.medications) ? r.medications : []).map(m => m.name || '').filter(Boolean).join(', ') || '—';
+        return `<tr>
+          <td><strong>${escH(r.patient_name || '—')}</strong><br><small style="color:var(--text-muted)">${escH(r.patient_email || '')}</small></td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escH(meds)}">${escH(meds)}</td>
+          <td>${escH(r.surgery_title || '—')}</td>
+          <td>${r.issued_at ? new Date(r.issued_at).toLocaleDateString('pt-BR') : '—'}</td>
+          <td><button class="btn btn-red btn-sm" onclick="deleteRec('${r.id}')">Excluir</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function deleteRec(id) {
+      if (!confirm('Excluir esta receita?')) return;
+      await fetch(`/api/prescriptions/prescriptions/${id}`, { method: 'DELETE', headers: h });
+      allPrescriptions = allPrescriptions.filter(r => r.id !== id);
+      renderHistR();
+    }
+
+    // ── HISTÓRICO ATESTADOS ──
+    async function loadHistA() {
+      const res = await fetch('/api/prescriptions/certificates', { headers: h });
+      allAtestados = res.ok ? await res.json() : [];
+      renderHistA();
+    }
+
+    function normalizeCidArray(a) {
+      if (Array.isArray(a.cids) && a.cids.length) return a.cids;
+      if (a.cid10_code) return [{ code: a.cid10_code, description: a.cid10_desc || '', version: a.cid_version || '10' }];
+      return [];
+    }
+
+    function renderHistA() {
+      const q = (document.getElementById('histASearch').value || '').toLowerCase();
+      const list = !q ? allAtestados : allAtestados.filter(a =>
+        (a.patient_name || '').toLowerCase().includes(q) ||
+        (a.patient_email || '').toLowerCase().includes(q) ||
+        (a.cid10_code || '').toLowerCase().includes(q) ||
+        normalizeCidArray(a).some(c => (c.code || '').toLowerCase().includes(q) || (c.description || '').toLowerCase().includes(q))
+      );
+      const tbody = document.getElementById('histABody');
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Nenhum atestado encontrado</td></tr>'; return; }
+      tbody.innerHTML = list.map(a => {
+        const cids = normalizeCidArray(a);
+        const cidCell = cids.length ?
+          cids.map(c => `<span class="badge badge-blue">${escH(c.code)}</span><small style="display:block;color:var(--text-muted)">${escH(c.description || '')}</small>`).join('') :
+          '—';
+        return `<tr>
+          <td><strong>${escH(a.patient_name || '—')}</strong><br><small style="color:var(--text-muted)">${escH(a.patient_email || '')}</small></td>
+          <td>${cidCell}</td>
+          <td>${a.rest_days} dia(s)</td>
+          <td>${escH(a.surgery_title || '—')}</td>
+          <td>${a.issued_at ? new Date(a.issued_at).toLocaleDateString('pt-BR') : '—'}</td>
+          <td><button class="btn btn-red btn-sm" onclick="deleteAte('${a.id}')">Excluir</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function deleteAte(id) {
+      if (!confirm('Excluir este atestado?')) return;
+      await fetch(`/api/prescriptions/certificates/${id}`, { method: 'DELETE', headers: h });
+      allAtestados = allAtestados.filter(a => a.id !== id);
+      renderHistA();
+    }
+
+    // ── CID-10 TABELA ──
+    let allCids = [];
+
+    async function loadCidTable() {
+      try {
+        const res = await fetch('/api/prescriptions/cid10', { headers: h });
+        if (!res.ok) throw new Error('Falha ao carregar CID-10');
+        allCids = await res.json();
+        renderCidTable();
+      } catch (err) {
+        console.error('Erro ao carregar CID-10:', err);
+        const tbody = document.getElementById('cidBody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--red);">Erro ao carregar dados. Tente recarregar a página.</td></tr>';
+      }
+    }
+
+    function renderCidTable() {
+      const tbody = document.getElementById('cidBody');
+      if (!allCids.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Nenhum CID-10 cadastrado. Clique em "+ Novo CID-10".</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allCids.map(c => `<tr>
+        <td><strong>${escH(c.code)}</strong></td>
+        <td>${escH(c.description)}</td>
+        <td>${escH(c.category || '—')}</td>
+        <td><span class="badge ${c.active ? 'badge-green' : 'badge-gray'}">${c.active ? 'Ativo' : 'Inativo'}</span></td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="toggleCid('${c.id}',${!c.active})">${c.active ? 'Desativar' : 'Ativar'}</button>
+          <button class="btn btn-red btn-sm" onclick="deleteCid('${c.id}')">Excluir</button>
+        </td>
+      </tr>`).join('');
+    }
+
+    async function toggleCid(id, active) {
+      try {
+        const res = await fetch(`/api/prescriptions/cid10/${id}`, {
+          method: 'PUT',
+          headers: h,
+          body: JSON.stringify({ active })
+        });
+        if (!res.ok) throw new Error('Falha ao atualizar');
+        await loadCidTable();
+      } catch (err) {
+        alert('Erro ao atualizar: ' + err.message);
+      }
+    }
+
+    async function deleteCid(id) {
+      if (!confirm('Excluir este CID-10?')) return;
+      try {
+        const res = await fetch(`/api/prescriptions/cid10/${id}`, { method: 'DELETE', headers: h });
+        if (!res.ok) throw new Error('Falha ao excluir');
+        allCids = allCids.filter(c => c.id !== id);
+        renderCidTable();
+      } catch (err) {
+        alert('Erro ao excluir: ' + err.message);
+      }
+    }
+
+    // ── MODAL CID ──
+    function openAddCidModal() {
+      document.getElementById('cidCode').value = '';
+      document.getElementById('cidDesc').value = '';
+      document.getElementById('cidCat').value = '';
+      document.getElementById('cidOk').style.display = 'none';
+      document.getElementById('cidErr').style.display = 'none';
+      document.getElementById('cidModal').classList.add('open');
+      setTimeout(() => document.getElementById('cidCode').focus(), 100);
+    }
+
+    function closeCidModal() {
+      document.getElementById('cidModal').classList.remove('open');
+    }
+
+    async function saveCid() {
+      const ok = document.getElementById('cidOk');
+      const err = document.getElementById('cidErr');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+
+      const code = document.getElementById('cidCode').value.trim().toUpperCase();
+      const desc = document.getElementById('cidDesc').value.trim();
+      const category = document.getElementById('cidCat').value.trim() || null;
+
+      if (!code) { err.textContent = 'Informe o código CID-10.'; err.style.display = 'block'; return; }
+      if (!desc) { err.textContent = 'Informe a descrição.'; err.style.display = 'block'; return; }
+      if (!/^[A-Z]\d{1,2}(\.\d{1,2})?$/.test(code)) {
+        err.textContent = 'Formato inválido. Use ex: J45, K21.0, Z87.1';
+        err.style.display = 'block';
+        return;
+      }
+
+      const btn = document.getElementById('cidSaveBtn');
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+      try {
+        const res = await fetch('/api/prescriptions/cid10', {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify({ code, description: desc, category })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao salvar');
+        ok.textContent = 'CID-10 cadastrado com sucesso!';
+        ok.style.display = 'block';
+        allCids.unshift(data);
+        renderCidTable();
+        setTimeout(() => {
+          closeCidModal();
+          document.getElementById('cidCode').value = '';
+          document.getElementById('cidDesc').value = '';
+          document.getElementById('cidCat').value = '';
+        }, 1000);
+      } catch (error) {
+        err.textContent = error.message || 'Erro de conexão.';
+        err.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Salvar';
+    }
+
+    document.getElementById('cidModal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeCidModal();
+    });
+
+    // ── INIT ──
+    loadBase();
+    addMed('rMedList');
+  </script>
+
+  <!-- socket.io - atualizações em tempo real -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function() {
+      const _tok = localStorage.getItem('doctorToken');
+      const _doc = JSON.parse(localStorage.getItem('doctorData') || '{}');
+      if (!_tok || !_doc.id) return;
+      const _sock = io({ transports: ['websocket', 'polling'] });
+      _sock.on('connect', () => _sock.emit('join_doctor', _doc.id));
+      _sock.on('prescription_saved', () => { if (typeof loadHistR === 'function') loadHistR(); });
+      _sock.on('certificate_saved', () => { if (typeof loadHistA === 'function') loadHistA(); });
+      _sock.on('patient_created', () => { if (typeof loadBase === 'function') loadBase(); });
+      _sock.on('patient_updated', () => { if (typeof loadBase === 'function') loadBase(); });
+      _sock.on('procedure_created', () => { if (typeof loadBase === 'function') loadBase(); });
+      _sock.on('procedure_updated', () => { if (typeof loadBase === 'function') loadBase(); });
+    })();
+  </script>
+
+</body>
+</html>

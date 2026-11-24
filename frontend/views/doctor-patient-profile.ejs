@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Chek - Perfil do Paciente</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+
+    :root {
+      --bg-base: #edf2f7;
+      --bg-surface: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f5ff;
+      --bg-elevated: #eef2f7;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --accent-1: #4a90d9;
+      --accent-1-dim: #e8f0fe;
+      --accent-2: #6bc5b8;
+      --accent-2-dim: #e6f7f2;
+      --accent-3: #b794f4;
+      --accent-3-dim: #f0e8ff;
+      --accent-4: #f6ad55;
+      --accent-4-dim: #fef5e7;
+      --accent-5: #6fcf97;
+      --accent-5-dim: #eafaf1;
+      --red: #e53e3e;
+      --red-bg: #fff5f5;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+      --radius: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sidebar-width: 260px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* aliases kept for backward-compatibility with inline styles */
+      --primary: var(--accent-1);
+      --primary-light: #3b7ec8;
+      --primary-bg: var(--accent-1-dim);
+      --accent: var(--accent-3);
+      --accent-bg: var(--accent-3-dim);
+      --text: var(--text-primary);
+      --text-md: var(--text-secondary);
+      --muted: var(--text-muted);
+      --border: var(--border-card);
+      --bg: var(--bg-base);
+      --white: var(--bg-card);
+      --yellow: var(--accent-4);
+      --yellow-bg: var(--accent-4-dim);
+      --green: var(--accent-5);
+      --green-bg: var(--accent-5-dim);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0b1120;
+      --bg-surface: #111c2e;
+      --bg-card: #162033;
+      --bg-card-hover: #1c2a42;
+      --bg-elevated: #1e2d45;
+      --bg-input: #111c2e;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-card: rgba(255, 255, 255, 0.07);
+      --text-primary: #f0f4ff;
+      --text-secondary: #b0c4e8;
+      --text-muted: #7a8aa8;
+      --accent-1: #3b82f6;
+      --accent-1-dim: rgba(59, 130, 246, 0.15);
+      --accent-2: #06b6d4;
+      --accent-2-dim: rgba(6, 182, 212, 0.12);
+      --accent-3: #8b5cf6;
+      --accent-3-dim: rgba(139, 92, 246, 0.12);
+      --accent-4: #f59e0b;
+      --accent-4-dim: rgba(245, 158, 11, 0.12);
+      --accent-5: #10b981;
+      --accent-5-dim: rgba(16, 185, 129, 0.12);
+      --red: #f87171;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+      --primary-light: #5b9ce0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-base);
+      transition: background var(--transition), margin-left var(--transition);
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .topbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+    .topbar .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-3px);
+      border-color: var(--accent-1);
+    }
+    .card-header, .card-head {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .card-header h3, .card-head strong {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-header h3 i, .card-head strong i {
+      color: var(--accent-1);
+      font-size: 16px;
+    }
+    .card-body {
+      padding: 20px 22px;
+    }
+
+    /* ============================================================
+       TOPBAR — ações e badge (alinhado ao dashboard)
+       ============================================================ */
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .topbar-actions .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 4px 14px 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .topbar-actions .badge i { color: var(--accent-5); font-size: 10px; }
+
+    /* ============================================================
+       STATS GRID (KPI) — alinhado ao dashboard
+       ============================================================ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.25s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-5px) scale(1.005);
+      background: var(--bg-card-hover);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent-1);
+    }
+    .stat-card .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .stat-card:hover .icon { transform: scale(1.08) rotate(-2deg); }
+    .stat-card .icon.blue { background: var(--accent-1-dim); color: var(--accent-1); }
+    .stat-card .icon.teal { background: var(--accent-2-dim); color: var(--accent-2); }
+    .stat-card .icon.yellow { background: var(--accent-4-dim); color: var(--accent-4); }
+    .stat-card .icon.green { background: var(--accent-5-dim); color: var(--accent-5); }
+    .stat-card .info { flex: 1; min-width: 0; }
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    @media (max-width: 1020px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ============================================================
+       NAVEGAÇÃO RÁPIDA (âncoras para as seções da página)
+       ============================================================ */
+    [id^="sec-"] { scroll-margin-top: 92px; }
+    .quick-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .quick-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border: 1px solid var(--border-card);
+      border-radius: 999px;
+      background: var(--bg-card);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .quick-nav a i { color: var(--accent-1); font-size: 12px; }
+    .quick-nav a:hover {
+      border-color: var(--accent-1);
+      background: var(--accent-1-dim);
+      color: var(--text-primary);
+      transform: translateY(-2px);
+    }
+
+    /* ============================================================
+       TÍTULOS DE SEÇÃO (divisores entre grupos de cards)
+       ============================================================ */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 32px 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+    .section-title:first-of-type { margin-top: 0; }
+    .section-title i {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-1-dim);
+      color: var(--accent-1);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+
+    /* ============================================================
+       HERO DO PACIENTE (cartão de cadastro/LGPD)
+       ============================================================ */
+    .patient-hero {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .patient-hero-info { flex: 1; min-width: 220px; }
+    .patient-hero-info .ttl {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .patient-facts {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .patient-fact {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .patient-fact i {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      color: var(--accent-1);
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .patient-face-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .patient-hero-footer {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .patient-medical-history {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    tbody tr { border-bottom: 1px solid var(--border-subtle); transition: background 0.2s ease; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-card-hover); }
+    tbody td { padding: 11px 14px; color: var(--text-secondary); vertical-align: middle; }
+    tbody td strong { color: var(--text-primary); font-weight: 500; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+    .badge-blue, .chip.ok, .consent-signed { background: var(--accent-1-dim); color: var(--accent-1); }
+    .badge-green, .chip-ok { background: var(--accent-5-dim); color: var(--accent-5); }
+    .badge-yellow, .chip.warn, .consent-pending { background: var(--accent-4-dim); color: var(--accent-4); }
+    .badge-red { background: var(--red-bg); color: var(--red); }
+    .badge-gray, .chip.muted, .consent-none { background: var(--bg-elevated); color: var(--text-muted); }
+    .badge-teal { background: var(--accent-2-dim); color: var(--accent-2); }
+    .badge-purple { background: var(--accent-3-dim); color: var(--accent-3); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform 0.2s ease;
+      text-decoration: none;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+    }
+    .btn svg { width: 14px; height: 14px; fill: currentColor; }
+    .btn:hover { border-color: var(--accent-1); background: var(--accent-1-dim); color: var(--text-primary); transform: translateY(-1px); }
+    .btn-solid { background: var(--accent-1); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3); }
+    .btn-solid:hover { background: #3b7ec8; color: #fff; transform: translateY(-2px); box-shadow: 0 6px 24px rgba(74, 144, 217, 0.4); }
+    .btn-solid:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-card); }
+    .btn-outline:hover { border-color: var(--accent-1); background: var(--accent-1-dim); color: var(--text-primary); }
+    .btn-teal { background: var(--accent-2); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(107, 197, 184, 0.3); }
+    .btn-teal:hover { background: #5ab8a9; color: #fff; }
+    .btn-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(229, 62, 62, 0.15); }
+    .btn-red:hover { background: rgba(229, 62, 62, 0.12); }
+    .btn-sm { padding: 5px 14px; font-size: 11px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid.cols1 { grid-template-columns: 1fr; }
+    .form-group, .field { display: flex; flex-direction: column; gap: 4px; }
+    .form-group.span2, .field.span2, .span2 { grid-column: span 2; }
+    .form-group label, .field label, .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .form-group input, .form-group select, .form-group textarea,
+    .field input, .field select, .field textarea, .input {
+      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      background: var(--bg-input);
+      outline: none;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition);
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus,
+    .field input:focus, .field select:focus, .field textarea:focus, .input:focus {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px var(--accent-1-dim);
+    }
+    textarea, .field textarea, .form-group textarea { resize: vertical; min-height: 72px; }
+
+    .alert-msg, .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 500;
+    }
+    .alert-msg.show, .alert.ok, .alert.err { display: block; }
+    .alert-ok, .alert.ok { background: var(--accent-5-dim); color: var(--accent-5); border-left: 3px solid var(--accent-5); }
+    .alert-err, .alert.err { background: var(--red-bg); color: var(--red); border-left: 3px solid var(--red); }
+
+    .spin {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.35); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* legacy generic helpers reused across pages */
+    .grid { display: grid; gap: 20px; grid-template-columns: 1fr 1.2fr; align-items: start; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .list { display: grid; gap: 10px; max-height: 60vh; overflow: auto; }
+    .item {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      background: var(--bg-surface);
+      display: grid;
+      gap: 6px;
+      transition: border-color var(--transition), background var(--transition), transform 0.2s ease;
+    }
+    .item:hover { border-color: var(--accent-1); background: var(--accent-1-dim); }
+    .item.compact { padding: 10px 12px; gap: 4px; }
+    .item .ttl, .ttl { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .item.compact .ttl { font-size: 12px; }
+    .item .sub, .sub { font-size: 12px; color: var(--text-muted); line-height: 1.45; }
+    .item.compact .sub { font-size: 11px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .chip {
+      display: inline-flex; padding: 4px 12px; border-radius: 20px;
+      font-size: 10px; font-weight: 600;
+      background: var(--bg-elevated); color: var(--text-secondary);
+    }
+    .hint { font-size: 11px; color: var(--text-muted); }
+    .hl { background: #fff3b0; color: #1f2937; padding: 0 2px; border-radius: 3px; }
+    .empty { font-size: 12px; color: var(--text-muted); padding: 14px; }
+    .search-wrap, .search-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .search-bar input, .search-bar select, .table-search, .filter-select {
+      padding: 8px 12px; border: 1px solid var(--border-card); border-radius: var(--radius);
+      font-size: 12px; font-family: var(--font); background: var(--bg-input); color: var(--text-primary); outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .search-bar input:focus, .search-bar select:focus, .table-search:focus, .filter-select:focus {
+      border-color: var(--accent-1); box-shadow: 0 0 0 3px var(--accent-1-dim);
+    }
+
+    .record-filter-box {
+      background: var(--accent-1-dim); border: 1px solid var(--border-card);
+      border-radius: var(--radius); padding: 10px; display: grid; gap: 8px;
+    }
+    .record-filter-line { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .record-hint { font-size: 10px; color: var(--text-muted); }
+
+    .save-pulse { animation: savePulse 0.6s ease; }
+    @keyframes savePulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(111, 207, 151, 0.25); }
+      55% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(111, 207, 151, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(111, 207, 151, 0); }
+    }
+
+    .tabs-row { display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 8px 16px; border: 1px solid var(--border-card); border-radius: var(--radius);
+      background: var(--bg-card); font-size: 12px; font-weight: 500; font-family: var(--font);
+      cursor: pointer; color: var(--text-secondary); transition: all 0.2s ease;
+    }
+    .tab-btn.active { background: var(--accent-1); color: #fff; border-color: var(--accent-1); }
+
+    /* Painéis de conteúdo controlados pelas abas de navegação do perfil */
+    .profile-tabs-nav {
+      position: sticky;
+      top: 73px;
+      z-index: 30;
+      background: var(--bg-base);
+      padding: 10px 0 14px;
+      margin-bottom: 4px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      transition: background var(--transition);
+    }
+    .profile-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border: 1px solid var(--border-card);
+      border-radius: 999px;
+      background: var(--bg-card);
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: var(--font);
+      color: var(--text-secondary);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition), color var(--transition), transform 0.2s ease;
+    }
+    .profile-tab-btn i { color: var(--accent-1); font-size: 12px; transition: color var(--transition); }
+    .profile-tab-btn:hover { transform: translateY(-1px); border-color: var(--accent-1); }
+    .profile-tab-btn.active {
+      background: var(--accent-1);
+      color: #fff;
+      border-color: var(--accent-1);
+    }
+    .profile-tab-btn.active i { color: #fff; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: profileFadeIn 0.25s ease; }
+    @keyframes profileFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cam-area, .cam-box, .edit-face-wrap {
+      background: var(--bg-surface); border: 1.5px dashed var(--border-card);
+      border-radius: var(--radius); padding: 16px; text-align: center; margin-top: 12px;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .cam-area:hover, .cam-box:hover { border-color: var(--accent-1); background: var(--accent-1-dim); }
+    .cam-area label, .edit-face-title { font-size: 10px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+    #camVideo, #editCamVideo, .cam-video { width: 100%; max-width: 320px; border-radius: var(--radius); display: none; }
+    #camPreview, .cam-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-1); display: none; }
+    .cam-status { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .cam-btns, .cam-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+    .edit-face-preview { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 92px; }
+    .edit-face-preview img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-1); }
+    .edit-face-empty { font-size: 11px; color: var(--text-muted); }
+    .edit-face-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+    @media (max-width: 992px) { .main { margin-left: 0; } }
+    @media (max-width: 900px) {
+      body { display: block; }
+      .main { margin-left: 0; }
+      .topbar { padding: 12px 18px; }
+      .topbar h1 { font-size: 18px; }
+      .content { padding: 16px; }
+      .card-header, .card-head { flex-wrap: wrap; }
+      .form-grid, .grid, .grid2 { grid-template-columns: 1fr; }
+      .form-group.span2, .field.span2, .span2 { grid-column: span 1; }
+    }
+    @media (max-width: 640px) {
+      .btn { width: 100%; justify-content: center; }
+      .btn-sm { width: auto; }
+    }
+    /* ── extras specific to Perfil do Paciente ─────────────────────── */
+    .kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .kpi-item {
+      background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius); padding: 14px;
+      transition: transform 0.2s ease, box-shadow var(--transition), border-color var(--transition);
+    }
+    .kpi-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--accent-1); }
+    .kpi-item .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.45px; }
+    .kpi-item .value { font-size: 24px; font-weight: 700; color: var(--accent-1); margin-top: 6px; }
+
+    .face { width: 86px; height: 86px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-1); }
+
+    .timeline { display: grid; gap: 8px; max-height: 380px; overflow: auto; }
+    .timeline-item { border: 1px solid var(--border-card); border-left: 4px solid var(--accent-1); border-radius: var(--radius); padding: 9px 10px; background: var(--bg-surface); }
+    .timeline-item .head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .timeline-item .kind { font-size: 10px; font-weight: 700; color: var(--accent-1); text-transform: uppercase; letter-spacing: 0.35px; }
+    .timeline-item .date { font-size: 10px; color: var(--text-muted); }
+    .timeline-item .text { margin-top: 5px; font-size: 11px; color: var(--text-secondary); line-height: 1.45; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 120; padding: 16px; }
+    .modal-backdrop.open { display: flex; }
+    .modal-card { width: min(980px, 100%); max-height: 90vh; overflow: auto; background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-card); box-shadow: var(--shadow-hover); }
+    .modal-head { padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 0; background: var(--bg-card); }
+    .modal-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .modal-body { padding: 14px; display: grid; gap: 12px; }
+    .close-btn { border: none; background: transparent; color: var(--text-muted); font-size: 18px; line-height: 1; cursor: pointer; }
+    .close-btn:hover { color: var(--accent-1); }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .detail-block { border: 1px solid var(--border-card); border-radius: var(--radius); padding: 10px; background: var(--bg-surface); }
+    .detail-block h4 { font-size: 11px; font-weight: 700; margin-bottom: 6px; color: var(--accent-1); text-transform: uppercase; letter-spacing: 0.35px; }
+    .detail-line { font-size: 11px; color: var(--text-secondary); line-height: 1.45; margin-top: 4px; }
+    .detail-list { display: grid; gap: 8px; }
+    .mini-title { font-size: 11px; font-weight: 700; color: var(--accent-1); text-transform: uppercase; letter-spacing: 0.35px; margin-bottom: 4px; }
+
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 8px; }
+    .photo-thumb { border: 1px solid var(--border-card); border-radius: var(--radius); background: var(--bg-surface); overflow: hidden; }
+    .photo-thumb img { width: 100%; height: 100px; object-fit: cover; display: block; }
+    .photo-meta { padding: 6px; font-size: 10px; line-height: 1.35; color: var(--text-secondary); }
+    .photo-stage { display: inline-flex; padding: 2px 7px; border-radius: 999px; background: var(--accent-1-dim); color: var(--accent-1); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .followup-workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .followup-pane { border: 1px solid var(--border-card); border-radius: var(--radius); padding: 10px; background: var(--bg-surface); }
+    .update-box { margin-top: 0; border-top: none; padding-top: 0; }
+    .update-help { font-size: 10px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+    .selected-followup-panel { margin-top: 10px; border: 1px solid var(--border-card); border-radius: var(--radius); background: var(--bg-surface); padding: 10px; }
+    .selected-followup-panel .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.35px; }
+    .selected-followup-panel .value { font-size: 11px; color: var(--text-secondary); line-height: 1.45; margin-top: 2px; }
+
+    @media (max-width: 1020px) {
+      .kpi { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .followup-workspace { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <%- include('partials/doctor-sidebar') %>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="title">Perfil Completo do Paciente</h1>
+        <div class="meta" id="subtitle">Carregando dados...</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge"><i class="fas fa-circle"></i> Online</span>
+        <a href="/medico/pacientes?tab=history" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Voltar para Pacientes</a>
+        <a href="/medico/pacientes" class="btn btn-solid"><i class="fas fa-user-injured"></i> Dashboard de Pacientes</a>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="icon blue"><i class="fas fa-notes-medical"></i></div>
+          <div class="info">
+            <div class="label">Prontuários</div>
+            <div class="value" id="kRecords">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon teal"><i class="fas fa-calendar-check"></i></div>
+          <div class="info">
+            <div class="label">Consultas</div>
+            <div class="value" id="kConsults">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon yellow"><i class="fas fa-procedures"></i></div>
+          <div class="info">
+            <div class="label">Procedimentos</div>
+            <div class="value" id="kSurgeries">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon green"><i class="fas fa-file-signature"></i></div>
+          <div class="info">
+            <div class="label">Documentos Assinados</div>
+            <div class="value" id="kSigned">0</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="profile-tabs-nav" id="profileTabsNav">
+        <button class="profile-tab-btn active" data-tab="tabProntuarios" onclick="switchProfileTab('tabProntuarios', this)"><i class="fas fa-notes-medical"></i> Prontuários</button>
+        <button class="profile-tab-btn" data-tab="tabConsultas" onclick="switchProfileTab('tabConsultas', this)"><i class="fas fa-calendar-check"></i> Consultas</button>
+        <button class="profile-tab-btn" data-tab="tabProcedimentos" onclick="switchProfileTab('tabProcedimentos', this)"><i class="fas fa-procedures"></i> Procedimentos</button>
+        <button class="profile-tab-btn" data-tab="tabAtualizar" onclick="switchProfileTab('tabAtualizar', this)"><i class="fas fa-user-edit"></i> Atualizar Dados</button>
+        <button class="profile-tab-btn" data-tab="tabAcompanhamento" onclick="switchProfileTab('tabAcompanhamento', this)"><i class="fas fa-heartbeat"></i> Acompanhamento</button>
+      </nav>
+
+      <div class="card" id="sec-cadastro">
+        <div class="card-header"><h3><i class="fas fa-id-card"></i> Cadastro e LGPD</h3></div>
+        <div class="card-body">
+          <div class="patient-hero">
+            <div class="patient-face-col" id="pFaceWrap"></div>
+            <div class="patient-hero-info">
+              <div class="ttl" id="pName">-</div>
+              <div class="patient-facts">
+                <div class="patient-fact"><i class="fas fa-envelope"></i> <span id="pContact">-</span></div>
+                <div class="patient-fact"><i class="fas fa-id-badge"></i> <span id="pDoc">-</span></div>
+                <div class="patient-fact"><i class="fas fa-map-marker-alt"></i> <span id="pAddress">-</span></div>
+                <div class="patient-fact"><i class="fas fa-phone-alt"></i> <span id="pEmergency">-</span></div>
+              </div>
+              <div class="row" style="margin-top:12px;" id="lgpdRow"></div>
+            </div>
+          </div>
+          <div class="patient-hero-footer">
+            <div class="row" style="margin-bottom:10px;">
+              <a class="btn btn-outline btn-sm" id="btnDownloadRefFace" href="#" style="display:none"><i class="fas fa-image"></i> Baixar Foto de Referência</a>
+              <button class="btn btn-outline btn-sm" type="button" onclick="switchProfileTab('tabAtualizar', document.querySelector('[data-tab=tabAtualizar]'))"><i class="fas fa-user-edit"></i> Editar Cadastro</button>
+            </div>
+            <div class="patient-medical-history" id="medicalHistory"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== ABA: PRONTUÁRIOS ===================== -->
+      <div class="tab-panel active" id="tabProntuarios">
+        <div class="grid">
+          <div class="card" id="sec-prontuario-form">
+            <div class="card-header"><h3><i class="fas fa-file-medical"></i> Cadastrar Prontuário Médico</h3></div>
+            <div class="card-body">
+              <form id="recordForm">
+                <div class="form-grid">
+                  <div class="form-group span2">
+                    <label>Título do Prontuário *</label>
+                    <input type="text" id="mrTitle" placeholder="Ex: Prontuário Inicial" required>
+                  </div>
+                  <div class="form-group span2">
+                    <label>Resumo Clínico</label>
+                    <textarea id="mrSummary" placeholder="Resumo objetivo do quadro clínico atual"></textarea>
+                  </div>
+                  <div class="form-group span2">
+                    <label>História Clínica</label>
+                    <textarea id="mrClinicalHistory" placeholder="História da doença atual e evolução"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Alergias</label>
+                    <input type="text" id="mrAllergies" placeholder="Ex: Dipirona, látex">
+                  </div>
+                  <div class="form-group">
+                    <label>Condições Crônicas</label>
+                    <input type="text" id="mrChronic" placeholder="Ex: HAS, DM2">
+                  </div>
+                  <div class="form-group span2">
+                    <label>Medicações em Uso</label>
+                    <input type="text" id="mrMedications" placeholder="Ex: Losartana 50mg/dia">
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                  <button class="btn btn-solid" type="submit" id="mrSaveBtn"><i class="fas fa-save"></i> Salvar Prontuário</button>
+                  <button class="btn" type="button" id="mrClearBtn"><i class="fas fa-eraser"></i> Limpar</button>
+                </div>
+                <div class="alert ok" id="mrOk"></div>
+                <div class="alert err" id="mrErr"></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card" id="sec-prontuarios">
+            <div class="card-header"><h3><i class="fas fa-notes-medical"></i> Prontuários</h3></div>
+            <div class="card-body"><div class="list" id="recordsList"></div></div>
+          </div>
+        </div>
+
+        <div class="card" id="sec-historico">
+          <div class="card-header"><h3><i class="fas fa-history"></i> Histórico Médico do Paciente</h3></div>
+          <div class="card-body"><div class="timeline" id="medicalTimeline"></div></div>
+        </div>
+      </div>
+
+      <!-- ===================== ABA: CONSULTAS ===================== -->
+      <div class="tab-panel" id="tabConsultas">
+        <div class="card" id="sec-consultas">
+          <div class="card-header"><h3><i class="fas fa-calendar-check"></i> Consultas</h3></div>
+          <div class="card-body"><div class="list" id="consultsList"></div></div>
+        </div>
+      </div>
+
+      <!-- ===================== ABA: PROCEDIMENTOS ===================== -->
+      <div class="tab-panel" id="tabProcedimentos">
+        <div class="card" id="sec-procedimentos">
+          <div class="card-header"><h3><i class="fas fa-procedures"></i> Procedimentos e Downloads</h3></div>
+          <div class="card-body"><div class="list" id="surgeriesList"></div></div>
+        </div>
+      </div>
+
+      <!-- ===================== ABA: ATUALIZAR DADOS ===================== -->
+      <div class="tab-panel" id="tabAtualizar">
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-user-edit"></i> Atualizar Dados do Paciente</h3></div>
+          <div class="card-body">
+            <form id="patientUpdateForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Nome</label>
+                  <input id="upName" type="text" placeholder="Nome completo">
+                </div>
+                <div class="form-group">
+                  <label>E-mail</label>
+                  <input id="upEmail" type="email" placeholder="email@dominio.com">
+                </div>
+                <div class="form-group">
+                  <label>Telefone</label>
+                  <input id="upPhone" type="text" placeholder="(11) 99999-9999">
+                </div>
+                <div class="form-group">
+                  <label>Documento</label>
+                  <input id="upDocument" type="text" placeholder="CPF / RG">
+                </div>
+                <div class="form-group">
+                  <label>Data de Nascimento</label>
+                  <input id="upBirthDate" type="date">
+                </div>
+                <div class="form-group">
+                  <label>Contato de Emergência</label>
+                  <input id="upEmergencyName" type="text" placeholder="Nome do contato">
+                </div>
+                <div class="form-group">
+                  <label>Telefone de Emergência</label>
+                  <input id="upEmergencyPhone" type="text" placeholder="(11) 99999-9999">
+                </div>
+                <div class="form-group span2">
+                  <label>Endereço</label>
+                  <input id="upAddress" type="text" placeholder="Rua, número, bairro, cidade">
+                </div>
+                <div class="form-group span2">
+                  <label>Histórico Médico Cadastral</label>
+                  <textarea id="upMedicalHistory" placeholder="Condições prévias e observações gerais"></textarea>
+                </div>
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn btn-solid" id="upSaveBtn" type="submit"><i class="fas fa-save"></i> Salvar Dados do Paciente</button>
+              </div>
+              <div class="alert ok" id="upOk"></div>
+              <div class="alert err" id="upErr"></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-edit"></i> Atualizar Acompanhamento Específico</h3></div>
+          <div class="card-body">
+            <div class="update-help" style="margin-bottom:8px;">Esta atualização não substitui o original: adiciona novas observações e fotos.</div>
+            <form id="followupUpdateForm">
+              <div class="form-grid">
+                <div class="form-group span2">
+                  <label>Selecionar acompanhamento *</label>
+                  <select id="fuEditSelect" required>
+                    <option value="">Selecione um acompanhamento do histórico</option>
+                  </select>
+                </div>
+                <div class="form-group span2">
+                  <div class="selected-followup-panel" id="fuEditCurrentData">
+                    <div class="label">Detalhes do acompanhamento selecionado</div>
+                    <div class="value">Selecione um acompanhamento para visualizar todos os dados antes de atualizar.</div>
+                  </div>
+                </div>
+                <div class="form-group span2">
+                  <label>Nova evolução / intercorrências</label>
+                  <textarea id="fuEditEvolution" placeholder="Adicione uma nova evolução para este acompanhamento"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Atualização de hipótese diagnóstica</label>
+                  <textarea id="fuEditDiagnosis" placeholder="Se aplicável, adicione novo raciocínio diagnóstico"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Atualização de plano terapêutico</label>
+                  <textarea id="fuEditPlan" placeholder="Se aplicável, adicione novas condutas"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Foto-documentação adicional</label>
+                  <select id="fuEditPhotoStage">
+                    <option value="ANTES">Categoria das novas fotos: Antes</option>
+                    <option value="DURANTE">Categoria das novas fotos: Durante</option>
+                    <option value="DEPOIS">Categoria das novas fotos: Depois</option>
+                    <option value="GERAL">Categoria das novas fotos: Geral</option>
+                  </select>
+                  <input id="fuEditPhotoFiles" type="file" accept="image/*" multiple>
+                  <div class="sub" style="font-size:10px;color:var(--muted);">Até 6 fotos, máximo 2MB por arquivo.</div>
+                  <div class="row" id="fuEditPhotoPreview" style="margin-top:8px;"></div>
+                  <textarea id="fuEditPhotosNotes" placeholder="Observações adicionais sobre as novas fotos"></textarea>
+                </div>
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn btn-solid" type="submit" id="fuEditSaveBtn"><i class="fas fa-save"></i> Salvar Atualização</button>
+                <button class="btn" type="button" id="fuEditClearBtn"><i class="fas fa-eraser"></i> Limpar</button>
+              </div>
+              <div class="alert ok" id="fuEditOk"></div>
+              <div class="alert err" id="fuEditErr"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== ABA: ACOMPANHAMENTO ===================== -->
+      <div class="tab-panel" id="tabAcompanhamento">
+        <div class="card" id="sec-followups">
+          <div class="card-header"><h3><i class="fas fa-heartbeat"></i> Acompanhamento Clínico do Paciente</h3></div>
+          <div class="card-body">
+            <form id="followupForm">
+              <div class="form-grid">
+                <div class="form-group span2">
+                  <label>Procedimento Vinculado *</label>
+                  <select id="fuProcedure" style="border:1.5px solid var(--border);border-radius:8px;padding:9px 10px;font-size:12px;font-family:'Poppins',sans-serif;background:#fafcff;" required>
+                    <option value="">Selecionar procedimento concluído e assinado</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Queixa Principal / Chief Complaint</label>
+                  <input id="fuChiefComplaint" type="text" placeholder="Ex: Flacidez abdominal pós-gestação">
+                </div>
+                <div class="form-group">
+                  <label>Duração da Queixa / Duration</label>
+                  <input id="fuComplaintDuration" type="text" placeholder="Ex: 2 anos">
+                </div>
+                <div class="form-group span2">
+                  <label>HPMA / History of Present Illness</label>
+                  <textarea id="fuHpi" placeholder="Evolução da queixa e tratamentos prévios"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Interrogatório dos Aparelhos / Systems Review</label>
+                  <textarea id="fuSystemsReview" placeholder="Digestivo, respiratório, cardiovascular, osteomuscular, pele, neurológico..."></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Antecedentes Pessoais / Personal History</label>
+                  <textarea id="fuPersonalHistory" placeholder="Cirurgias prévias, alergias, tabagismo, medicamentos, comorbidades"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Antecedentes Familiares / Family History</label>
+                  <textarea id="fuFamilyHistory" placeholder="Diabetes, hipertensão, doenças cardiovasculares, câncer"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>SRQ-20 (Sim) / Score</label>
+                  <input id="fuSrq20" type="number" min="0" max="20" placeholder="0-20">
+                </div>
+                <div class="form-group">
+                  <label>Risco Cirúrgico / Surgical Risk</label>
+                  <input id="fuSurgicalRisk" type="text" placeholder="Baixo, moderado, alto">
+                </div>
+                <div class="form-group span2">
+                  <label>Exame Físico Geral / General Physical Exam</label>
+                  <textarea id="fuPhysicalGeneral" placeholder="Peso, IMC, sinais vitais e condições clínicas gerais"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Exame Físico Especial / Plastic Surgery Exam</label>
+                  <textarea id="fuPhysicalSpecial" placeholder="Face, mamas, abdome, contorno corporal, membros, pele"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Hipótese Diagnóstica / Diagnostic Hypothesis</label>
+                  <textarea id="fuDiagnosis" placeholder="Diagnósticos e classificações relevantes"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Plano Terapêutico / Therapeutic Plan</label>
+                  <textarea id="fuPlan" placeholder="Conduta, exames subsidiários, preparo e orientações"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Evolução e Curativos / Follow-up Notes</label>
+                  <textarea id="fuEvolution" placeholder="Evolução clínica, curativos, intercorrências e resposta ao tratamento"></textarea>
+                </div>
+                <div class="form-group span2">
+                  <label>Foto-Documentação / Photo Documentation</label>
+                  <select id="fuPhotoStage">
+                    <option value="ANTES">Categoria das novas fotos: Antes</option>
+                    <option value="DURANTE">Categoria das novas fotos: Durante</option>
+                    <option value="DEPOIS">Categoria das novas fotos: Depois</option>
+                    <option value="GERAL">Categoria das novas fotos: Geral</option>
+                  </select>
+                  <input id="fuPhotoFiles" type="file" accept="image/*" multiple>
+                  <div class="sub" style="font-size:10px;color:var(--muted);">Até 6 fotos, máximo 2MB por arquivo.</div>
+                  <div class="row" id="fuPhotoPreview" style="margin-top:8px;"></div>
+                  <textarea id="fuPhotosNotes" placeholder="Descrição das fotos: pré, intra, pós-operatório, posições e datas"></textarea>
+                </div>
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn btn-solid" type="submit" id="fuSaveBtn"><i class="fas fa-save"></i> Salvar Acompanhamento</button>
+                <button class="btn" type="button" id="fuClearBtn"><i class="fas fa-eraser"></i> Limpar</button>
+              </div>
+              <div class="alert ok" id="fuOk"></div>
+              <div class="alert err" id="fuErr"></div>
+            </form>
+
+            <div style="margin-top:14px;">
+              <div class="mini-title">Histórico de Acompanhamentos</div>
+              <div class="list" id="followupsList" style="margin-top:6px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="consultationModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="consultationModalTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="consultationModalTitle">Consulta Completa</div>
+        <div class="row">
+          <a class="btn" id="downloadConsultationPdfBtn" href="#" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> Baixar PDF da Consulta</a>
+          <button class="close-btn" id="closeConsultationModal" type="button" aria-label="Fechar">×</button>
+        </div>
+      </div>
+      <div class="modal-body" id="consultationModalBody">
+        <div class="empty">Selecione uma consulta para visualizar os detalhes.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchProfileTab(tabId, btn) {
+      document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+      document.getElementById(tabId)?.classList.add('active');
+      document.querySelectorAll('.profile-tab-btn').forEach((b) => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    const doctorToken = localStorage.getItem('doctorToken');
+    const receptionToken = localStorage.getItem('receptionToken');
+    const token = doctorToken || receptionToken;
+    const isReceptionSession = !doctorToken && !!receptionToken;
+    const doctorData = JSON.parse(localStorage.getItem(isReceptionSession ? 'receptionData' : 'doctorData') || '{}');
+    if (!token) window.location.href = '/medico/login';
+
+    const sidebarName = document.getElementById('sidebarName');
+    if (doctorData.name && sidebarName) sidebarName.textContent = doctorData.name;
+
+    const h = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token };
+    const patientId = location.pathname.split('/').filter(Boolean).pop();
+    const MAX_FOLLOWUP_PHOTOS = 6;
+    const MAX_FOLLOWUP_PHOTO_SIZE = 2 * 1024 * 1024;
+
+    function esc(v){ return String(v || '').replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s])); }
+    function dt(v){ return v ? new Date(v).toLocaleString('pt-BR',{ dateStyle:'short', timeStyle:'short' }) : '-'; }
+    function chip(text, cls){ return `<span class="chip ${cls}">${esc(text)}</span>`; }
+    function isProcedureEligible(s) {
+      const st = String(s.status || '').toUpperCase();
+      const docSt = String(s.document_status || '').toUpperCase();
+      return (st === 'COMPLETED' || st === 'SIGNED') && docSt === 'SIGNED';
+    }
+
+    function renderFollowupPhotoPreview(inputId, previewId) {
+      const files = Array.from(document.getElementById(inputId).files || []);
+      const preview = document.getElementById(previewId);
+      preview.innerHTML = files.length
+        ? files.map((f) => `<span class="chip muted">${esc(f.name)}</span>`).join('')
+        : '<span class="chip muted">Nenhuma foto selecionada</span>';
+    }
+
+    function stageLabel(value) {
+      const v = String(value || '').toUpperCase();
+      if (v === 'ANTES') return 'Antes';
+      if (v === 'DURANTE') return 'Durante';
+      if (v === 'DEPOIS') return 'Depois';
+      return 'Geral';
+    }
+
+    function renderPhotoGallery(photos) {
+      const items = Array.isArray(photos) ? photos.filter((p) => p?.dataUrl) : [];
+      if (!items.length) return '';
+      return `<div class="photo-grid">${items.map((p) => `
+        <div class="photo-thumb">
+          <img src="${esc(p.dataUrl)}" alt="Foto ${esc(p.name || 'acompanhamento')}">
+          <div class="photo-meta">
+            <span class="photo-stage">${esc(stageLabel(p.stage))}</span>
+            <div style="margin-top:4px;">${esc(p.name || 'foto')}</div>
+          </div>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    function populateFollowupUpdateSelect() {
+      const sel = document.getElementById('fuEditSelect');
+      sel.innerHTML = '<option value="">Selecione um acompanhamento do histórico</option>' + currentFollowups
+        .map((f) => `<option value="${esc(f.id)}">${esc(f.chief_complaint || 'Acompanhamento clínico')} · ${dt(f.created_at)}${f.surgery_title ? ' · ' + esc(f.surgery_title) : ''}</option>`)
+        .join('');
+    }
+
+    function focusFollowupUpdate(followupId) {
+      const sel = document.getElementById('fuEditSelect');
+      if (!currentFollowups.some((f) => String(f.id) === String(followupId))) return;
+      switchProfileTab('tabAtualizar', document.querySelector('[data-tab="tabAtualizar"]'));
+      sel.value = String(followupId);
+      renderSelectedFollowupDetails(String(followupId));
+      document.getElementById('fuEditSelect').focus();
+    }
+
+    function renderSelectedFollowupDetails(followupId) {
+      const panel = document.getElementById('fuEditCurrentData');
+      const f = currentFollowups.find((item) => String(item.id) === String(followupId));
+      if (!f) {
+        panel.innerHTML = '<div class="label">Detalhes do acompanhamento selecionado</div><div class="value">Selecione um acompanhamento para visualizar todos os dados antes de atualizar.</div>';
+        return;
+      }
+
+      const photos = Array.isArray(f.photo_documentation?.photos) ? f.photo_documentation.photos : [];
+      panel.innerHTML = `
+        <div class="label">Detalhes do acompanhamento selecionado</div>
+        <div class="value"><strong>Data:</strong> ${esc(dt(f.created_at))}</div>
+        <div class="value"><strong>Profissional:</strong> ${esc(f.doctor_name || '-')} ${f.crm ? `(${esc(f.crm)})` : ''}</div>
+        ${f.surgery_title ? `<div class="value"><strong>Procedimento:</strong> ${esc(f.surgery_title)} (${esc(f.surgery_status || '-')})</div>` : ''}
+        ${f.medical_record_title ? `<div class="value"><strong>Prontuário:</strong> ${esc(f.medical_record_title)}</div>` : ''}
+        <div class="value"><strong>Queixa principal:</strong> ${esc(f.chief_complaint || 'Não informado')}</div>
+        <div class="value"><strong>Duração da queixa:</strong> ${esc(f.complaint_duration || 'Não informado')}</div>
+        <div class="value"><strong>HPMA:</strong> ${esc(f.history_present_illness || 'Não informado')}</div>
+        <div class="value"><strong>Exame físico geral:</strong> ${esc(f.physical_exam_general || 'Não informado')}</div>
+        <div class="value"><strong>Exame físico especial:</strong> ${esc(f.physical_exam_special || 'Não informado')}</div>
+        <div class="value"><strong>Hipótese diagnóstica:</strong> ${esc(f.diagnosis_hypothesis || 'Não informado')}</div>
+        <div class="value"><strong>Plano terapêutico:</strong> ${esc(f.therapeutic_plan || 'Não informado')}</div>
+        <div class="value"><strong>Evolução:</strong> ${esc(f.evolution_notes || 'Não informado')}</div>
+        <div class="value"><strong>Observações de fotos:</strong> ${esc(f.photo_documentation?.notes || 'Não informado')}</div>
+        <div class="value"><strong>Total de fotos:</strong> ${photos.length}</div>
+        ${renderPhotoGallery(photos)}
+      `;
+    }
+
+    async function toDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error(`Falha ao ler arquivo ${file.name}`));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function parseFilenameFromDisposition(disposition, fallbackName) {
+      if (!disposition) return fallbackName;
+      const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+      if (utf8Match?.[1]) {
+        try {
+          return decodeURIComponent(utf8Match[1]);
+        } catch (_e) {
+          return fallbackName;
+        }
+      }
+      const simpleMatch = disposition.match(/filename="?([^";]+)"?/i);
+      return simpleMatch?.[1] || fallbackName;
+    }
+
+    async function downloadProtectedFile(url, fallbackName) {
+      const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      if (!res.ok) {
+        let message = 'Falha ao baixar arquivo.';
+        try {
+          const data = await res.json();
+          if (data?.error) message = data.error;
+        } catch (_e) {
+          // keep fallback message
+        }
+        throw new Error(message);
+      }
+
+      const blob = await res.blob();
+      const disposition = res.headers.get('content-disposition') || '';
+      const fileName = parseFilenameFromDisposition(disposition, fallbackName);
+
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    }
+    let openConsultationId = null;
+    let currentProfileData = null;
+    let currentFollowups = [];
+
+    function buildTimeline(data) {
+      const p = data.patient || {};
+      const records = data.medicalRecords || [];
+      const consults = data.consultations || [];
+      const surgeries = data.surgeries || [];
+      const followups = data.clinicalFollowups || [];
+      const events = [];
+
+      if (p.medical_history) {
+        events.push({ kind:'Cadastro', at:p.created_at, text:`Histórico cadastral: ${p.medical_history}` });
+      }
+
+      records.forEach((r) => {
+        events.push({
+          kind:'Prontuário',
+          at:r.updated_at || r.created_at,
+          text:`${r.title || 'Prontuário'}${r.summary ? ' - ' + r.summary : ''}`,
+        });
+      });
+
+      consults.forEach((c) => {
+        events.push({
+          kind:'Consulta',
+          at:c.consultation_at,
+          text:`${c.summary || 'Consulta registrada'}${c.diagnosis ? ' - Diagnóstico: ' + c.diagnosis : ''}`,
+        });
+      });
+
+      surgeries.forEach((s) => {
+        events.push({
+          kind:'Procedimento',
+          at:s.scheduled_at || s.created_at,
+          text:`${s.title || 'Procedimento'}${s.notes ? ' - ' + s.notes : ''}`,
+        });
+      });
+
+      followups.forEach((f) => {
+        events.push({
+          kind:'Acompanhamento',
+          at:f.created_at,
+          text:`${f.chief_complaint || 'Observação clínica'}${f.diagnosis_hypothesis ? ' - ' + f.diagnosis_hypothesis : ''}`,
+        });
+      });
+
+      return events
+        .sort((a, b) => new Date(b.at || 0).getTime() - new Date(a.at || 0).getTime())
+        .slice(0, 80);
+    }
+
+    function renderProfile(data) {
+      const p = data.patient || {};
+      const records = data.medicalRecords || [];
+      const consults = data.consultations || [];
+      const surgeries = data.surgeries || [];
+      const followups = data.clinicalFollowups || [];
+      currentProfileData = data;
+      currentFollowups = followups;
+
+      document.getElementById('title').textContent = `Perfil de ${p.name || 'Paciente'}`;
+      document.getElementById('subtitle').textContent = `ID: ${p.id || '-'} · Criado em ${dt(p.created_at)}`;
+      document.getElementById('pName').textContent = p.name || '-';
+      document.getElementById('pContact').textContent = `${p.email || '-'} ${p.phone ? '· ' + p.phone : ''}`;
+      document.getElementById('pDoc').textContent = `Documento: ${p.document_id || 'Não informado'} · Nascimento: ${p.birth_date ? new Date(p.birth_date).toLocaleDateString('pt-BR') : '-'}`;
+      document.getElementById('pAddress').textContent = `Endereço: ${p.address || 'Não informado'}`;
+      document.getElementById('pEmergency').textContent = `Contato de emergência: ${p.emergency_contact_name || '-'} ${p.emergency_contact_phone ? '· ' + p.emergency_contact_phone : ''}`;
+      document.getElementById('medicalHistory').textContent = p.medical_history ? `Histórico médico cadastral: ${p.medical_history}` : 'Histórico médico cadastral não informado.';
+
+      const lgpdRow = document.getElementById('lgpdRow');
+      lgpdRow.innerHTML = '';
+      if (p.lgpd_consent_version) lgpdRow.insertAdjacentHTML('beforeend', chip(`LGPD ${p.lgpd_consent_version}`, 'ok'));
+      if (p.lgpd_consent_at) lgpdRow.insertAdjacentHTML('beforeend', chip(`Aceite em ${dt(p.lgpd_consent_at)}`, 'muted'));
+      if (!p.lgpd_consent_version && !p.lgpd_consent_at) lgpdRow.insertAdjacentHTML('beforeend', chip('LGPD pendente', 'warn'));
+
+      document.getElementById('kRecords').textContent = records.length;
+      document.getElementById('kConsults').textContent = consults.length;
+      document.getElementById('kSurgeries').textContent = surgeries.length;
+      document.getElementById('kSigned').textContent = surgeries.filter((s) => String(s.document_status || '').toUpperCase() === 'SIGNED').length;
+
+      const faceWrap = document.getElementById('pFaceWrap');
+      const refBtn = document.getElementById('btnDownloadRefFace');
+      if (p.reference_face_path) {
+        faceWrap.innerHTML = `<img src="${esc(p.reference_face_path)}" class="face" alt="Foto referência">`;
+        refBtn.style.display = '';
+        refBtn.href = `/api/patients/${p.id}/download/reference-face`;
+      } else {
+        faceWrap.innerHTML = '<span class="chip muted">Sem foto de referência</span>';
+      }
+
+      const recordsList = document.getElementById('recordsList');
+      recordsList.innerHTML = records.length
+        ? records.map((r) => `<div class="item"><div class="ttl">${esc(r.title || 'Prontuário')}</div><div class="sub">Atualizado: ${dt(r.updated_at || r.created_at)}</div><div class="sub">${esc(r.summary || 'Sem resumo')}</div>${r.allergies ? `<div class="sub">Alergias: ${esc(r.allergies)}</div>` : ''}${r.chronic_conditions ? `<div class="sub">Condições crônicas: ${esc(r.chronic_conditions)}</div>` : ''}${r.current_medications ? `<div class="sub">Medicações: ${esc(r.current_medications)}</div>` : ''}<div class="row" style="margin-top:8px;"><button type="button" class="btn" data-record-download-id="${esc(r.id)}"><i class="fas fa-download"></i> Baixar prontuário</button></div></div>`).join('')
+        : '<div class="empty">Nenhum prontuário registrado.</div>';
+
+      const fuProcedure = document.getElementById('fuProcedure');
+      const eligibleProcedures = surgeries.filter(isProcedureEligible);
+      fuProcedure.innerHTML = '<option value="">Selecionar procedimento concluído e assinado</option>' + eligibleProcedures
+        .map((s) => `<option value="${esc(s.id)}">${esc(s.title || 'Procedimento')} · ${dt(s.scheduled_at || s.created_at)}</option>`)
+        .join('');
+
+      document.getElementById('upName').value = p.name || '';
+      document.getElementById('upEmail').value = p.email || '';
+      document.getElementById('upPhone').value = p.phone || '';
+      document.getElementById('upDocument').value = p.document_id || '';
+      document.getElementById('upBirthDate').value = p.birth_date ? String(p.birth_date).slice(0, 10) : '';
+      document.getElementById('upEmergencyName').value = p.emergency_contact_name || '';
+      document.getElementById('upEmergencyPhone').value = p.emergency_contact_phone || '';
+      document.getElementById('upAddress').value = p.address || '';
+      document.getElementById('upMedicalHistory').value = p.medical_history || '';
+
+      const consultsList = document.getElementById('consultsList');
+      consultsList.innerHTML = consults.length
+        ? consults.map((c) => `<div class="item"><div class="ttl">${dt(c.consultation_at)}</div><div class="sub">Profissional: ${esc(c.doctor_name || '-')} ${c.crm ? '(' + esc(c.crm) + ')' : ''}</div><div class="sub">Resumo: ${esc(c.summary || '-')}</div>${c.diagnosis ? `<div class="sub">Diagnóstico: ${esc(c.diagnosis)}</div>` : ''}${c.prescription ? `<div class="sub">Prescrição: ${esc(c.prescription)}</div>` : ''}<div class="row" style="margin-top:8px;">${String(c.source || '').toUpperCase() === 'CONSULTATION' ? `<button type="button" class="btn btn-solid" data-consultation-id="${esc(c.id)}"><i class="fas fa-eye"></i> Ver consulta completa</button>` : `<span class="chip muted">Registro de procedimento</span>`}</div></div>`).join('')
+        : '<div class="empty">Nenhuma consulta registrada.</div>';
+
+      const surgeriesList = document.getElementById('surgeriesList');
+      surgeriesList.innerHTML = surgeries.length
+        ? surgeries.map((s) => {
+          const st = String(s.document_status || '').toUpperCase();
+          const faceBtn = s.document_id && s.signature_face_path
+            ? `<a class="btn" href="/api/documents/${s.document_id}/download/signature-face"><i class="fas fa-image"></i> Foto da Assinatura</a>`
+            : '';
+          const pdfBtn = s.access_token ? `<a class="btn" href="/api/patient/download/${s.access_token}/pdf" target="_blank"><i class="fas fa-file-pdf"></i> PDF</a>` : '';
+          const docxBtn = s.access_token ? `<a class="btn" href="/api/patient/download/${s.access_token}/docx" target="_blank"><i class="fas fa-file-word"></i> DOCX</a>` : '';
+          const stChip = st === 'SIGNED' ? chip('Assinado', 'ok') : (st ? chip(st, 'warn') : chip('Sem documento', 'muted'));
+          return `<div class="item"><div class="ttl">${esc(s.title || 'Procedimento')}</div><div class="sub">Data: ${dt(s.scheduled_at)}</div><div class="sub">Hospital: ${esc(s.hospital || '-')} · Médico: ${esc(s.doctor_name || '-')}</div><div class="row" style="margin-top:8px;">${stChip}</div><div class="row" style="margin-top:8px;">${pdfBtn}${docxBtn}${faceBtn}</div></div>`;
+        }).join('')
+        : '<div class="empty">Nenhum procedimento registrado.</div>';
+
+      const timeline = buildTimeline(data);
+      const timelineEl = document.getElementById('medicalTimeline');
+      timelineEl.innerHTML = timeline.length
+        ? timeline.map((e) => `<div class="timeline-item"><div class="head"><span class="kind">${esc(e.kind)}</span><span class="date">${dt(e.at)}</span></div><div class="text">${esc(e.text || '-')}</div></div>`).join('')
+        : '<div class="empty">Sem eventos de histórico médico.</div>';
+
+      const followupsList = document.getElementById('followupsList');
+      followupsList.innerHTML = followups.length
+        ? followups.map((f) => {
+          const photos = Array.isArray(f.photo_documentation?.photos) ? f.photo_documentation.photos : [];
+          const photosRow = photos.length ? `<div class="sub">Fotos anexadas: ${photos.length}</div>` : '';
+          return `<div class="item"><div class="ttl">${esc(f.chief_complaint || 'Acompanhamento clínico')}</div><div class="sub">Data: ${dt(f.created_at)} · Profissional: ${esc(f.doctor_name || '-')} ${f.crm ? '(' + esc(f.crm) + ')' : ''}</div>${f.surgery_title ? `<div class="sub">Procedimento: ${esc(f.surgery_title)} (${esc(f.surgery_status || '-')})</div>` : ''}${f.medical_record_title ? `<div class="sub">Prontuário: ${esc(f.medical_record_title)}</div>` : ''}${f.complaint_duration ? `<div class="sub">Duração: ${esc(f.complaint_duration)}</div>` : ''}${f.diagnosis_hypothesis ? `<div class="sub">Hipótese diagnóstica: ${esc(f.diagnosis_hypothesis)}</div>` : ''}${f.therapeutic_plan ? `<div class="sub">Plano terapêutico: ${esc(f.therapeutic_plan)}</div>` : ''}${f.evolution_notes ? `<div class="sub">Evolução: ${esc(f.evolution_notes)}</div>` : ''}${photosRow}${renderPhotoGallery(photos)}<div class="row" style="margin-top:8px;"><button type="button" class="btn" data-followup-edit-id="${esc(f.id)}"><i class="fas fa-edit"></i> Atualizar este acompanhamento</button><button type="button" class="btn" data-followup-download-id="${esc(f.id)}"><i class="fas fa-download"></i> Baixar acompanhamento</button></div></div>`;
+        }).join('')
+        : '<div class="empty">Nenhum acompanhamento clínico registrado.</div>';
+
+      populateFollowupUpdateSelect();
+      renderFollowupPhotoPreview('fuPhotoFiles', 'fuPhotoPreview');
+      renderFollowupPhotoPreview('fuEditPhotoFiles', 'fuEditPhotoPreview');
+      renderSelectedFollowupDetails(document.getElementById('fuEditSelect').value);
+    }
+
+    function openConsultationModal() {
+      const modal = document.getElementById('consultationModal');
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeConsultationModal() {
+      const modal = document.getElementById('consultationModal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      openConsultationId = null;
+    }
+
+    function renderSectionList(items, renderer) {
+      if (!items || !items.length) return '<div class="empty">Nenhum item encontrado.</div>';
+      return `<div class="detail-list">${items.map(renderer).join('')}</div>`;
+    }
+
+    async function loadConsultationDetails(consultationId) {
+      openConsultationId = consultationId;
+      const body = document.getElementById('consultationModalBody');
+      const pdfBtn = document.getElementById('downloadConsultationPdfBtn');
+      body.innerHTML = '<div class="empty">Carregando detalhes da consulta...</div>';
+      pdfBtn.href = '#';
+      openConsultationModal();
+
+      try {
+        const res = await fetch(`/api/consultations/${consultationId}/details`, { headers: { Authorization: 'Bearer ' + token } });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Nao foi possivel carregar os detalhes da consulta.');
+        }
+
+        const c = data.consultation || {};
+        const p = data.patient || {};
+        const d = data.doctor || {};
+        const records = data.linkedMedicalRecords || [];
+        const procedures = data.procedures || [];
+        const prescriptions = data.prescriptions || [];
+        const certificates = data.certificates || [];
+
+        pdfBtn.href = `/api/consultations/${consultationId}/details/pdf`;
+        document.getElementById('consultationModalTitle').textContent = `Consulta em ${dt(c.consultation_at)}`;
+        body.innerHTML = `
+          <div class="detail-grid">
+            <div class="detail-block">
+              <h4>Dados da Consulta</h4>
+              <div class="detail-line"><strong>ID:</strong> ${esc(c.id || '-')}</div>
+              <div class="detail-line"><strong>Data/Hora:</strong> ${dt(c.consultation_at)}</div>
+              <div class="detail-line"><strong>Resumo:</strong> ${esc(c.summary || 'Nao informado')}</div>
+              <div class="detail-line"><strong>Diagnostico:</strong> ${esc(c.diagnosis || 'Nao informado')}</div>
+              <div class="detail-line"><strong>Prescricao:</strong> ${esc(c.prescription || 'Nao informado')}</div>
+            </div>
+            <div class="detail-block">
+              <h4>Paciente e Profissional</h4>
+              <div class="detail-line"><strong>Paciente:</strong> ${esc(p.name || '-')}</div>
+              <div class="detail-line"><strong>Contato:</strong> ${esc(p.email || '-')} ${p.phone ? '· ' + esc(p.phone) : ''}</div>
+              <div class="detail-line"><strong>Documento:</strong> ${esc(p.document || '-')}</div>
+              <div class="detail-line"><strong>Medico:</strong> ${esc(d.name || '-')} ${d.crm ? '(' + esc(d.crm) + ')' : ''}</div>
+              <div class="detail-line"><strong>Especialidade:</strong> ${esc(d.specialty || 'Nao informada')}</div>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <h4>Prontuario(s) Relacionado(s)</h4>
+            ${renderSectionList(records, (r) => `<div class="item"><div class="ttl">${esc(r.title || 'Prontuario')}</div><div class="sub">Atualizado: ${dt(r.updated_at || r.created_at)}</div><div class="sub">Resumo: ${esc(r.summary || 'Nao informado')}</div>${r.clinical_history ? `<div class="sub">Historia clinica: ${esc(r.clinical_history)}</div>` : ''}${r.allergies ? `<div class="sub">Alergias: ${esc(r.allergies)}</div>` : ''}${r.chronic_conditions ? `<div class="sub">Condicoes cronicas: ${esc(r.chronic_conditions)}</div>` : ''}${r.current_medications ? `<div class="sub">Medicacoes em uso: ${esc(r.current_medications)}</div>` : ''}</div>`)}
+          </div>
+
+          <div class="detail-block">
+            <h4>Procedimentos Relacionados</h4>
+            ${renderSectionList(procedures, (s) => `<div class="item"><div class="ttl">${esc(s.title || 'Procedimento')}</div><div class="sub">Data: ${dt(s.scheduled_at)}</div><div class="sub">Status: ${esc(s.status || '-')} · Tipo: ${esc(s.procedure_type || '-')}</div><div class="sub">Hospital: ${esc(s.hospital || '-')}</div>${s.notes ? `<div class="sub">Observacoes: ${esc(s.notes)}</div>` : ''}</div>`)}
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-block">
+              <h4>Receitas Relacionadas</h4>
+              ${renderSectionList(prescriptions, (pr) => `<div class="item"><div class="ttl">Emitida em ${esc(pr.issued_at ? new Date(pr.issued_at).toLocaleDateString('pt-BR') : '-')}</div><div class="sub">Validade: ${esc(pr.valid_days || '-')} dia(s)</div>${pr.notes ? `<div class="sub">Observacoes: ${esc(pr.notes)}</div>` : ''}</div>`)}
+            </div>
+            <div class="detail-block">
+              <h4>Atestados Relacionados</h4>
+              ${renderSectionList(certificates, (mc) => `<div class="item"><div class="ttl">Emitido em ${esc(mc.issued_at ? new Date(mc.issued_at).toLocaleDateString('pt-BR') : '-')}</div><div class="sub">CID: ${esc(mc.cid10_code || '-')} ${mc.cid10_desc ? '- ' + esc(mc.cid10_desc) : ''}</div><div class="sub">Repouso: ${esc(mc.rest_days || '-')} dia(s)</div>${mc.justification ? `<div class="sub">Justificativa: ${esc(mc.justification)}</div>` : ''}</div>`)}
+            </div>
+          </div>
+        `;
+      } catch (e2) {
+        body.innerHTML = `<div class="alert err" style="display:block;">${esc(e2.message || 'Erro ao carregar detalhes da consulta.')}</div>`;
+      }
+    }
+
+    async function loadProfile() {
+      const res = await fetch(`/api/patients/${patientId}/profile`, { headers: { Authorization: 'Bearer ' + token } });
+      if (!res.ok) {
+        document.getElementById('subtitle').textContent = 'Erro ao carregar perfil.';
+        return;
+      }
+      const data = await res.json();
+      renderProfile(data);
+    }
+
+    function hideRecordAlerts() {
+      document.getElementById('mrOk').style.display = 'none';
+      document.getElementById('mrErr').style.display = 'none';
+    }
+
+    function hidePatientUpdateAlerts() {
+      document.getElementById('upOk').style.display = 'none';
+      document.getElementById('upErr').style.display = 'none';
+    }
+
+    function hideFollowupAlerts() {
+      document.getElementById('fuOk').style.display = 'none';
+      document.getElementById('fuErr').style.display = 'none';
+    }
+
+    document.getElementById('mrClearBtn').addEventListener('click', () => {
+      document.getElementById('recordForm').reset();
+      hideRecordAlerts();
+    });
+
+    document.getElementById('recordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideRecordAlerts();
+
+      const btn = document.getElementById('mrSaveBtn');
+      const ok = document.getElementById('mrOk');
+      const err = document.getElementById('mrErr');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+      try {
+        const payload = {
+          title: document.getElementById('mrTitle').value.trim(),
+          summary: document.getElementById('mrSummary').value.trim(),
+          clinicalHistory: document.getElementById('mrClinicalHistory').value.trim(),
+          allergies: document.getElementById('mrAllergies').value.trim(),
+          chronicConditions: document.getElementById('mrChronic').value.trim(),
+          currentMedications: document.getElementById('mrMedications').value.trim(),
+        };
+
+        const res = await fetch(`/api/patients/${patientId}/medical-records`, {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Erro ao salvar prontuário.');
+        }
+
+        ok.textContent = `Prontuário "${data.record?.title || 'novo'}" salvo com sucesso.`;
+        ok.style.display = 'block';
+        document.getElementById('recordForm').reset();
+        await loadProfile();
+      } catch (e2) {
+        err.textContent = e2.message || 'Erro ao salvar prontuário.';
+        err.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Salvar Prontuário';
+    });
+
+    document.getElementById('patientUpdateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hidePatientUpdateAlerts();
+
+      const btn = document.getElementById('upSaveBtn');
+      const ok = document.getElementById('upOk');
+      const err = document.getElementById('upErr');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+      try {
+        const payload = {
+          name: document.getElementById('upName').value.trim(),
+          email: document.getElementById('upEmail').value.trim(),
+          phone: document.getElementById('upPhone').value.trim(),
+          birthDate: document.getElementById('upBirthDate').value || null,
+          emergencyContactName: document.getElementById('upEmergencyName').value.trim(),
+          emergencyContactPhone: document.getElementById('upEmergencyPhone').value.trim(),
+          address: document.getElementById('upAddress').value.trim(),
+          medicalHistory: document.getElementById('upMedicalHistory').value.trim(),
+        };
+
+        const res = await fetch(`/api/patients/${patientId}`, {
+          method: 'PUT',
+          headers: h,
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao atualizar dados do paciente.');
+
+        ok.textContent = 'Dados do paciente atualizados com sucesso.';
+        ok.style.display = 'block';
+        await loadProfile();
+      } catch (e2) {
+        err.textContent = e2.message || 'Erro ao atualizar dados do paciente.';
+        err.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Salvar Dados do Paciente';
+    });
+
+    document.getElementById('followupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideFollowupAlerts();
+
+      const btn = document.getElementById('fuSaveBtn');
+      const ok = document.getElementById('fuOk');
+      const err = document.getElementById('fuErr');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+      try {
+        const files = Array.from(document.getElementById('fuPhotoFiles').files || []);
+        if (files.length > MAX_FOLLOWUP_PHOTOS) {
+          throw new Error(`Selecione no máximo ${MAX_FOLLOWUP_PHOTOS} fotos.`);
+        }
+        files.forEach((file) => {
+          if (file.size > MAX_FOLLOWUP_PHOTO_SIZE) {
+            throw new Error(`A foto ${file.name} excede 2MB.`);
+          }
+        });
+        const photos = await Promise.all(files.map(async (file) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          stage: document.getElementById('fuPhotoStage').value,
+          dataUrl: await toDataUrl(file),
+        })));
+
+        const payload = {
+          surgeryId: document.getElementById('fuProcedure').value || null,
+          chiefComplaint: document.getElementById('fuChiefComplaint').value.trim(),
+          complaintDuration: document.getElementById('fuComplaintDuration').value.trim(),
+          historyPresentIllness: document.getElementById('fuHpi').value.trim(),
+          systemsReview: { text: document.getElementById('fuSystemsReview').value.trim() },
+          personalHistory: { text: document.getElementById('fuPersonalHistory').value.trim() },
+          familyHistory: { text: document.getElementById('fuFamilyHistory').value.trim() },
+          srq20Answers: { score: Number(document.getElementById('fuSrq20').value || 0) },
+          physicalExamGeneral: document.getElementById('fuPhysicalGeneral').value.trim(),
+          physicalExamSpecial: document.getElementById('fuPhysicalSpecial').value.trim(),
+          surgicalRisk: document.getElementById('fuSurgicalRisk').value.trim(),
+          diagnosisHypothesis: document.getElementById('fuDiagnosis').value.trim(),
+          therapeuticPlan: document.getElementById('fuPlan').value.trim(),
+          evolutionNotes: document.getElementById('fuEvolution').value.trim(),
+          photoDocumentation: {
+            notes: document.getElementById('fuPhotosNotes').value.trim(),
+            photos,
+          },
+        };
+
+        const res = await fetch(`/api/patients/${patientId}/clinical-followups`, {
+          method: 'POST',
+          headers: h,
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao salvar acompanhamento clínico.');
+
+        ok.textContent = 'Acompanhamento clínico salvo com sucesso.';
+        ok.style.display = 'block';
+        document.getElementById('followupForm').reset();
+        renderFollowupPhotoPreview('fuPhotoFiles', 'fuPhotoPreview');
+        await loadProfile();
+      } catch (e2) {
+        err.textContent = e2.message || 'Erro ao salvar acompanhamento clínico.';
+        err.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Salvar Acompanhamento';
+    });
+
+    document.getElementById('fuClearBtn').addEventListener('click', () => {
+      document.getElementById('followupForm').reset();
+      renderFollowupPhotoPreview('fuPhotoFiles', 'fuPhotoPreview');
+      hideFollowupAlerts();
+    });
+
+    document.getElementById('fuPhotoFiles').addEventListener('change', () => renderFollowupPhotoPreview('fuPhotoFiles', 'fuPhotoPreview'));
+    document.getElementById('fuEditPhotoFiles').addEventListener('change', () => renderFollowupPhotoPreview('fuEditPhotoFiles', 'fuEditPhotoPreview'));
+
+    document.getElementById('fuEditClearBtn').addEventListener('click', () => {
+      document.getElementById('followupUpdateForm').reset();
+      renderFollowupPhotoPreview('fuEditPhotoFiles', 'fuEditPhotoPreview');
+      renderSelectedFollowupDetails('');
+      document.getElementById('fuEditOk').style.display = 'none';
+      document.getElementById('fuEditErr').style.display = 'none';
+    });
+
+    document.getElementById('fuEditSelect').addEventListener('change', (e) => {
+      renderSelectedFollowupDetails(e.target.value);
+    });
+
+    document.getElementById('followupUpdateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ok = document.getElementById('fuEditOk');
+      const err = document.getElementById('fuEditErr');
+      const btn = document.getElementById('fuEditSaveBtn');
+      ok.style.display = 'none';
+      err.style.display = 'none';
+
+      const followupId = document.getElementById('fuEditSelect').value;
+      if (!followupId) {
+        err.textContent = 'Selecione o acompanhamento que deseja atualizar.';
+        err.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando atualização...';
+      try {
+        const files = Array.from(document.getElementById('fuEditPhotoFiles').files || []);
+        if (files.length > MAX_FOLLOWUP_PHOTOS) {
+          throw new Error(`Selecione no máximo ${MAX_FOLLOWUP_PHOTOS} fotos.`);
+        }
+        files.forEach((file) => {
+          if (file.size > MAX_FOLLOWUP_PHOTO_SIZE) {
+            throw new Error(`A foto ${file.name} excede 2MB.`);
+          }
+        });
+
+        const stage = document.getElementById('fuEditPhotoStage').value;
+        const photos = await Promise.all(files.map(async (file) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          stage,
+          dataUrl: await toDataUrl(file),
+        })));
+
+        const payload = {
+          additionalNotes: document.getElementById('fuEditEvolution').value.trim(),
+          diagnosisUpdate: document.getElementById('fuEditDiagnosis').value.trim(),
+          therapeuticPlanUpdate: document.getElementById('fuEditPlan').value.trim(),
+          photoDocumentation: {
+            notes: document.getElementById('fuEditPhotosNotes').value.trim(),
+            photos,
+          },
+        };
+
+        const res = await fetch(`/api/patients/${patientId}/clinical-followups/${followupId}`, {
+          method: 'PATCH',
+          headers: h,
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao atualizar acompanhamento.');
+
+        ok.textContent = 'Acompanhamento atualizado com sucesso. O histórico antigo foi preservado e a nova evolução foi adicionada.';
+        ok.style.display = 'block';
+        document.getElementById('followupUpdateForm').reset();
+        renderFollowupPhotoPreview('fuEditPhotoFiles', 'fuEditPhotoPreview');
+        await loadProfile();
+      } catch (e2) {
+        err.textContent = e2.message || 'Erro ao atualizar acompanhamento.';
+        err.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Salvar Atualização';
+    });
+
+    document.getElementById('recordsList').addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-record-download-id]');
+      if (!btn) return;
+      const recordId = btn.getAttribute('data-record-download-id');
+      if (!recordId) return;
+
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Baixando...';
+        await downloadProtectedFile(`/api/patients/${patientId}/medical-records/${recordId}/download/pdf`, `prontuario-${recordId}.pdf`);
+      } catch (error) {
+        alert(error.message || 'Erro ao baixar prontuário.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-download"></i> Baixar prontuário';
+      }
+    });
+
+    document.getElementById('followupsList').addEventListener('click', async (e) => {
+      const editBtn = e.target.closest('button[data-followup-edit-id]');
+      if (editBtn) {
+        const followupToEdit = editBtn.getAttribute('data-followup-edit-id');
+        if (followupToEdit) focusFollowupUpdate(followupToEdit);
+        return;
+      }
+
+      const btn = e.target.closest('button[data-followup-download-id]');
+      if (!btn) return;
+      const followupId = btn.getAttribute('data-followup-download-id');
+      if (!followupId) return;
+
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Baixando...';
+        await downloadProtectedFile(`/api/patients/${patientId}/clinical-followups/${followupId}/download/pdf`, `acompanhamento-${followupId}.pdf`);
+      } catch (error) {
+        alert(error.message || 'Erro ao baixar acompanhamento.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-download"></i> Baixar acompanhamento';
+      }
+    });
+
+    document.getElementById('consultsList').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-consultation-id]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-consultation-id');
+      if (!id) return;
+      loadConsultationDetails(id);
+    });
+
+    document.getElementById('closeConsultationModal').addEventListener('click', closeConsultationModal);
+    document.getElementById('consultationModal').addEventListener('click', (e) => {
+      if (e.target.id === 'consultationModal') closeConsultationModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && openConsultationId) closeConsultationModal();
+    });
+
+    loadProfile().catch(() => {
+      document.getElementById('subtitle').textContent = 'Erro ao carregar perfil.';
+    });
+  </script>
+</body>
+</html>

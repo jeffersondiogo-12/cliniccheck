@@ -1,0 +1,51 @@
+/* Paleta global para melhorar contraste e leitura em telas claras */
+:root {
+  --global-bg-a: #f7fbff;
+  --global-bg-b: #eaf4ff;
+  --global-bg-c: #eef2ff;
+  --global-panel-a: #ffffff;
+  --global-panel-b: #f8fcff;
+  --global-panel-c: #edf5ff;
+  --global-border: #d7e3ef;
+}
+
+body {
+  background: radial-gradient(circle at 10% 8%, var(--global-bg-a) 0%, var(--global-bg-b) 46%, var(--global-bg-c) 100%) !important;
+}
+
+main,
+.main,
+.content,
+.container,
+.workspace,
+.page,
+.app-shell {
+  background: linear-gradient(180deg, rgba(247, 251, 255, 0.9) 0%, rgba(234, 244, 255, 0.75) 100%) !important;
+}
+
+.topbar {
+  background: linear-gradient(118deg, var(--global-panel-a) 0%, var(--global-panel-b) 58%, var(--global-panel-c) 100%) !important;
+  border-bottom-color: var(--global-border) !important;
+}
+
+.card,
+.kpi-item,
+.stat-card,
+.panel,
+.modal,
+.modal-card,
+.print-preview {
+  background: linear-gradient(180deg, var(--global-panel-a) 0%, #f9fcff 100%) !important;
+  border-color: var(--global-border) !important;
+}
+
+.table-wrap,
+table,
+.section,
+.list,
+.form-wrap,
+.hero,
+.tile {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border-color: var(--global-border) !important;
+}

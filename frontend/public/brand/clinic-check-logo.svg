@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Clinic Check logo">
+  <defs>
+    <linearGradient id="cc-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#24C27D"/>
+      <stop offset="52%" stop-color="#1EA8C9"/>
+      <stop offset="100%" stop-color="#2F4CC9"/>
+    </linearGradient>
+    <linearGradient id="cc-dark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071A4D"/>
+      <stop offset="100%" stop-color="#163A8E"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(24,18)">
+    <circle cx="84" cy="84" r="74" fill="none" stroke="url(#cc-main)" stroke-width="10" opacity="0.95"/>
+    <path d="M92 34c0-9.2-7.5-16.7-16.7-16.7S58.6 24.8 58.6 34v20.6H38c-9.2 0-16.7 7.5-16.7 16.7S28.8 88 38 88h20.6v20.6c0 9.2 7.5 16.7 16.7 16.7S92 117.8 92 108.6V88h20.6c9.2 0 16.7-7.5 16.7-16.7S121.8 54.6 112.6 54.6H92V34z" fill="url(#cc-main)"/>
+    <path d="M63 76.5l14.7 14.8L112 57" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <g transform="translate(196,46)">
+    <text x="0" y="76" font-family="Poppins, 'Segoe UI', sans-serif" font-size="66" font-weight="700" letter-spacing="-1.2" fill="url(#cc-dark)">clinic</text>
+    <text x="201" y="76" font-family="Poppins, 'Segoe UI', sans-serif" font-size="66" font-weight="700" letter-spacing="-1.2" fill="url(#cc-main)">check</text>
+    <text x="2" y="122" font-family="Poppins, 'Segoe UI', sans-serif" font-size="24" font-weight="500" letter-spacing="2.4" fill="#6C7A99">CUIDAR. VERIFICAR. CONFIAR.</text>
+  </g>
+</svg>

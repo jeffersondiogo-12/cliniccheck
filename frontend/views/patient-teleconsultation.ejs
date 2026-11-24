@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinic Chek · Teleconsulta</title>
+  <link rel="icon" type="image/svg+xml" href="/public/brand/clinic-check-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/public/css/teleconsultation.css" />
+</head>
+<body class="tc-body">
+
+  <div class="tc-topbar">
+    <div class="tc-brand">
+      <div class="tc-brand-dot">
+        <svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Zm0 7L2 14l10 5 10-5-10-5Z"/></svg>
+      </div>
+      <div class="tc-brand-text">
+        <h2>Clinic Chek</h2>
+        <p>Teleconsulta</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc-wrap">
+
+    <div id="tcStepLoading" class="tc-panel">
+      <div class="tc-panel-body tc-waiting">
+        <div class="tc-waiting-spinner"></div>
+        <p>Carregando sua sala de teleconsulta…</p>
+      </div>
+    </div>
+
+    <div id="tcStepError" class="tc-panel" style="display:none;">
+      <div class="tc-panel-body">
+        <div class="tc-alert tc-alert-error" id="tcErrorMsg" style="display:block;"></div>
+      </div>
+    </div>
+
+    <div id="tcStepConsent" class="tc-panel" style="display:none;">
+      <div class="tc-panel-header"><h3>Termo de Consentimento — Teleconsulta</h3></div>
+      <div class="tc-panel-body">
+        <div class="tc-consent-text" id="tcConsentText"></div>
+        <label class="tc-checkbox-row">
+          <input type="checkbox" id="tcConsentCheck" />
+          <span>Li e concordo com os termos acima para a realização desta teleconsulta.</span>
+        </label>
+        <button id="tcConsentBtn" class="tc-btn tc-btn-primary tc-btn-block" disabled>Aceitar e continuar</button>
+      </div>
+    </div>
+
+    <div id="tcStepWaiting" class="tc-panel" style="display:none;">
+      <div class="tc-panel-header"><h3>Sala de espera</h3></div>
+      <div class="tc-panel-body">
+        <div class="tc-info-row"><span>Profissional</span><span id="tcDoctorName">—</span></div>
+        <div class="tc-info-row"><span>Horário</span><span id="tcConsultationAt">—</span></div>
+        <div class="tc-waiting">
+          <div class="tc-waiting-spinner"></div>
+          <h3>Aguardando o médico iniciar</h3>
+          <p>Você será conectado automaticamente assim que o atendimento começar. Mantenha esta página aberta.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="tcStepVideo" class="tc-panel" style="display:none;">
+      <div class="tc-video-shell">
+        <div id="tcVideoHost" class="tc-video-frame-host"></div>
+      </div>
+      <div class="tc-controls-bar">
+        <button id="tcLeaveBtn" class="tc-btn tc-btn-danger">Sair da chamada</button>
+      </div>
+    </div>
+
+    <div id="tcStepEnded" class="tc-panel" style="display:none;">
+      <div class="tc-panel-body" style="text-align:center;padding:40px 20px;">
+        <h3 style="margin:0 0 8px;">Teleconsulta encerrada</h3>
+        <p style="color:var(--muted);font-size:13px;">Obrigado por usar a teleconsulta do Clinic Chek. Você já pode fechar esta janela.</p>
+      </div>
+    </div>
+
+    <p class="tc-footnote">Esta chamada não é gravada. Não compartilhe este link — ele é pessoal e intransferível.</p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    window.__TC_TOKEN__ = <%- JSON.stringify(token) %>;
+  </script>
+  <script src="/public/js/teleconsultation-patient.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Clinic Check mark">
+  <defs>
+    <linearGradient id="mark-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#24C27D"/>
+      <stop offset="52%" stop-color="#1EA8C9"/>
+      <stop offset="100%" stop-color="#2F4CC9"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="54" fill="none" stroke="url(#mark-grad)" stroke-width="8" opacity="0.95"/>
+  <path d="M70 28c0-7-5.7-12.7-12.7-12.7S44.6 21 44.6 28v14.7H29.9c-7 0-12.7 5.7-12.7 12.7s5.7 12.7 12.7 12.7h14.7v14.7c0 7 5.7 12.7 12.7 12.7S70 90.8 70 83.8V69.1h14.7c7 0 12.7-5.7 12.7-12.7s-5.7-12.7-12.7-12.7H70V28z" fill="url(#mark-grad)"/>
+  <path d="M49 59.5l10.8 10.9L85 45.5" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
